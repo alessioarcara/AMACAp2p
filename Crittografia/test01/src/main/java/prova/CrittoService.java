@@ -8,6 +8,29 @@ import java.math.BigInteger;
 
 public class CrittoService extends JavaService {
 
+    public BigInteger Euclide(BigInteger toziente){
+
+        BigInteger t = toziente;
+        BigInteger e = BigInteger.valueOf(2);
+        BigInteger r = new BigInteger("0");
+
+        //il massimo comune divisore di un coprimo con F(n) è 1; esco solo quando lo trovo
+        while(r != BigInteger.valueOf(1)){
+
+            r = e.gcd(t);
+            System.out.println("resto: " + r);
+
+            if(r == BigInteger.valueOf(1) ) {
+                break;
+            }
+
+            e.add(BigInteger.valueOf(1));
+            System.out.println("contatore: " + e);
+        }
+        return e;
+
+    }
+
     public BigInteger RSA(byte [] s){
 
         //generazione due numeri primi attraverso libreria BigInteger di Java.Math
@@ -29,7 +52,9 @@ public class CrittoService extends JavaService {
         n = p.multiply(q);
         toziente = (p.subtract(uno)).multiply(q.subtract(uno));
 
-        System.out.println(toziente);
+        Euclide(toziente);
+
+        System.out.println(n);
 
         return p;
     }
