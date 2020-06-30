@@ -18,20 +18,35 @@ inputPort serverPort {
     Interfaces: Ipeer
 }
 
+define menuIniziale {
+    //CREAZIONE PEER, RICERCA SERVIZI .
+    println@Console( "Inserimento peer nella rete" )()
+    println@Console( "Ricerca servizio..." )()
+    //...
+}
+
 main {
 
-    // SEARCH FREE PORT
+    sendStringhe( request )( response ) {
+        println@Console("\nTi hanno inviato " + request + "\n")()
+        response = "ACK"
+    }
+
+    // SEARCH FREE PORT .
     condition = true
     portNum = 11000
-    while(condition) {
+    
+    while( condition ) {
         clientPort.location = "socket://localhost:" + portNum
         condition2 = true
-        scope( e ){
-            install( IOException  => [stampa("\nSearching...\n")()]println@Console("\nSearching...\n")());
+        
+        scope( Exception ){
+            install( IOException  => println@Console( "\nSearching...\n")() );
             sendStringhe@clientPort( "ack" )( response )
             portNum = portNum + 1
             condition2 = false
         }
+        
         if(condition2) {
             condition = false //esco dal while
 
@@ -43,29 +58,19 @@ main {
                 clientPort.location = "socket://localhost:11000"
                 serverPort.location = "socket://localhost:" + portNum
             }
-
-            
-            [sendStringhe( request )( response )] {
-                    println@Console("\nTi hanno inviato " + request + "\n")()
-                    response = "ACK"
-                }
-            
         }
     }
 
-
-    // SEND MESSAGE
+    // SEND MESSAGE .
     println@Console("\n" + portNum + "\n")()
 
 
-    // LATO SERVER
+    // LATO SERVER .
     
 
 }
 
 /* define Server {
-
-    Michael
 
     // LATO SERVER
     [
@@ -76,9 +81,3 @@ main {
     ]
 
 }  */
-
-
-
-
-
-
