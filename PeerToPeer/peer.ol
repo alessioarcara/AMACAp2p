@@ -6,14 +6,14 @@ interface Ipeer {
     RequestResponse: sendStringhe( string )( string )
 }
 
-inputPort port {
+outputPort clientPort {
     Location: "socket://localhost:11000"
     Protocol: http
     Interfaces: Ipeer
 }
 
-outputPort port {
-    Location: "socket://localhost:11000"
+inputPort serverPort {
+    Location: "socket://localhost:10999"
     Protocol: http
     Interfaces: Ipeer
 }
@@ -24,16 +24,32 @@ main {
     condition = true
     portNum = 11000
     while(condition) {
-        port.location = "socket://localhost:" + portNum
+        clientPort.location = "socket://localhost:" + portNum
         condition2 = true
         scope( e ){
-            install( IOException  => println@Console("\nSearching...\n")());
-            sendStringhe@port( "ack" )( response )
+            install( IOException  => [stampa("\nSearching...\n")()]println@Console("\nSearching...\n")());
+            sendStringhe@clientPort( "ack" )( response )
             portNum = portNum + 1
             condition2 = false
         }
         if(condition2) {
-            condition = false
+            condition = false //esco dal while
+
+            if(portNum == 11000) {
+                clientPort.location = "socket://localhost:11001"
+                serverPort.location = "socket://localhost:11000" 
+            }
+            else {
+                clientPort.location = "socket://localhost:11000"
+                serverPort.location = "socket://localhost:" + portNum
+            }
+
+            
+            [sendStringhe( request )( response )] {
+                    println@Console("\nTi hanno inviato " + request + "\n")()
+                    response = "ACK"
+                }
+            
         }
     }
 
@@ -42,11 +58,14 @@ main {
     println@Console("\n" + portNum + "\n")()
 
 
-
+    // LATO SERVER
+    
 
 }
 
 /* define Server {
+
+    Michael
 
     // LATO SERVER
     [
@@ -56,7 +75,7 @@ main {
         }
     ]
 
-} */
+}  */
 
 
 
