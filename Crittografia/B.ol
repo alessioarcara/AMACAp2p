@@ -1,5 +1,6 @@
 include "ServerInterface.iol"
 include "file.iol"
+include "console.iol"
 
 execution{ concurrent }
 
@@ -14,12 +15,19 @@ constants {
 }
 
 main {
+
     setFileContent( request )( response ) {
         with( rq_w ) {
+            println@Console( "ricezione messaggio ..." )(  )
+            println@Console( "il messaggio criptato ricevuto è: " )(  )
+            println@Console( request )(  )
             .filename = FILENAME;
-            .content = request;
+            .content = request + "\n";
             .append = 1
         }
         writeFile@File( rq_w )()
+
+        //DECRIPTAZIONE
+
     }
 }

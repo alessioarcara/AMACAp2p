@@ -17,7 +17,7 @@ public class CrittoService extends JavaService {
         System.out.println("** inizializzazione algoritmo di Euclide **");
 
         BigInteger t = toziente;
-        BigInteger e = BigInteger.valueOf(2);
+        BigInteger e = BigInteger.valueOf(100);
         BigInteger r = new BigInteger("0");
 
         //il massimo comune divisore di un coprimo con F(n) è 1; esco solo quando lo trovo
@@ -62,14 +62,16 @@ public class CrittoService extends JavaService {
         q = BigInteger.probablePrime(lengthRSA, random);
 
         n = p.multiply(q);
+        System.out.println("valore n: " + n);
         toziente = (p.subtract(uno)).multiply(q.subtract(uno));
 
         e = Euclide(toziente);
-
+        int f = e.intValue();
         //cifratura per singola cifra o intero messaggio? 
         m = new BigInteger(s);
 
         //ottimizzare cifratura con aritmetica modulo
+        System.out.println("valore m" + m.pow(f));
         c = m.modPow(e, n);
 
         return c;
