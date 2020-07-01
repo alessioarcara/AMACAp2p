@@ -1,4 +1,5 @@
 include "Console.iol"
+include "Interfaccia.iol"
 
 interface firstInterface {
     RequestResponse: sendString( string )( string )
