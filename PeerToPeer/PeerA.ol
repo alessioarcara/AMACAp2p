@@ -1,5 +1,5 @@
 include "Console.iol"
-include "Interfaccia.iol"
+include "Interfacce&Tipi.iol"
 
 execution{ concurrent }
 
