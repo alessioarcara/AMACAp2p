@@ -4,14 +4,16 @@ interface interfaccia {
     OneWay: inviamoParola( string )
 }
 
-inputPort PortaInput {
-    Location: "socket://localhost:12000"
-    Protocol: https
-    Interfaces: interfaccia
-}
+// inputPort PortaInput {
+//     Location: "socket://localhost:12000"
+//     Protocol: https
+//     Interfaces: interfaccia
+// }
 
-define stampaSomma {
-    println@Console( peer.Alessio[ 0 ] + peer.Michael[ 1 ] + peer.Andrea[ 0 ] )(  )
+define stampa {
+    registerForInput@Console(  )()
+    in( file )
+    println@Console( file )()
 }
 
 main {
@@ -19,5 +21,6 @@ main {
     peer.Michael[ 1 ] = 3
 
     peer.Andrea[ 0 ] = 3
-    stampaSomma
+
+    stampa
 }
