@@ -19,7 +19,7 @@ inputPort serverPort {
 }
 
 define menuIniziale {
-    //CREAZIONE PEER, RICERCA SERVIZI .
+    //CREAZIONE PEER, RICERCA SERVIZI...
     println@Console( "Inserimento peer nella rete" )()
     println@Console( "Ricerca servizio..." )()
     //...
