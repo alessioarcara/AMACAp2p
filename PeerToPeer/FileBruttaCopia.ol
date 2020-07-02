@@ -24,37 +24,24 @@ include "console.iol"
 //     println@Console( file )()
 // }
 
+init {
+    registerForInput@Console()()
+}
+
 main {
-    // peer.Alessio[ 0 ] = 2
-    // peer.Michael[ 1 ] = 3
+    // //CANALE DI COMUNICAZIONE .
+    // service.token = ""
+    // subscribeSessionListener@Console( service )() //Apro il canale di comunicazione .
 
-    // peer.Andrea[ 0 ] = 3
-
-    // stampa
-
-    // response = "SI"
-    // while( response == "SI" ) {
-    //     {   print@Console( "A" )() |
-    //         print@Console( "B" )() 
-    //     };
-
-    //     {   print@Console( "C" )()|
-    //         print@Console( "D" )()
-    //     }
-    //     println@Console()()
-
-    //     print@Console( "Continuare?" )()
-    //     in( response )
-    // }
-
-    //unsubscribeSessionListener@Console()()
-    // in( film )
-    // println@Console( film )()
+    // println@Console( "SEI NELLA CONSOLE" )()
+    // in( message )
     
-    service.token = "";
-    subscribeSessionListener@Console( service )(); //Apro il canale di comunicazione .
-    println@Console( "SEI NELLA CONSOLE, INSERISCI UN NUMERO: " )();
-    in( number );
-    println@Console( "Il numero inserito è: " + number )();
-    unsubscribeSessionListener@Console( service )() //Chiudo il canale di comunicazione .
+    // unsubscribeSessionListener@Console( service )() //Chiudo il canale di comunicazione .
+    
+    User.peer[ 0 ] = "Andrea"
+    User.peer[ 1 ] = "Michael"
+
+    for( i = 0, i < #User.peer, i++ ) {
+        println@Console( User.peer[ i ])()
+    }
 }
