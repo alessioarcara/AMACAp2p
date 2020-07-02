@@ -1,4 +1,6 @@
 interface ServerInterface {
-    RequestResponse:
-        setFileContent( string )( void )
+    
+    RequestResponse: 
+        sendStringhe( string )( string )
+
 }

@@ -16,15 +16,21 @@ constants {
 
 main {
 
-    setFileContent( request )( response ) {
+    sendStringhe( request )( response ) {
+
         with( rq_w ) {
-            println@Console( "ricezione messaggio ..." )(  )
+
+            response = "messaggio ricevuto"
             println@Console( "il messaggio criptato ricevuto è: " )(  )
+            println@Console( request )(  )
+            println@Console( "La chiave pubblica è: " )(  )
             println@Console( request )(  )
             .filename = FILENAME;
             .content = request + "\n";
             .append = 1
+
         }
+        
         writeFile@File( rq_w )()
 
         //DECRIPTAZIONE

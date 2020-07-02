@@ -30,7 +30,7 @@ public class EncryptingService extends JavaService {
         
         //output
         Value response = Value.create();
-        response.getFirstChild( "reply" ).setValue(RSA(ChiaviPlusMessage).toString());
+        response.getFirstChild( "message" ).setValue(RSA(ChiaviPlusMessage).toString());
         return response;
     }
 }

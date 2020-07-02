@@ -6,7 +6,7 @@ type EncryptedMessageRequest: void {
 }
 
 type EncryptedMessageResponse: void {
-  .reply: string
+  .message: string
 }
 
 interface EncryptingServiceInterface {
