@@ -75,6 +75,7 @@ public class KeyGeneratorService extends JavaService {
 
     public Value restituzioneChiavi( Value request ) {
 
+        //output
         Value response = Value.create();
         String [] chiavi = GenerazioneChiavi();
         response.getFirstChild( "publickey1" ).setValue(chiavi[0]);
