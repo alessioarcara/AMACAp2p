@@ -1,10 +1,7 @@
 include "console.iol"
+include "interfacce.iol"
 
 execution{ concurrent }
-
-interface interfacciaB {
-    RequestResponse: sendStringhe( string )( string )
-}
 
 
 inputPort port {
@@ -20,6 +17,12 @@ main {
         sendStringhe( request )( response ) {
             response = "ACK"
             println@Console(">>" + request + "\n")()
+        }
+    ]
+
+    [
+        sendAck( ack )( response ) {
+            response = "ack"
         }
     ]
     
