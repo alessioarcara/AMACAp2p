@@ -4,17 +4,17 @@ include "Interfacce&Tipi.iol"
 execution{ concurrent }
 
 inputPort portaStampaConsole {
-    Location: "socket://localhost:9002"
+    Location: "socket://localhost:9000"
     Protocol: http
     Interfaces: teniamoTraccia
 }
 
 init {
-    println@Console( "CONSOLE DI TRACCIAMENTO" )(  )
+    println@Console( "\t\t\tCONSOLE DI TRACCIAMENTO" )()
 }
 
 main {
-     [stampa( message )] {
+     [press( message )( void )] {
         println@Console( message )()       
     }
 }

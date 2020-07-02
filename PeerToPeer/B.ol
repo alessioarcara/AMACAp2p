@@ -1,10 +1,7 @@
 include "console.iol"
+include "interfacce.iol"
 
 execution{ concurrent }
-
-interface interfacciaB {
-    RequestResponse: sendStringhe( string )( string )
-}
 
 
 inputPort port {
@@ -13,6 +10,9 @@ inputPort port {
     Interfaces: interfacciaB
 }
 
+init {
+    global.user.name = "undefined"
+}
 
 main {
     
@@ -22,7 +22,20 @@ main {
             println@Console(">>" + request + "\n")()
         }
     ]
-    
 
+    [
+        sendAck( ack )( response ) {
+            //println@Console("----->" + global.user.name + "\n")()
+            response = global.user.name
+        }
+    ]
+
+    [
+        sendInfo( username )(response) {
+            global.user.name = username
+            //println@Console("----->" + global.user.name + "\n")()
+        }
+    ]
+    
 }
 

@@ -1,19 +1,10 @@
 include "console.iol"
 include "runtime.iol"
-
-
-interface interfacciaB {
-    RequestResponse: sendStringhe( string )( string )
-}
-
-interface interfacciaC {
-    RequestResponse: setCount( string )( int ),
-    RequestResponse: getCount( string )( int )
-}
+include "interfacce.iol"
 
 
 outputPort port {
-    Location: "socket://localhost:10000" 
+    Location: "socket://localhost:10001" 
     Protocol: http
     Interfaces: interfacciaB
 }
@@ -21,14 +12,20 @@ outputPort port {
 outputPort controllerPort {
     Location: "socket://localhost:9999" 
     Protocol: http
-    Interfaces: interfacciaC
+    Interfaces: IController
+}
+
+outputPort userMonitorPort {
+    Location: "socket://localhost:9995"
+    Protocol: http
+    Interfaces: IUserMonitor
 }
 
 init {
-    //counter = -1
+    counter = -1
 
-    // CHECK PORT 9999
-    /* scope(e) {
+    // CHECK PORT 9999 for Controller.ol
+    scope(e) {
         install(IOException => {
             with( emb ) {
                 .filepath = "-C LOCATION=\"" + "socket://localhost:9999" + "\" Controller.ol";
@@ -36,37 +33,76 @@ init {
             };
             loadEmbeddedService@Runtime( emb )()
             counter = 1
-        })
+        }) 
         setCount@controllerPort("ack")( counter )
-    } */
-    synchronized( token ) {
-        if(is_defined(global.counter)) {
-            global.counter = global.counter + 1
-            println@Console("\nCounter aggiornato\n")()
-        } else {
-            global.counter = 1
-        }
     }
 
-    num_port = global.counter + 10000
+    // SEARCH THE FIRST FREE PORT
+    
+    condition = true
+    portNum = 10001
+    while(condition) {
+        scope( e ){
+            install( IOException  => {
+                //println@Console("\nSearching free port... " + portNum + "\n")()
+                num_port = portNum
+                condition = false
+            })
+            sendAck@port( "ack" )(response)
+            users.(response).name = response
+            users.(response).port = portNum
+            portNum = portNum + 1
+            port.location = "socket://localhost:" + portNum
+        }
+    } 
+    
+    //num_port = counter + 10000
     with( emb ) {
         .filepath = "-C LOCATION=\"" + "socket://localhost:" + num_port + "\" B.ol";
         .type = "Jolie"
     };
-    loadEmbeddedService@Runtime( emb )() 
+    loadEmbeddedService@Runtime( emb )()
+
 }
 
 main {
 
     registerForInput@Console()()
-    println@Console("\nSei l'utente " + global.counter + "\n")()
-    println@Console("\nUtilizzi la porta " + num_port + "\n")()
-    print@Console("Inserisci numero destinatario: ")()
-    in( dest )
-    dest_port = int(dest) + 10000
-    println@Console("\nCerco porta " + dest_port + "\n\n")()
-    port.location = "socket://localhost:" + dest_port
 
+    //SHOW RETE INFO
+    println@Console("\nLIST OF ONLINE USERS:\n")()
+    foreach ( u : users ) {
+        println@Console("\n" + users.(u).name + "\n")()
+    }
+
+    //SIGN IN
+    //check username
+    condition = true
+    while ( condition ) {
+        print@Console("\nInserisci username: ")()
+        in( user.name )
+        if( is_defined(users.(user.name).name) ) {
+            println@Console( "\nUsername già utilizzato.\n" )(  )
+        } else {
+            condition = false
+        }
+    }
+    port.location = "socket://localhost:" + num_port
+    sendInfo@port(user.name)()
+    user.port = num_port
+    //setUsername@controllerPort(user)(ack)
+    println@Console("\nBenvenuto " + user.name + "\n")()
+    println@Console("\nUtilizzi la porta " + user.port + "\n")()
+
+    //SEARCH CHAT
+    print@Console("Inserisci nome destinatario: ")()
+    in( user.dest )
+
+    user.dest.port = int(user.dest) + 10000
+    println@Console("\nCerco porta " + user.dest.port + "\n\n")()
+    port.location = "socket://localhost:" + user.dest.port
+
+    //START CHATTING
     print@Console("Ora puoi scrivere i messaggi e inviarli.\n\n")()
     in( msg )
     while(msg != "exit") {
