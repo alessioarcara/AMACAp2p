@@ -12,5 +12,10 @@ interface IController {
 
 interface interfacciaB {
     RequestResponse: sendStringhe( string )( string ),
-    RequestResponse: sendAck( string )( string )
+    RequestResponse: sendAck( string )( string ),
+    RequestResponse: sendInfo( string )( void )
+}
+
+interface IUserMonitor {
+    RequestResponse: findUser( string )( bool )
 }

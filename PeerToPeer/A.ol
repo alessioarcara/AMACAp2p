@@ -15,6 +15,12 @@ outputPort controllerPort {
     Interfaces: IController
 }
 
+outputPort userMonitorPort {
+    Location: "socket://localhost:9995"
+    Protocol: http
+    Interfaces: IUserMonitor
+}
+
 init {
     counter = -1
 
@@ -43,6 +49,8 @@ init {
                 condition = false
             })
             sendAck@port( "ack" )(response)
+            users.(response).name = response
+            users.(response).port = portNum
             portNum = portNum + 1
             port.location = "socket://localhost:" + portNum
         }
@@ -53,19 +61,36 @@ init {
         .filepath = "-C LOCATION=\"" + "socket://localhost:" + num_port + "\" B.ol";
         .type = "Jolie"
     };
-    loadEmbeddedService@Runtime( emb )() 
+    loadEmbeddedService@Runtime( emb )()
+
 }
 
 main {
 
     registerForInput@Console()()
 
+    //SHOW RETE INFO
+    println@Console("\nLIST OF ONLINE USERS:\n")()
+    foreach ( u : users ) {
+        println@Console("\n" + users.(u).name + "\n")()
+    }
+
     //SIGN IN
-    println@Console("\n" + counter + "\n")()
-    print@Console("\nUsername: ")()
-    in( user.name )
+    //check username
+    condition = true
+    while ( condition ) {
+        print@Console("\nInserisci username: ")()
+        in( user.name )
+        if( is_defined(users.(user.name).name) ) {
+            println@Console( "\nUsername già utilizzato.\n" )(  )
+        } else {
+            condition = false
+        }
+    }
+    port.location = "socket://localhost:" + num_port
+    sendInfo@port(user.name)()
     user.port = num_port
-    setUsername@controllerPort(user)(ack)
+    //setUsername@controllerPort(user)(ack)
     println@Console("\nBenvenuto " + user.name + "\n")()
     println@Console("\nUtilizzi la porta " + user.port + "\n")()
 

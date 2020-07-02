@@ -10,6 +10,9 @@ inputPort port {
     Interfaces: interfacciaB
 }
 
+init {
+    global.user.name = "undefined"
+}
 
 main {
     
@@ -22,10 +25,17 @@ main {
 
     [
         sendAck( ack )( response ) {
-            response = "ack"
+            //println@Console("----->" + global.user.name + "\n")()
+            response = global.user.name
+        }
+    ]
+
+    [
+        sendInfo( username )(response) {
+            global.user.name = username
+            //println@Console("----->" + global.user.name + "\n")()
         }
     ]
     
-
 }
 
