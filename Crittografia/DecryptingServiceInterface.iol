@@ -6,7 +6,7 @@ type DecryptedMessageResponse: void {
   .reply: string
 }
 
-interface EncryptingServiceInterface {
+interface DecryptingServiceInterface {
   RequestResponse:
     DecryptedMessage( DecryptedMessageRequest )( DecryptedMessageResponse )
 }

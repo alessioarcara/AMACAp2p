@@ -1,6 +1,11 @@
+type sendStringheRequest: void {
+  .message: string
+  .publickey: string
+}
+
 interface ServerInterface {
     
     RequestResponse: 
-        sendStringhe( string )( string )
+        sendStringhe( sendStringheRequest )( string )
 
 }

@@ -22,15 +22,10 @@ outputPort EncryptingServiceOutputPort {
     Interfaces: EncryptingServiceInterface
 }
 
-// outputPort DecryptingServiceOutputPort {
-//     Interfaces: DecryptingServiceInterface
-// }
-
 embedded {
   Java:
     "prova.KeyGeneratorService" in KeyGeneratorServiceOutputPort,
     "prova.EncryptingService" in EncryptingServiceOutputPort
-    // "prova.DecryptingService" in DecryptingServiceOutputPort
 }
 
 constants {
@@ -92,9 +87,10 @@ main {
 
             //scrivo il File
             writeFile@File( w )()
-
+            
             //inserisco chiave pubblica nel messaggio
-            sendStringhe@B( response.message )( responseStringhe )
+            response.publickey = chiavi.publickey1;
+            sendStringhe@B( response )( responseStringhe )
             println@Console("<< " + responseStringhe + " >>")()
 
         } else {
