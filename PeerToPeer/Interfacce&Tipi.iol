@@ -1,7 +1,12 @@
+//DICHIARAZIONE INTERFACCE .
 interface firstInterface {
     RequestResponse: sendString( string )( string )
 }
 
 interface teniamoTraccia {
-    OneWay: stampa( string )
+    RequestResponse: press( string )( void )
+}
+
+interface interfacciaDiGruppo {
+    RequestResponse: sendMessage( string )( void )
 }
