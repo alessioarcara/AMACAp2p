@@ -2,6 +2,7 @@ include "console.iol"
 include "Interfacce&Tipi.iol"
 include "time.iol"
 include "runtime.iol"
+include "ui/swing_ui.iol"
 
 outputPort portaStampaConsole {
     Location: "socket://localhost:9000"
@@ -48,7 +49,7 @@ main {
         //SCELTA .
         if( message == 1 ) {
             press@portaStampaConsole( "Aggiunta peer" )()
-        } else 
+        } else
             if( message == 4 ) {
                 press@portaStampaConsole( "USCITA DALLA RETE IN CORSO..." )()
                 flag = false  //SETTAGGIO FLAG PER USCITA DAL WHILE .

@@ -2,6 +2,7 @@ include "console.iol"
 include "Interfacce&Tipi.iol"
 include "time.iol"
 include "runtime.iol"
+include "ui/swing_ui.iol"
 
 execution{ concurrent }
 
@@ -21,6 +22,7 @@ main {
         if( message == "USCITA DALLA RETE IN CORSO..." ) {
             callExit@Runtime()()
             sleep@Time( 3000 )()
+            showMessageDialog@SwingUI( "SEI USCITO DA AMACAp2p" )(  )
             halt@Runtime()()
         }
     }
