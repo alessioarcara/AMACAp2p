@@ -1,5 +1,7 @@
 include "console.iol"
 include "Interfacce&Tipi.iol"
+include "time.iol"
+include "runtime.iol"
 
 execution{ concurrent }
 
@@ -10,11 +12,16 @@ inputPort portaStampaConsole {
 }
 
 init {
-    println@Console( "\t\t\tCONSOLE DI TRACCIAMENTO" )()
+    println@Console( "\t\tCONSOLE DI TRACCIAMENTO" )()
 }
 
 main {
-     [press( message )( void )] {
-        println@Console( message )()       
+     [press( message )()] {
+        println@Console( message )()  
+        if( message == "USCITA DALLA RETE IN CORSO..." ) {
+            callExit@Runtime()()
+            sleep@Time( 3000 )()
+            halt@Runtime()()
+        }
     }
 }
