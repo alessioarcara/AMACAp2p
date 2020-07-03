@@ -24,6 +24,8 @@ public class EncryptingService extends JavaService {
         //input
         BigInteger [] ChiaviPlusMessage = new BigInteger[4];
         ChiaviPlusMessage[0] = new BigInteger(request.getFirstChild( "message" ).strValue().getBytes());
+        System.out.println("il messaggio decriptato è: ");
+        System.out.println(ChiaviPlusMessage[0]);
         ChiaviPlusMessage[1] = new BigInteger(request.getFirstChild( "publickey1" ).strValue());
         ChiaviPlusMessage[2] = new BigInteger(request.getFirstChild( "publickey2" ).strValue());
         ChiaviPlusMessage[3] = new BigInteger(request.getFirstChild( "privatekey" ).strValue());

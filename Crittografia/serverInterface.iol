@@ -1,6 +1,15 @@
 type sendStringheRequest: void {
   .message: string
-  .publickey: string
+}
+
+type scambioChiaviRequest: void {
+  .publickey1: string
+  .publickey2: string
+}
+
+type scambioChiaviResponse: void {
+  .publickey1: string
+  .publickey2: string
 }
 
 interface ServerInterface {
@@ -8,4 +17,10 @@ interface ServerInterface {
     RequestResponse: 
         sendStringhe( sendStringheRequest )( string )
 
+}
+
+interface scambioChiaviInterface {
+
+  RequestResponse: 
+      scambioChiavi ( scambioChiaviRequest ) ( scambioChiaviResponse )
 }

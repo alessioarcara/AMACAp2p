@@ -11,7 +11,7 @@ include "EncryptingServiceInterface.iol"
 outputPort B {
     Location: "socket://localhost:9000"
     Protocol: sodep
-    Interfaces: ServerInterface
+    Interfaces: ServerInterface, scambioChiaviInterface
 }
 
 outputPort KeyGeneratorServiceOutputPort {
@@ -38,65 +38,58 @@ main {
 
     restituzioneChiavi@KeyGeneratorServiceOutputPort(  )( returnChiavi );
 
-    chiavi << returnChiavi;
-
-    println@Console( "" )(  )
-    println@Console( "Prima chiave PUBBLICA: " )(  )
-    println@Console( chiavi.publickey1 )(  )
-    println@Console( "" )(  )
-    println@Console( "Seconda chiave PUBBLICA: " )(  )
-    println@Console( chiavi.publickey2 )(  )
-    println@Console( "" )(  )
-    println@Console( "Chiave PRIVATA: " )(  )
-    println@Console( chiavi.privatekey )(  )      
+    chiaviPubbliche.publickey1 = returnChiavi.publickey1;
+    chiaviPubbliche.publickey2 = returnChiavi.publickey2;    
+    chiavePrivata.privatekey = returnChiavi.privatekey;
 
     registerForInput@Console()();
 
-    while(a != "exit") {
+    println@Console("Vuoi avviare una chat con il peer B?") ( )
+    println@Console( "" )(  )
+    in(a)
 
-        println@Console( "" )(  )
-        println@Console("Inserisci un messaggio: ")();
-        in(a)
+    toLowerCase@StringUtils( a )( a_result )
+    if ( a_result == "si" ) {
 
-        //passo il plaintext al javaservice *EncryptingService*
-        request.message = a;
-        request.publickey1 = chiavi.publickey1;
-        request.publickey2 = chiavi.publickey2;
-        request.privatekey = chiavi.privatekey;
-        EncryptedMessage@EncryptingServiceOutputPort( request )( response );
+        scambioChiavi@B( chiaviPubbliche )( chiaviResponse )
+        println@Console( "chiave1"+chiaviResponse.publickey1 )(  )
+        println@Console( "chiave2"+chiaviResponse.publickey2 )(  )
 
-        //il javaservice *EncryptingService* mi ritorna il ciphertext 
-        println@Console( "" )(  )
-        println@Console( "il messaggio criptato è: "  )()
-        println@Console( response.message )(  )
-        
-        println@Console( "vuoi mandare il messaggio? SI/NO " )(  )
+        while(b != "exit") {
 
-        in(b)
-        toUpperCase@StringUtils( b )( bresult )
+            println@Console("Inserisci un messaggio: ")()
+            in(b)
+            //passo il plaintext al javaservice *EncryptingService*
+            request.message = b
+            request.publickey1 = chiaviResponse.publickey1
+            request.publickey2 = chiaviResponse.publickey2
+            request.privatekey = chiavePrivata.privatekey
+            EncryptedMessage@EncryptingServiceOutputPort( request )( response )
 
-        if ( bresult == "SI" ) {
-            println@Console( "<< Messaggio spedito >>" )(  )
+            //il javaservice *EncryptingService* mi ritorna il ciphertext 
+            println@Console( "" )(  )
+            println@Console( "il messaggio criptato è: "  )()
+            println@Console( response.message )(  )
 
             with( w ) {
-            
+
                 .filename = FILENAME;
                 .content = response.message + "\n";
                 .append = 1
+
             }
 
             //scrivo il File
-            writeFile@File( w )()
-            
+            writeFile@File( w )( )
+
             //inserisco chiave pubblica nel messaggio
-            response.publickey = chiavi.publickey1;
             sendStringhe@B( response )( responseStringhe )
-            println@Console("<< " + responseStringhe + " >>")()
-
-        } else {
-
-            println@Console( "Messaggio non spedito" )(  )
-
+            println@Console("<< " + responseStringhe + " >>")() 
         }
+
+    } else {
+
+        println@Console("Esco dal programma...") ( )
+
     }
 }

@@ -2,13 +2,16 @@ include "ServerInterface.iol"
 include "file.iol"
 include "console.iol"
 include "DecryptingServiceInterface.iol"
-
-execution{ concurrent }
+include "KeyGeneratorServiceInterface.iol"
 
 inputPort B {
     Location: "socket://localhost:9000"
     Protocol: sodep
-    Interfaces: ServerInterface
+    Interfaces: ServerInterface, scambioChiaviInterface
+}
+
+outputPort KeyGeneratorServiceOutputPort {
+  Interfaces: KeyGeneratorServiceInterface
 }
 
 outputPort DecryptingServiceOutputPort {
@@ -17,7 +20,8 @@ outputPort DecryptingServiceOutputPort {
 
 embedded {
   Java:
-    "prova.DecryptingService" in DecryptingServiceOutputPort
+    "prova.KeyGeneratorService" in KeyGeneratorServiceOutputPort,
+    "prova.DecryptingService" in DecryptingServiceOutputPort,
 }
 
 constants {
@@ -26,28 +30,41 @@ constants {
 
 main {
 
-    sendStringhe( request )( response ) {
+    restituzioneChiavi@KeyGeneratorServiceOutputPort(  )( returnChiavi );
 
-        with( rq_w ) {
+    chiaviPubbliche.publickey1 = returnChiavi.publickey1;
+    chiaviPubbliche.publickey2 = returnChiavi.publickey2;   
+    println@Console( "chiave1"+chiaviPubbliche.publickey1 )(  )
+    println@Console( "chiave2"+chiaviPubbliche.publickey2 )(  ) 
 
-            response = "messaggio ricevuto"
-            println@Console( "il messaggio criptato ricevuto è: " )(  )
-            println@Console( request.message )(  )
-            // println@Console( "La chiave pubblica è: " )(  )
-            // println@Console( request.publickey )(  )
-            .filename = FILENAME;
-            .content = request + "\n";
-            .append = 1
+    chiavePrivata.privatekey = returnChiavi.privatekey;
 
-        }
+    scambioChiavi( chiaviPubbliche_A )( chiaviPubbliche );
+
+    sendStringhe( request )( "ÄCK" ) {
+
+        // with( rq_w ) {
+
+        //     response = "messaggio ricevuto"
+        //     println@Console( "il messaggio criptato ricevuto è: " )(  )
+        //     println@Console( request.message )(  )
+        //     // println@Console( "La chiave pubblica è: " )(  )
+        //     // println@Console( request.publickey )(  )
+        //     .filename = FILENAME;
+        //     .content = request + "\n";
+        //     .append = 1
+
+        // }
         
-        writeFile@File( rq_w )()
+        // writeFile@File( rq_w )()
 
         //DECRIPTAZIONE
+        request.publickey1 = chiaviPubbliche_A.publickey1
+        request.privatekey = chiavePrivata.privatekey
 
         DecryptedMessage@DecryptingServiceOutputPort( request )( response );
-
-        //...
+        println@Console( "il messaggio decriptato è: " ) (  )
+        println@Console( response.message )(  )
 
     }
 }

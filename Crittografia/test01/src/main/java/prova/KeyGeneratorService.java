@@ -48,7 +48,7 @@ public class KeyGeneratorService extends JavaService {
         BigInteger e;
         BigInteger d;
 
-        int lengthRSA = 1024;
+        int lengthRSA = 64;
 
         Random random = new Random();
         p = BigInteger.probablePrime(lengthRSA, random);

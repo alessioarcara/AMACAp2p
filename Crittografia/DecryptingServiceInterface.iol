@@ -1,9 +1,11 @@
 type DecryptedMessageRequest: void {
   .message: string
+  .privatekey: string
+  .publickey1: string
 }
 
 type DecryptedMessageResponse: void {
-  .reply: string
+  .message: string
 }
 
 interface DecryptingServiceInterface {
