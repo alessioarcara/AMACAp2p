@@ -1,4 +1,6 @@
 include "console.iol"
+include "ui/swing_ui.iol"
+include "semaphore_utils.iol"
 
 //execution{ concurrent }
 
@@ -38,10 +40,52 @@ main {
     
     // unsubscribeSessionListener@Console( service )() //Chiudo il canale di comunicazione .
     
-    User.peer[ 0 ] = "Andrea"
-    User.peer[ 1 ] = "Michael"
+    // User.peer[ 0 ] = "Andrea"
+    // User.peer[ 1 ] = "Michael"
 
-    for( i = 0, i < #User.peer, i++ ) {
-        println@Console( User.peer[ i ])()
+    // for( i = 0, i < #User.peer, i++ ) {
+    //     println@Console( User.peer[ i ])()
+    // }
+
+    // //UTILIZZO SWING_UI .
+    // showInputDialog@SwingUI( "Username nuovo utente: " )( User )
+    // println@Console( User )()
+
+    // showYesNoQuestionDialog@SwingUI( "Cosa scegli?" )( response )
+    // println@Console( response )()
+
+
+    semaphoreOne.name = "semaphoreOne"
+    semaphoreOne.permits = 0
+
+    release@SemaphoreUtils( semaphoreOne )();
+
+    for( i = 0, i < 10, i++ ) {
+        println@Console( "Ciclo numero: " + i )()
+
+        x = 100;
+
+        {   p1 |
+            p2
+        };
+
+        println@Console( x )()
+        println@Console()()
     }
+
+    println@Console()()
+}
+
+define p1 {
+    acquire@SemaphoreUtils( semaphoreOne )() 
+            println@Console( "Prima sezione" )()
+            x = x + 10
+    release@SemaphoreUtils( semaphoreOne )()
+}
+
+define p2 {
+    acquire@SemaphoreUtils( semaphoreOne )() 
+        println@Console( "Seconda sezione" )()
+            x = x - 10
+    release@SemaphoreUtils( semaphoreOne )()
 }

@@ -1,5 +1,8 @@
 include "console.iol"
 include "Interfacce&Tipi.iol"
+include "time.iol"
+include "runtime.iol"
+include "ui/swing_ui.iol"
 
 outputPort portaStampaConsole {
     Location: "socket://localhost:9000"
@@ -28,7 +31,6 @@ init {
 }
 
 main {
-
     //INIZIO OPERAZIONI .
     flag = true
     while( flag ) {
@@ -38,14 +40,19 @@ main {
         //CANALE DI COMUNICAZIONE .
         service.token = ""
         subscribeSessionListener@Console( service )() //Apro il canale di comunicazione .
+        
         print@Console( "Fai la tua scelta: " )()
         in( message )
-        //press@portaStampaConsole( message )()
+        
         unsubscribeSessionListener@Console( service )() //Chiudo il canale di comunicazione .
         
         //SCELTA .
         if( message == 1 ) {
-            println@Console( "Aggiungi un nuovo peer alla rete" )()
-        }
+            press@portaStampaConsole( "Aggiunta peer" )()
+        } else
+            if( message == 4 ) {
+                press@portaStampaConsole( "USCITA DALLA RETE IN CORSO..." )()
+                flag = false  //SETTAGGIO FLAG PER USCITA DAL WHILE .
+            }
     }
 }

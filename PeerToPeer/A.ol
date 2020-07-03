@@ -9,22 +9,22 @@ outputPort port {
     Interfaces: interfacciaB
 }
 
-outputPort controllerPort {
+/* outputPort controllerPort {
     Location: "socket://localhost:9999" 
     Protocol: http
     Interfaces: IController
-}
+} */
 
-outputPort userMonitorPort {
-    Location: "socket://localhost:9995"
-    Protocol: http
-    Interfaces: IUserMonitor
-}
+// outputPort userMonitorPort {
+//     Location: "socket://localhost:9995"
+//     Protocol: http
+//     Interfaces: IUserMonitor
+// }
 
 init {
-    counter = -1
+    //counter = -1
 
-    // CHECK PORT 9999 for Controller.ol
+    /* // CHECK PORT 9999 for Controller.ol
     scope(e) {
         install(IOException => {
             with( emb ) {
@@ -35,7 +35,7 @@ init {
             counter = 1
         }) 
         setCount@controllerPort("ack")( counter )
-    }
+    } */
 
     // SEARCH THE FIRST FREE PORT
     
@@ -65,6 +65,88 @@ init {
 
 }
 
+define startChat
+{
+    //START CHATTING
+    msg.username = user.dest
+    print@Console("Ora puoi scrivere i messaggi e inviarli.\n\n")()
+    in( msg.text )
+    while(msg.text != "EXIT") {
+        sendStringhe@port(msg)(response)
+        //println@Console(response)()
+        print@Console("\n")()
+        in( msg.text )
+        println@Console()()
+    }
+}
+
+define getUsers {
+    condition = true
+    portNum = 10001
+    while(condition) {
+        scope( e ){
+            install( IOException  => {
+                condition = false
+            })
+            sendAck@port( "ack" )(response)
+            users.(response).name = response
+            users.(response).port = portNum
+            portNum = portNum + 1
+            port.location = "socket://localhost:" + portNum
+        }
+    } 
+}
+
+define searchChat
+{
+    //SEARCH CHAT
+    condition = true
+    while ( condition ) {
+        getUsers
+        foreach ( peer : users ) {
+            println@Console("\n" + users.(peer).name + " : " + users.(peer).port + "\n")()
+        }
+        print@Console("\nInserisci username destinatario: ")()
+        in( user.dest )
+
+        if ( user.dest == "EXIT" ) {
+            condition = false
+        }
+        else if( is_defined(users.(user.dest).name) ) {
+            port.location = "socket://localhost:" + users.(user.dest).port
+            startChat
+        }
+        else {
+            println@Console( "\nL'username inserito non è online." )(  )
+        }
+    }
+}
+
+define leavingNetwork
+{
+    getUsers
+
+    //trova chi è l'ultimo peer entrato in rete
+    lastPeerPort = 0
+    foreach ( peer : users ) {
+        println@Console("\n" + users.(peer).name + " : " + users.(peer).port + "\n")()
+        lastPeerPort = users.(peer).port
+    }
+
+    //controlla che non sia lui stesso l'ultimo peer
+    if(lastPeerPort != user.port) {
+        println@Console("\nLibero porta " + user.port + "\n")()
+        //libera la port attualmente occupata occupando la port 9999 (inutilizzata)
+        port.location = "socket://localhost:" + user.port
+        changePort@port(9999)()
+        //posiziona l'ultimo peer nella posizione del peer uscente (questo)
+        port.location = "socket://localhost:" + lastPeerPort
+        println@Console("\nSposto " + lastPeerPort + " a " + user.port + "\n")()
+        changePort@port(user.port)()
+    }
+}
+
+
 main {
 
     registerForInput@Console()()
@@ -72,7 +154,7 @@ main {
     //SHOW RETE INFO
     println@Console("\nLIST OF ONLINE USERS:\n")()
     foreach ( u : users ) {
-        println@Console("\n" + users.(u).name + "\n")()
+        println@Console(users.(u).name + "\n")()
     }
 
     //SIGN IN
@@ -93,25 +175,26 @@ main {
     //setUsername@controllerPort(user)(ack)
     println@Console("\nBenvenuto " + user.name + "\n")()
     println@Console("\nUtilizzi la porta " + user.port + "\n")()
+    
+    //WAIT FOR INSTRUCTION
+    status = true
+    while ( status ) {
+        print@Console("\nInserisci istruzione: ")()
+        in(instruction)
 
-    //SEARCH CHAT
-    print@Console("Inserisci nome destinatario: ")()
-    in( user.dest )
-
-    user.dest.port = int(user.dest) + 10000
-    println@Console("\nCerco porta " + user.dest.port + "\n\n")()
-    port.location = "socket://localhost:" + user.dest.port
-
-    //START CHATTING
-    print@Console("Ora puoi scrivere i messaggi e inviarli.\n\n")()
-    in( msg )
-    while(msg != "exit") {
-        sendStringhe@port(msg)(response)
-        //println@Console(response)()
-        print@Console("\n")()
-        in( msg )
-        println@Console()()
+        if ( instruction == "EXIT" ) {
+            leavingNetwork
+            status = false
+        } 
+        else if ( instruction == "CHAT" ) {
+            searchChat
+        }
     }
+
+    
+    
+
+    
 
 
     /* condition = true
