@@ -13,7 +13,8 @@ public class DecryptingService extends JavaService {
         BigInteger [] mm = m;
         System.out.println("siamo nel metodo:" + mm[0] + " elevato a " + mm[2] + " modulo " + mm[1]);
         mm[0] = mm[0].modPow(mm[2], mm[1]);
-        String decrypted_message = mm[0].toString();
+
+        String decrypted_message = new String(mm[0].toByteArray());
 
         return decrypted_message;
     }

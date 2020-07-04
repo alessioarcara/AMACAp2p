@@ -14,6 +14,7 @@ public class EncryptingService extends JavaService {
     public BigInteger RSA(BigInteger[] m){
 
         BigInteger [] mc = m;
+
         System.out.println("siamo nel metodo encrypting:" + mc[0] + " elevato a " + mc[2] + " modulo " + mc[1]);
         mc[0] = mc[0].modPow(mc[2], mc[1]);
 
@@ -24,7 +25,13 @@ public class EncryptingService extends JavaService {
 
         //input
         BigInteger [] ChiaviPlusMessage = new BigInteger[4];
-        ChiaviPlusMessage[0] = new BigInteger(request.getFirstChild( "message" ).strValue().getBytes());
+
+        //trasformazione
+        String s = request.getFirstChild( "message" ).strValue();
+        byte[] bytes = s.getBytes();
+        BigInteger message = new BigInteger(bytes);
+
+        ChiaviPlusMessage[0] = message;
         System.out.println("il messaggio decriptato è: ");
         System.out.println(ChiaviPlusMessage[0]);
         ChiaviPlusMessage[1] = new BigInteger(request.getFirstChild( "publickey1" ).strValue());
