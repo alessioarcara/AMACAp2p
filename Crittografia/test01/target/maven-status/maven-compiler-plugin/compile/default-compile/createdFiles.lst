@@ -1,3 +1,4 @@
-prova/KeyGeneratorService.class
-prova/EncryptingService.class
-prova/DecryptingService.class
+prova\DecryptingService.class
+prova\ShaAlgorithmService.class
+prova\EncryptingService.class
+prova\KeyGeneratorService.class
