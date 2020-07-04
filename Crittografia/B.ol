@@ -34,8 +34,8 @@ main {
 
     chiaviPubbliche.publickey1 = returnChiavi.publickey1;
     chiaviPubbliche.publickey2 = returnChiavi.publickey2;   
-    println@Console( "chiave1"+chiaviPubbliche.publickey1 )(  )
-    println@Console( "chiave2"+chiaviPubbliche.publickey2 )(  ) 
+    println@Console( "chiave1 :"+chiaviPubbliche.publickey1 )(  )
+    println@Console( "chiave2 :"+chiaviPubbliche.publickey2 )(  ) 
 
     chiavePrivata.privatekey = returnChiavi.privatekey;
 
@@ -59,7 +59,7 @@ main {
         // writeFile@File( rq_w )()
 
         //DECRIPTAZIONE
-        request.publickey1 = chiaviPubbliche_A.publickey1
+        request.publickey1 = chiaviPubbliche.publickey1
         request.privatekey = chiavePrivata.privatekey
 
         DecryptedMessage@DecryptingServiceOutputPort( request )( response );

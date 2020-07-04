@@ -52,8 +52,8 @@ main {
     if ( a_result == "si" ) {
 
         scambioChiavi@B( chiaviPubbliche )( chiaviResponse )
-        println@Console( "chiave1"+chiaviResponse.publickey1 )(  )
-        println@Console( "chiave2"+chiaviResponse.publickey2 )(  )
+        println@Console( "chiave1 :"+chiaviResponse.publickey1 )(  )
+        println@Console( "chiave2 :"+chiaviResponse.publickey2 )(  )
 
         while(b != "exit") {
 

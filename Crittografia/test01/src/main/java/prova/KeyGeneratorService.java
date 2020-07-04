@@ -48,7 +48,7 @@ public class KeyGeneratorService extends JavaService {
         BigInteger e;
         BigInteger d;
 
-        int lengthRSA = 64;
+        int lengthRSA = 512;
 
         Random random = new Random();
         p = BigInteger.probablePrime(lengthRSA, random);
@@ -61,9 +61,13 @@ public class KeyGeneratorService extends JavaService {
 
         //seconda chiave pubblica
         e = Euclide(toziente);
+        // e = BigInteger.valueOf(65537);
 
         //chiave privata
-        d = e.modInverse(toziente);
+        // d = (e.pow(-1)).mod(toziente);
+        d = e.modPow(new BigInteger("-1"), toziente);
+        System.out.println("chiave privata :" + d);
+        // d = e.modInverse(toziente);
 
         String s [] = new String[3];
         s[0] = n.toString();

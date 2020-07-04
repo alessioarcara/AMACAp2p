@@ -14,6 +14,7 @@ public class EncryptingService extends JavaService {
     public BigInteger RSA(BigInteger[] m){
 
         BigInteger [] mc = m;
+        System.out.println("siamo nel metodo encrypting:" + mc[0] + " elevato a " + mc[2] + " modulo " + mc[1]);
         mc[0] = mc[0].modPow(mc[2], mc[1]);
 
         return mc[0];
