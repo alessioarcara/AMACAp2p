@@ -11,32 +11,32 @@ public class KeyGeneratorService extends JavaService {
     // Problema: il ciphertext generato dall'algoritmo RSA è di lunghezza diverso per la diversa lunghezza del plaintext
     // Soluzione da trovare: generare ciphertext di lunghezza standard
 
-    public BigInteger Euclide(BigInteger toziente){
+    // public BigInteger Euclide(BigInteger toziente){
 
-        System.out.println("");
-        System.out.println("** inizializzazione algoritmo di Euclide **");
+    //     System.out.println("");
+    //     System.out.println("** inizializzazione algoritmo di Euclide **");
 
-        BigInteger t = toziente;
-        BigInteger e = BigInteger.valueOf(2);
-        BigInteger r = new BigInteger("0");
+    //     BigInteger t = toziente;
+    //     BigInteger e = BigInteger.valueOf(2);
+    //     BigInteger r = new BigInteger("0");
 
-        //il massimo comune divisore di un coprimo con F(n) è 1; esco solo quando lo trovo
-        while(!(r.equals(BigInteger.ONE))){
+    //     //il massimo comune divisore di un coprimo con F(n) è 1; esco solo quando lo trovo
+    //     while(!(r.equals(BigInteger.ONE))){
 
-            r = e.gcd(t);
-            System.out.println("resto: " + r);
+    //         r = e.gcd(t);
+    //         System.out.println("resto: " + r);
 
-            if(r.equals(BigInteger.ONE)){
-                break;
-            }
+    //         if(r.equals(BigInteger.ONE)){
+    //             break;
+    //         }
 
-            e = e.add(BigInteger.ONE);
-            System.out.println("contatore: " + e);
-        }
-        System.out.println("");
-        return e;
+    //         e = e.add(BigInteger.ONE);
+    //         System.out.println("contatore: " + e);
+    //     }
+    //     System.out.println("");
+    //     return e;
 
-    }
+    // }
 
     public String [] GenerazioneChiavi(){
 
@@ -48,7 +48,7 @@ public class KeyGeneratorService extends JavaService {
         BigInteger e;
         BigInteger d;
 
-        int lengthRSA = 2048;
+        int lengthRSA = 1024;
 
         Random random = new Random();
         p = BigInteger.probablePrime(lengthRSA, random);
@@ -60,13 +60,12 @@ public class KeyGeneratorService extends JavaService {
         toziente = (p.subtract(BigInteger.ONE)).multiply(q.subtract(BigInteger.ONE));
 
         //seconda chiave pubblica
-        e = Euclide(toziente);
-        // e = BigInteger.valueOf(3);
+        // e = Euclide(toziente);
+        e = BigInteger.valueOf(65537);
 
         //chiave privata
         // d = (e.pow(-1)).mod(toziente);
         d = e.modPow(new BigInteger("-1"), toziente);
-        System.out.println("chiave privata :" + d);
         // d = e.modInverse(toziente);
 
         String s [] = new String[3];
