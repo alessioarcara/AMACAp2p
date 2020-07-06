@@ -1,12 +1,12 @@
-type restituzioneChiaviResponse: void {
+type HashMessageResponse: void {
   .message: string
 }
 
-type restituzioneChiaviRequest: void {
+type HashMessageRequest: void {
   .message: string
 }
 
 interface ShaAlgorithmServiceInterface {
   RequestResponse:
-    restituzioneChiavi( restituzioneChiaviRequest )( restituzioneChiaviResponse )
+    ShaPreprocessingMessage( HashMessageRequest )( HashMessageResponse )
 }

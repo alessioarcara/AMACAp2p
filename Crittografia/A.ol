@@ -6,7 +6,7 @@ include "string_utils.iol"
 include "Math.iol"
 include "KeyGeneratorServiceInterface.iol"
 include "EncryptingServiceInterface.iol"
-// include "DecryptingServiceInterface.iol"
+include "ShaAlgorithmServiceInterface.iol"
 
 outputPort B {
     Location: "socket://localhost:9000"
@@ -22,10 +22,15 @@ outputPort EncryptingServiceOutputPort {
     Interfaces: EncryptingServiceInterface
 }
 
+outputPort ShaAlgorithmServiceOutputPort {
+    Interfaces: ShaAlgorithmServiceInterface
+}
+
 embedded {
   Java:
     "prova.KeyGeneratorService" in KeyGeneratorServiceOutputPort,
-    "prova.EncryptingService" in EncryptingServiceOutputPort
+    "prova.EncryptingService" in EncryptingServiceOutputPort,
+    "prova.ShaAlgorithmService" in ShaAlgorithmServiceOutputPort
 }
 
 constants {
@@ -55,36 +60,54 @@ main {
         println@Console( "chiave1 :"+chiaviResponse.publickey1 )(  )
         println@Console( "chiave2 :"+chiaviResponse.publickey2 )(  )
 
-        while(b != "exit") {
+        while(c != "exit") {
 
-            println@Console("Inserisci un messaggio: ")()
-            in(b)
-            //passo il plaintext al javaservice *EncryptingService*
-            request.message = b
-            request.publickey1 = chiaviResponse.publickey1
-            request.publickey2 = chiaviResponse.publickey2
-            request.privatekey = chiavePrivata.privatekey
-            EncryptedMessage@EncryptingServiceOutputPort( request )( response )
-
-            //il javaservice *EncryptingService* mi ritorna il ciphertext 
             println@Console( "" )(  )
-            println@Console( "il messaggio criptato è: "  )()
-            println@Console( response.message )(  )
+            println@Console( "INSERISCI: *privato* per mandare un messaggio privato" )(  )
+            println@Console( "INSERISCI: *pubblico* per mandare un messaggio pubblico" )(  )
+            println@Console( "INSERISCI: *exit* per uscire dal programma" )(  )
+            in(c);
 
-            with( w ) {
+            if (c == "privato"){
 
-                .filename = FILENAME;
-                .content = response.message + "\n";
-                .append = 1
+                println@Console("Inserisci un messaggio: ")()
+                in(b)
+                //passo il plaintext al javaservice *EncryptingService*
+                request.message = b
+                request.publickey1 = chiaviResponse.publickey1
+                request.publickey2 = chiaviResponse.publickey2
+                request.privatekey = chiavePrivata.privatekey
+                EncryptedMessage@EncryptingServiceOutputPort( request )( response )
 
+                //il javaservice *EncryptingService* mi ritorna il ciphertext 
+                println@Console( "" )(  )
+                println@Console( "il messaggio criptato è: "  )()
+                println@Console( response.message )(  )
+
+                with( w ) {
+
+                    .filename = FILENAME;
+                    .content = response.message + "\n";
+                    .append = 1
+
+                }
+
+                //scrivo il File
+                writeFile@File( w )( )
+
+                //inserisco chiave pubblica nel messaggio
+                sendStringhe@B( response )( responseStringhe )
+                println@Console("<< " + responseStringhe + " >>")() 
             }
 
-            //scrivo il File
-            writeFile@File( w )( )
-
-            //inserisco chiave pubblica nel messaggio
-            sendStringhe@B( response )( responseStringhe )
-            println@Console("<< " + responseStringhe + " >>")() 
+            if ( c == "pubblico" ) {
+                
+                println@Console("Inserisci un messaggio: ")()
+                in(b)
+                request.message = b
+                ShaPreprocessingMessage@ShaAlgorithmServiceOutputPort ( request ) ( response )
+                println@Console( "questa è la risposta: "+ request.message )(  )
+            }
         }
 
     } else {

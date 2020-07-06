@@ -13,13 +13,17 @@ public class ShaAlgorithmService extends JavaService {
 
         //trasformazione
         String s = request.getFirstChild( "message" ).strValue();
-        // byte[] bytes = s.getBytes();
+        byte[] bytes = s.getBytes();
 
-        // String[] binario = new binario[bytes.length];
-        // for (i=0; i<bytes.length(); i++) {
-        //     binario[i] = bytes[i].toBinaryString();
-        // }
+        String finalString = "";
+        for(int i = 0;i<bytes.length;i++){
+            
+            int tempChar =  Integer.parseInt(Byte.toString(bytes[i]));
+            System.out.println(tempChar);
+            finalString = finalString + Integer.toBinaryString(tempChar);
+        }
         
+        System.out.println("Stringa in binario: " +finalString);
 
         
         //output
