@@ -47,45 +47,10 @@ main {
     //     println@Console( User.peer[ i ])()
     // }
 
-    // //UTILIZZO SWING_UI .
-    // showInputDialog@SwingUI( "Username nuovo utente: " )( User )
-    // println@Console( User )()
+    //UTILIZZO SWING_UI .
+    showInputDialog@SwingUI( "Username nuovo utente: " )( User )
+    println@Console( User )()
 
-    // showYesNoQuestionDialog@SwingUI( "Cosa scegli?" )( response )
-    // println@Console( response )()
-
-
-    semaphoreOne.name = "semaphoreOne"
-    semaphoreOne.permits = 0
-
-    release@SemaphoreUtils( semaphoreOne )();
-
-    for( i = 0, i < 10, i++ ) {
-        println@Console( "Ciclo numero: " + i )()
-
-        x = 100;
-
-        {   p1 |
-            p2
-        };
-
-        println@Console( x )()
-        println@Console()()
-    }
-
-    println@Console()()
-}
-
-define p1 {
-    acquire@SemaphoreUtils( semaphoreOne )() 
-            println@Console( "Prima sezione" )()
-            x = x + 10
-    release@SemaphoreUtils( semaphoreOne )()
-}
-
-define p2 {
-    acquire@SemaphoreUtils( semaphoreOne )() 
-        println@Console( "Seconda sezione" )()
-            x = x - 10
-    release@SemaphoreUtils( semaphoreOne )()
+    showYesNoQuestionDialog@SwingUI( "Cosa scegli?" )( response )
+    println@Console( response )()
 }
