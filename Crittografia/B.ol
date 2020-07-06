@@ -34,9 +34,6 @@ main {
 
     chiaviPubbliche.publickey1 = returnChiavi.publickey1;
     chiaviPubbliche.publickey2 = returnChiavi.publickey2;   
-    println@Console( "chiave1 :"+chiaviPubbliche.publickey1 )(  )
-    println@Console( "chiave2 :"+chiaviPubbliche.publickey2 )(  ) 
-
     chiavePrivata.privatekey = returnChiavi.privatekey;
 
     scambioChiavi( chiaviPubbliche_A )( chiaviPubbliche );

@@ -50,6 +50,8 @@ main {
     registerForInput@Console()();
 
     println@Console("Vuoi avviare una chat con il peer B?") ( )
+    println@Console( "INSERISCI: *si* per iniziare la chat" )(  )
+    println@Console( "INSERISCI: *no* per uscire dal programma" )(  )
     println@Console( "" )(  )
     in(a)
 
@@ -57,8 +59,6 @@ main {
     if ( a_result == "si" ) {
 
         scambioChiavi@B( chiaviPubbliche )( chiaviResponse )
-        println@Console( "chiave1 :"+chiaviResponse.publickey1 )(  )
-        println@Console( "chiave2 :"+chiaviResponse.publickey2 )(  )
 
         while(c != "exit") {
 
