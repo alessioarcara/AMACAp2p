@@ -30,7 +30,11 @@ init {
     registerForInput@Console()()
 }
 
+
 main {
+
+    in( message )
+
     //INIZIO OPERAZIONI .
     flag = true
     while( flag ) {
