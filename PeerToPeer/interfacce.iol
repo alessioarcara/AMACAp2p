@@ -1,4 +1,4 @@
-type username: void {
+type user: void {
     .name: string
     .port: int
 }
@@ -8,17 +8,10 @@ type message: void {
     .text: string
 }
 
-/* interface IController {
-    RequestResponse: setCount( string )( int ),
-    RequestResponse: getCount( string )( int ),
-    RequestResponse: setUsername( username )( bool ),
-    RequestResponse: getUserPort( string )( int )
-} */
-
 interface interfacciaB {
+    OneWay: broadcast(user),
     RequestResponse: sendStringhe( message )( string ),
     RequestResponse: sendAck( string )( string ),
-    RequestResponse: sendInfo( string )( void ),
-    RequestResponse: changePort( int )( void )
+    RequestResponse: sendInfo( string )( void )
 }
 

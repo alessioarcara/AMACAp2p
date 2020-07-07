@@ -3,7 +3,6 @@ include "interfacce.iol"
 
 execution{ concurrent }
 
-
 inputPort port {
     Location: LOCATION
     Protocol: http
@@ -15,6 +14,13 @@ init {
 }
 
 main {
+
+    //BROADCAST
+    
+    [broadcast( user )] {
+        println@Console(user.name)()
+    }
+    
     
     //METODO PER SCAMBIARSI MESSAGGI
     [
@@ -40,13 +46,6 @@ main {
         }
     ]
 
-    //METODO PER CAMBIARE PORT
-    [
-        changePort( numPort )() {
-            println@Console("\n Cambio porta => " + numPort + "\n")()
-            port.location = "socket://localhost:" + numPort
-        }
-    ]
     
 }
 
