@@ -46,9 +46,15 @@ define startChat
 }
 
 define broadcastMsg {
-    for ( i=10001, i<65001, i++ ) {
-        port.location = "socket://localhost:" + i
-        broadcast@port(user)
+    for ( i=10001, i<10101, i++ ) {
+        scope(e) {
+            install( IOException => i = i /*println@Console("-- Error with " + i + " --")()*/ )
+            if(i != user.port) {
+                port.location = "socket://localhost:" + i
+                broadcast@port(user)
+            }
+            
+        }
     }
 } 
 
@@ -88,33 +94,40 @@ main {
     user.port = num_port
     print@Console( "Inserisci username: " )(  )
     in(user.name)
-    port.location = "socket://localhost:" + num_port
+    port.location = "socket://localhost:" + user.port
     sendInfo@port(user.name)()
+    broadcastMsg
 
     //SHOW RETE INFO
-    println@Console("\nLIST OF ONLINE USERS:\n")()
-    foreach ( u : users ) {
-        println@Console(users.(u).name + "\n")()
-    }
 
     println@Console("\nBenvenuto " + user.name + "\n")()
     
-    /* //WAIT FOR INSTRUCTION
+    //WAIT FOR INSTRUCTION
     status = true
     while ( status ) {
         print@Console("\nInserisci istruzione: ")()
         in(instruction)
+        port.location = "socket://localhost:" + user.port
+        getPeerName@port()( peer_names )
+        getPeerPort@port()( peer_port )
+        println@Console( #peer_names )(  )
+        
+        for ( i=0, i < #peer_names, i++ ) {
+            users.(peer_port[i]).name = peer_names[i]
+            users.(peer_port[i]).port = peer_port[i]
+        }
 
         if ( instruction == "EXIT" ) {
             status = false
         } 
-        else if ( instruction == "CHAT" ) {
+        //else if (instruction == "LIST") {}
+        /* else if ( instruction == "CHAT" ) {
             //searchChat
-        }
+        }  */
         else {
             println@Console("\nIstruzione sconosciuta.")()
         }
-    } */
+    } 
 
     
     
