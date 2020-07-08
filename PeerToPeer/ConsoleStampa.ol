@@ -7,7 +7,7 @@ include "ui/swing_ui.iol"
 execution{ concurrent }
 
 inputPort portaStampaConsole {
-    Location: "socket://localhost:9000"
+    Location: "socket://localhost:50000"
     Protocol: http
     Interfaces: teniamoTraccia
 }

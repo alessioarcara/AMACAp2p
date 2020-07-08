@@ -11,7 +11,7 @@ type message: void {
 type users: any {?}
 
 interface interfacciaB {
-    OneWay: broadcast(user),
+    OneWay: broadcast( user ),
     RequestResponse: searchPeer(string)(int),
     OneWay: hello(user),
     RequestResponse: getCount(void)(int),
@@ -20,3 +20,6 @@ interface interfacciaB {
     RequestResponse: sendInfo( user )( void )
 }
 
+interface teniamoTraccia {
+    RequestResponse: press( string )( void )
+}

@@ -2,8 +2,7 @@ include "console.iol"
 include "runtime.iol"
 include "interfacce.iol"
 include "ui/swing_ui.iol"
-include "semaphore_utils.iol"
-include "ConsoleStampa.ol"
+
 
 outputPort port {
     Protocol: http
@@ -11,13 +10,14 @@ outputPort port {
 }
 
 outputPort portaStampaConsole {
-    Location: "socket://localhost:9000"
+    Location: "socket://localhost:50000"
     Protocol: http
     Interfaces: teniamoTraccia
 }
 
 
 init {
+
     // SEARCH THE FIRST FREE PORT
     condition = true
     portNum = 10001
@@ -35,21 +35,17 @@ init {
             condition = false
         }
     } 
-
-    install( IOException => {
-                println@Console( "Nessuna operazione scelta" )(  )
-            })
 }
 
 define startChat
 {
     //START CHATTING
-    msg.username = user.dest
+    msg.username = user.name 
+    port.location = "socket://localhost:" + dest_port
     print@Console("Ora puoi scrivere i messaggi e inviarli.\n\n")()
     in( msg.text )
     while(msg.text != "EXIT") {
         sendStringhe@port(msg)(response)
-        //println@Console(response)()
         print@Console("\n")()
         in( msg.text )
         println@Console()()
@@ -69,76 +65,58 @@ define broadcastMsg {
     }
 } 
 
-/* define searchChat
-{
-    //SEARCH CHAT
-    condition = true
-    while ( condition ) {
-        getUsers
-        foreach ( peer : users ) {
-            println@Console("\n" + users.(peer).name + " : " + users.(peer).port + "\n")()
-        }
-        print@Console("\nInserisci username destinatario: ")()
-        in( user.dest )
-
-        if ( user.dest == "EXIT" ) {
-            condition = false
-        }
-        else if( is_defined(users.(user.dest).name) ) {
-            port.location = "socket://localhost:" + users.(user.dest).port
-            startChat
-        }
-        else {
-            println@Console( "\nL'username inserito non è online." )(  )
-        }
-    }
-} */
-
 main {
 
     println@Console("\nUtilizzi la porta " + num_port + "\n")()
 
+    press@portaStampaConsole( "Hello" )(  )
+
     //SIGN IN
     user.port = num_port
-
-    showInputDialog@SwingUI( "Inserisci username: " )( response )
-    println@Console("Ciao")()
-    user.name = response
-    
+    showInputDialog@SwingUI( "Inserisci username: " )( responseUser )
+    user.name = responseUser
 
     port.location = "socket://localhost:" + user.port
-    sendInfo@port(user.name)()
+    sendInfo@port(user)()
     broadcastMsg
 
     //SHOW RETE INFO
 
-    //println@Console("\nBenvenuto " + user.name + "\n")()
-    press@portaStampaConsole("\nBenvenuto " + user.name + "\n")()
-
+    
     //WAIT FOR INSTRUCTION
     status = true
     while ( status ) {
-        scope( exception ) {
-            showInputDialog@SwingUI( "Inserisci istruzione da eseguire: " )( response )
-            instruction = response
 
-            port.location = "socket://localhost:" + user.port
-            getPeerName@port()( peer_names )
-            getPeerPort@port()( peer_port )
-            println@Console( #peer_names )(  )
-        
-            for ( i=0, i < #peer_names, i++ ) {
-                users.(peer_port[i]).name = peer_names[i]
-                users.(peer_port[i]).port = peer_port[i]
-            }
-        
-            if ( instruction == "EXIT" ) {
-                status = false
+        showInputDialog@SwingUI( "Inserisci istruzione: " )( responseIstruzione )
+        instruction = responseIstruzione
+
+        port.location = "socket://localhost:" + user.port
+
+        if ( instruction == "EXIT" ) {
+            status = false
+        } 
+        //else if (instruction == "LIST") {}
+        else if ( instruction == "CHAT" ) {
+            //searchChat
+            print@Console( "\nInserisci username da contattare: " )(  )
+            in(dest)
+            searchPeer@port(dest)(dest_port)
+            if ( dest_port == 0 ) {
+                println@Console( "L'username ricercato non esiste." )(  )
             } else {
-                println@Console("\nIstruzione sconosciuta.")()
+                startChat
             }
         }
+        else {
+            println@Console("\nIstruzione sconosciuta.")()
+        }
     } 
+
+    
+    
+
+    
+
 
     /* condition = true
     portNum = 11000
