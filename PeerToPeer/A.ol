@@ -33,12 +33,12 @@ init {
 define startChat
 {
     //START CHATTING
-    msg.username = user.dest
+    msg.username = user.name 
+    port.location = "socket://localhost:" + dest_port
     print@Console("Ora puoi scrivere i messaggi e inviarli.\n\n")()
     in( msg.text )
     while(msg.text != "EXIT") {
         sendStringhe@port(msg)(response)
-        //println@Console(response)()
         print@Console("\n")()
         in( msg.text )
         println@Console()()
@@ -58,32 +58,6 @@ define broadcastMsg {
     }
 } 
 
-/* define searchChat
-{
-    //SEARCH CHAT
-    condition = true
-    while ( condition ) {
-        getUsers
-        foreach ( peer : users ) {
-            println@Console("\n" + users.(peer).name + " : " + users.(peer).port + "\n")()
-        }
-        print@Console("\nInserisci username destinatario: ")()
-        in( user.dest )
-
-        if ( user.dest == "EXIT" ) {
-            condition = false
-        }
-        else if( is_defined(users.(user.dest).name) ) {
-            port.location = "socket://localhost:" + users.(user.dest).port
-            startChat
-        }
-        else {
-            println@Console( "\nL'username inserito non è online." )(  )
-        }
-    }
-} */
-
-
 main {
 
     println@Console("\nUtilizzi la porta " + num_port + "\n")()
@@ -95,12 +69,11 @@ main {
     print@Console( "Inserisci username: " )(  )
     in(user.name)
     port.location = "socket://localhost:" + user.port
-    sendInfo@port(user.name)()
+    sendInfo@port(user)()
     broadcastMsg
 
     //SHOW RETE INFO
 
-    println@Console("\nBenvenuto " + user.name + "\n")()
     
     //WAIT FOR INSTRUCTION
     status = true
@@ -108,22 +81,22 @@ main {
         print@Console("\nInserisci istruzione: ")()
         in(instruction)
         port.location = "socket://localhost:" + user.port
-        getPeerName@port()( peer_names )
-        getPeerPort@port()( peer_port )
-        println@Console( #peer_names )(  )
-        
-        for ( i=0, i < #peer_names, i++ ) {
-            users.(peer_port[i]).name = peer_names[i]
-            users.(peer_port[i]).port = peer_port[i]
-        }
 
         if ( instruction == "EXIT" ) {
             status = false
         } 
         //else if (instruction == "LIST") {}
-        /* else if ( instruction == "CHAT" ) {
+        else if ( instruction == "CHAT" ) {
             //searchChat
-        }  */
+            print@Console( "\nInserisci username da contattare: " )(  )
+            in(dest)
+            searchPeer@port(dest)(dest_port)
+            if ( dest_port == 0 ) {
+                println@Console( "L'username ricercato non esiste." )(  )
+            } else {
+                startChat
+            }
+        }
         else {
             println@Console("\nIstruzione sconosciuta.")()
         }

@@ -12,14 +12,11 @@ type users: any {?}
 
 interface interfacciaB {
     OneWay: broadcast(user),
-    RequestResponse: getPeerName(void)(users),
-    RequestResponse: getPeerPort(void)(users),
-    RequestResponse: getUsers(void)(users),
+    RequestResponse: searchPeer(string)(int),
+    OneWay: hello(user),
+    RequestResponse: getCount(void)(int),
     RequestResponse: sendStringhe( message )( string ),
     RequestResponse: sendAck( string )( string ),
-    RequestResponse: sendInfo( string )( void )
+    RequestResponse: sendInfo( user )( void )
 }
 
-interface teniamoTraccia {
-    RequestResponse: press( string )( void )
-}
