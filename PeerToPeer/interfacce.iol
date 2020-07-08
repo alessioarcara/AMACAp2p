@@ -20,3 +20,6 @@ interface interfacciaB {
     RequestResponse: sendInfo( string )( void )
 }
 
+interface teniamoTraccia {
+    RequestResponse: press( string )( void )
+}
