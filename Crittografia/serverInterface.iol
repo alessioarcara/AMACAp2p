@@ -15,7 +15,7 @@ type scambioChiaviResponse: void {
 interface ServerInterface {
     
     RequestResponse: 
-        sendStringhe( sendStringheRequest )( string )
+        sendStringhe( sendStringheRequest )( void )
 
 }
 

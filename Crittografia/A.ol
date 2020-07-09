@@ -72,32 +72,42 @@ main {
 
                 println@Console("Inserisci un messaggio: ")()
                 in(b)
-                //passo il plaintext al javaservice *EncryptingService*
-                request.message = b
-                request.publickey1 = chiaviResponse.publickey1
-                request.publickey2 = chiaviResponse.publickey2
-                request.privatekey = chiavePrivata.privatekey
-                EncryptedMessage@EncryptingServiceOutputPort( request )( response )
+                
+                length@StringUtils( b )( length_b )
+                if ( length_b < 64 ) {
 
-                //il javaservice *EncryptingService* mi ritorna il ciphertext 
-                println@Console( "" )(  )
-                println@Console( "il messaggio criptato è: "  )()
-                println@Console( response.message )(  )
+                    //passo il plaintext al javaservice *EncryptingService*
+                    request.message = b
+                    request.publickey1 = chiaviResponse.publickey1
+                    request.publickey2 = chiaviResponse.publickey2
+                    request.privatekey = chiavePrivata.privatekey
+                    EncryptedMessage@EncryptingServiceOutputPort( request )( response )
 
-                with( w ) {
+                    //il javaservice *EncryptingService* mi ritorna il ciphertext 
+                    println@Console( "" )(  )
+                    println@Console( "il messaggio criptato è: "  )()
+                    println@Console( response.message )(  )
 
-                    .filename = FILENAME;
-                    .content = response.message + "\n";
-                    .append = 1
+                    with( w ) {
 
+                        .filename = FILENAME;
+                        .content = response.message + "\n";
+                        .append = 1
+
+                    }
+
+                    //scrivo il File
+                    writeFile@File( w )( )
+
+                    //inserisco chiave pubblica nel messaggio
+                    sendStringhe@B( response )( )
+
+                } else {
+                    
+                    println@Console( "errore" )(  )
+                    
                 }
-
-                //scrivo il File
-                writeFile@File( w )( )
-
-                //inserisco chiave pubblica nel messaggio
-                sendStringhe@B( response )( responseStringhe )
-                println@Console("<< " + responseStringhe + " >>")() 
+                
             }
 
             if ( c == "pubblico" ) {

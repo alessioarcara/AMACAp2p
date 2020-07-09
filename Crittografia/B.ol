@@ -4,6 +4,20 @@ include "console.iol"
 include "DecryptingServiceInterface.iol"
 include "KeyGeneratorServiceInterface.iol"
 
+execution{ concurrent }
+
+init {
+    
+    restituzioneChiavi@KeyGeneratorServiceOutputPort(  )( returnChiavi )
+
+    chiaviPubbliche.publickey1 = returnChiavi.publickey1
+    chiaviPubbliche.publickey2 = returnChiavi.publickey2   
+    chiavePrivata.privatekey = returnChiavi.privatekey
+
+    scambioChiavi( chiaviPubbliche_A )( chiaviPubbliche )
+    
+}
+
 inputPort B {
     Location: "socket://localhost:9000"
     Protocol: sodep
@@ -30,16 +44,8 @@ constants {
 
 main {
 
-    restituzioneChiavi@KeyGeneratorServiceOutputPort(  )( returnChiavi );
-
-    chiaviPubbliche.publickey1 = returnChiavi.publickey1;
-    chiaviPubbliche.publickey2 = returnChiavi.publickey2;   
-    chiavePrivata.privatekey = returnChiavi.privatekey;
-
-    scambioChiavi( chiaviPubbliche_A )( chiaviPubbliche );
-
-    sendStringhe( request )( "ÄCK" ) {
-
+    [sendStringhe( request )( ) {
+    
         // with( rq_w ) {
 
         //     response = "messaggio ricevuto"
@@ -63,5 +69,5 @@ main {
         println@Console( "il messaggio decriptato è: " ) (  )
         println@Console( response.message )(  )
 
-    }
+    }]
 }
