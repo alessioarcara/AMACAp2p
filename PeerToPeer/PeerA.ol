@@ -21,7 +21,7 @@ init {
     // SEARCH THE FIRST FREE PORT
     condition = true
     portNum = 10001
-    while(condition) {
+    while( condition ) {
         scope( e ){
             install( RuntimeException  => {
                 portNum = portNum + 1
@@ -40,9 +40,9 @@ init {
 define startChat
 {
     //START CHATTING
-    scope(e) {
+    scope( e ) {
 
-        install( IOException => println@Console( "L'utente inserito è andato offline.")() )
+        install( IOException => println@Console( "L'utente è andato offline.")() )
 
         msg.username = user.name 
         port.location = "socket://localhost:" + dest_port
@@ -52,83 +52,88 @@ define startChat
         if ( response ) {
             // print@Console("Ora puoi scrivere i messaggi e inviarli.\n\n")()
             // in( msg.text )
-            
-            showInputDialog@SwingUI( "Ora puoi scrivere i messaggi e inviarli." )( responseMessage )
+            press@portaStampaConsole( user.name + " ha iniziato la comunicazione con " + dest )()
+            showInputDialog@SwingUI( user.name + "\nOra puoi scrivere i messaggi e inviarli.\nEXIT per uscire" )( responseMessage )
             msg.text = responseMessage
             
-            while(msg.text != "EXIT") {
-                sendStringhe@port(msg)(response)
+            while( msg.text != "EXIT" ) {
+                sendStringhe@port( msg )( response )
                 print@Console("\n")()
                 // in( msg.text )
                 
-                showInputDialog@SwingUI( "Inserisci messaggio: " )( responseMessage )
+                showInputDialog@SwingUI( user.name + "\nInserisci messaggio: " )( responseMessage )
                 msg.text = responseMessage
 
                 if ( msg.text == "EXIT" ) {
-                    sendStringhe@port( "Abbandono lo chat..." )(  )
+                    sendStringhe@port( "Abbandono lo chat..." )()
                 } else {
                     println@Console( msg.text )()
                 }
                 println@Console()()
             }
         } else {
-            println@Console( "L'utente ha rifiutato la tua richiesta di chattare." )(  )
+            println@Console( "L'utente ha rifiutato la tua richiesta di chattare." )()
         }
-
-        
-
     }
 }
 
 define broadcastMsg {
-    for ( i=10001, i<10101, i++ ) {
-        scope(e) {
+    for( i = 10001, i < 10101, i++ ) {
+        scope( e ) {
             install( IOException => i = i /*println@Console("-- Error with " + i + " --")()*/ )
-            if(i != user.port) {
+            if( i != user.port ) {
                 port.location = "socket://localhost:" + i
-                broadcast@port(user)
+                broadcast@port( user )
             }
-            
         }
     }
 } 
 
 main {
 
-    println@Console("\nUtilizzi la porta " + num_port + "\n")()
+    println@Console( "\nUtilizzi la porta " + num_port + "\n" )()
+
 
     //SIGN IN
     user.port = num_port
-    
+
     showInputDialog@SwingUI( "Inserisci username: " )( responseUser )
     user.name = responseUser
 
     port.location = "socket://localhost:" + user.port
-    sendInfo@port(user)()
+    sendInfo@port( user )()
     broadcastMsg
 
-    //SHOW RETE INFO
+    port.location = "socket://localhost:" + user.port //Cambio la porta dopo aver eseguito il broadcastMsg .
 
-    
+    //Verifichiamo tutte le volte se un peer abbia eventualmente cambiato nome .
+    informazione@port()( responseNewUser )
+    user.name = responseNewUser //Setto eventualmente il nuovo nome .
+
+    //Stampo su monitor il peer aggiunto alla rete .
+    press@portaStampaConsole( user.name + " si è unito/a alla rete!" )()
+
+
     //WAIT FOR INSTRUCTION
     status = true
     while ( status ) {
 
-        showInputDialog@SwingUI( "Inserisci istruzione: " )( responseIstruzione )
+        showInputDialog@SwingUI( user.name + "\nInserisci istruzione: " )( responseIstruzione )
         instruction = responseIstruzione
 
         port.location = "socket://localhost:" + user.port
 
         if ( instruction == "EXIT" ) {
             status = false
+            press@portaStampaConsole( user.name + " ha abbandonato la rete" )()
         } 
         
         else if ( instruction == "CHAT" ) {
 
-            showInputDialog@SwingUI( "Inserisci username da contattare: " )( responseContact )
+            showInputDialog@SwingUI( user.name + "\nInserisci username da contattare: " )( responseContact )
             dest = responseContact
 
-            searchPeer@port(dest)(dest_port)
+            searchPeer@port( dest )( dest_port )
             if ( dest_port == 0 ) {
                 println@Console( "L'username ricercato non esiste." )(  )
             } else {
@@ -140,7 +145,7 @@ main {
             //inserisci nome gruppo da creare
             //controlla che non ci sia già un gruppo con quel nome
             //crea processo figlio => un peer hosta il gruppo, se il peer in questione esce, il gruppo viene smantellato
-            println@Console(  )(  )
+            println@Console()()
             //creare un processo PeerGroup e poi fare l'embedding
         }
 
@@ -148,12 +153,6 @@ main {
             println@Console("\nIstruzione sconosciuta.")()
         }
     } 
-
-    
-    
-
-    
-
 
     /* condition = true
     portNum = 11000
@@ -167,5 +166,4 @@ main {
         portNum = portNum + 1
         port.location = "socket://localhost:" + portNum
     } */
-
 }

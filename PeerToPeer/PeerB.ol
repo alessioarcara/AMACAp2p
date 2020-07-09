@@ -37,10 +37,12 @@ main {
     //BROADCAST
     [broadcast( newuser )] {
         global.count = global.count + 1
+
         //Controllo che non ci sia un peer già registrato con lo stesso nome
         condition = false
+
         //toUpperCase@StringUtils(newuser.name)(resp1)
-        for ( i=0, i< #global.peer_names, i++ ) {
+        for ( i = 0, i < #global.peer_names, i++ ) {
             //toUpperCase@StringUtils(global.peer_names[i])(resp2)
             if( newuser.name == global.peer_names[i] || newuser.name == global.user.name ) {
                 condition = true
@@ -55,10 +57,10 @@ main {
         global.peer_port[global.count] = newuser.port
 
         out.location = "socket://localhost:" + newuser.port
-        hello@out(global.user)
+        hello@out( global.user )
 
-        //println@Console("\n\n" + newuser.name + " si è unito alla rete!\n")()
-        press@portaStampaConsole( string(newuser.name) + " si è unito alla rete!" )()
+        //println@Console("\n\n" + newuser.name + " si è unito/a alla rete!\n")()
+        //press@portaStampaConsole( newuser.name + " si è unito/a alla rete!" )()
     }
 
 
@@ -107,7 +109,7 @@ main {
         }
     ]
     [
-        searchPeer(username)(port) {
+        searchPeer( username )( port ) {
             port = 0
             for ( i=0, i<#global.peer_names, i++ ) {
                 if(global.peer_names[i]==username) {
@@ -120,7 +122,7 @@ main {
     //RICEVI RICHIESTA DI CHAT
     [
         chatRequest( username )( response ) {
-            showYesNoQuestionDialog@SwingUI(username + " vuole inviarti un messaggio. Vuoi accetare per iniziare a ricevere messaggi da " + username + ".")( resp )
+            showYesNoQuestionDialog@SwingUI(username + " vuole inviarti un messaggio. Vuoi accettare ed iniziare a ricevere messaggi da " + username + ".")( resp )
             if( int( resp ) == 0 ) {
                 response = true
                 println@Console("Per rispondere a " + username + " avvia una chat con lui.")()
@@ -131,4 +133,11 @@ main {
     ]
     
 
+    //PORTA PER INVIARE IL NUOVO UTENTE CON NOME CAMBIATO ( se il nome non viene cambiato, 
+    //restituisce sempre lo stesso global.user.name ).
+    [
+        informazione()( response ) {
+            response = global.user.name
+        }
+    ]
 }
