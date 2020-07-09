@@ -9,9 +9,6 @@ import java.security.SecureRandom;
 
 public class KeyGeneratorService extends JavaService {
 
-    // Problema: il ciphertext generato dall'algoritmo RSA è di lunghezza diverso per la diversa lunghezza del plaintext
-    // Soluzione da trovare: generare ciphertext di lunghezza standard
-
     public BigInteger Euclide(BigInteger toziente){
 
         System.out.println("");

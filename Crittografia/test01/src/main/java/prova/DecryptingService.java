@@ -34,17 +34,6 @@ public class DecryptingService extends JavaService {
         return finalString;
     }
 
-    public String binaryToString(String s){
-
-        StringBuilder sb = new StringBuilder();
-
-        for ( int i = 0; i < s.length(); i++ ) { 
-            sb.append( (char)   Integer.parseInt( s, 2 ) );                                                                                                                                                        
-         }   
-
-        return sb.toString();
-    }
-
     public String xor_a_b(String s, String t) {
 
         String s_xor = "";

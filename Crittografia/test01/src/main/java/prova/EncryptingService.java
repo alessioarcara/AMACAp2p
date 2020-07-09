@@ -9,7 +9,6 @@ import java.security.*;
 
 public class EncryptingService extends JavaService {
 
-    // SOAEP costanti
     private SecureRandom random = new SecureRandom();
     private MessageDigest md;
 
@@ -23,10 +22,6 @@ public class EncryptingService extends JavaService {
             finalString = finalString + tempBit;
         }
         return finalString;
-    }
-
-    public String hexToBin(String s) {
-        return new BigInteger(s, 16).toString(2);
     }
 
     public String xor_a_b(String s, String t) {
