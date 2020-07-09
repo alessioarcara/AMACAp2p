@@ -5,13 +5,13 @@ include "runtime.iol"
 include "ui/swing_ui.iol"
 
 outputPort portaStampaConsole {
-    Location: "socket://localhost:9000"
+    Location: "socket://localhost:50000"
     Protocol: http
     Interfaces: teniamoTraccia
 }
 
 inputPort portaComunicazioneDiGruppo {
-    Location: "socket://localhost:50000"
+    Location: "socket://localhost:20000"
     Protocol: http
     Interfaces: interfacciaDiGruppo
 }
@@ -30,7 +30,11 @@ init {
     registerForInput@Console()()
 }
 
+
 main {
+
+    in( message )
+
     //INIZIO OPERAZIONI .
     flag = true
     while( flag ) {

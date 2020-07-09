@@ -1,4 +1,6 @@
-type username: void {
+///////////////////////// TYPE /////////////////////////
+
+type user: void {
     .name: string
     .port: int
 }
@@ -8,17 +10,22 @@ type message: void {
     .text: string
 }
 
-/* interface IController {
-    RequestResponse: setCount( string )( int ),
-    RequestResponse: getCount( string )( int ),
-    RequestResponse: setUsername( username )( bool ),
-    RequestResponse: getUserPort( string )( int )
-} */
+type users: any {?}
 
-interface interfacciaB {
-    RequestResponse: sendStringhe( message )( string ),
-    RequestResponse: sendAck( string )( string ),
-    RequestResponse: sendInfo( string )( void ),
-    RequestResponse: changePort( int )( void )
+
+///////////////////////// INTERFACES /////////////////////////
+
+interface teniamoTraccia {
+    RequestResponse: press( string )( void )
 }
 
+interface interfacciaB {
+    OneWay: broadcast( user ),
+    RequestResponse: searchPeer( string )( int ),
+    OneWay: hello( user ),
+    RequestResponse: getCount( void )( int ),
+    RequestResponse: sendStringhe( message )( string ),
+    RequestResponse: sendInfo( user )( void ),
+    RequestResponse: chatRequest( string )( bool ),
+    RequestResponse: informazione( void )( string )
+}
