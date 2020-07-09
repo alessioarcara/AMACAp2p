@@ -35,20 +35,38 @@ init {
             condition = false
         }
     } 
+
+
+    registerForInput@Console()()
 }
 
 define startChat
 {
     //START CHATTING
-    msg.username = user.name 
-    port.location = "socket://localhost:" + dest_port
-    print@Console("Ora puoi scrivere i messaggi e inviarli.\n\n")()
-    in( msg.text )
-    while(msg.text != "EXIT") {
-        sendStringhe@port(msg)(response)
-        print@Console("\n")()
-        in( msg.text )
-        println@Console()()
+    scope(e) {
+
+        install( RuntimeException => println@Console( "L'utente inserito è andato offline.")() )
+
+        msg.username = user.name 
+        port.location = "socket://localhost:" + dest_port
+
+        //invia richiesta di chat al destinatario
+        chatRequest@port( user.name )( response )
+        if ( response ) {
+            print@Console("Ora puoi scrivere i messaggi e inviarli.\n\n")()
+            in( msg.text )
+            while(msg.text != "EXIT") {
+                sendStringhe@port(msg)(response)
+                print@Console("\n")()
+                in( msg.text )
+                println@Console()()
+            }
+        } else {
+            println@Console( "L'utente ha rifiutato la tua richiesta di chattare." )(  )
+        }
+
+        
+
     }
 }
 
@@ -68,8 +86,6 @@ define broadcastMsg {
 main {
 
     println@Console("\nUtilizzi la porta " + num_port + "\n")()
-
-    press@portaStampaConsole( "Hello" )()
 
     //SIGN IN
     user.port = num_port

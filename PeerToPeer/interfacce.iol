@@ -16,8 +16,8 @@ interface interfacciaB {
     OneWay: hello(user),
     RequestResponse: getCount(void)(int),
     RequestResponse: sendStringhe( message )( string ),
-    RequestResponse: sendAck( string )( string ),
-    RequestResponse: sendInfo( user )( void )
+    RequestResponse: sendInfo( user )( void ),
+    RequestResponse: chatRequest( string )( bool )
 }
 
 interface teniamoTraccia {

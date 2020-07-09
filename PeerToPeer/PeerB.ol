@@ -1,6 +1,8 @@
 include "console.iol"
 include "interfacce.iol"
 include "string_utils.iol"
+include "ui/swing_ui.iol"
+
 
 execution{ concurrent }
 
@@ -27,6 +29,7 @@ init {
     global.count = 0
     global.peer_names[0] = void
     global.peer_port[0] = void
+    registerForInput@Console()()
 }
 
 main {
@@ -96,14 +99,6 @@ main {
         }
     ]
 
-    //METODO PER VERIFICARE LA PRESENZA DELL'USERNAME
-    [
-        sendAck( ack )( response ) {
-            //println@Console("----->" + global.user.name + "\n")()
-            response = global.user.name
-        }
-    ]
-
     //METODO PER DIALOGI TRA CLIENT-SERVER DELLO STESSO PEER
     [
         sendInfo( self )(response) {
@@ -118,6 +113,19 @@ main {
                 if(global.peer_names[i]==username) {
                     port = global.peer_port[i]
                 }
+            }
+        }
+    ]
+
+    //RICEVI RICHIESTA DI CHAT
+    [
+        chatRequest( username )( response ) {
+            showInputDialog@SwingUI(username + " vuole inviarti un messaggio. Inserisci ACCETTA per iniziare a ricevere messaggi da " + username + ".")(resp)
+            if(resp == "ACCETTA") {
+                response = true
+                println@Console("Per rispondere a " + username + " avvia una chat con lui.")()
+            } else {
+                response = false
             }
         }
     ]
