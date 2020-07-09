@@ -10,7 +10,7 @@ outputPort port {
 }
 
 outputPort portaStampaConsole {
-    Location: "socket://localhost:50000"
+    Location: "socket://localhost:30000"
     Protocol: http
     Interfaces: teniamoTraccia
 }
@@ -27,7 +27,7 @@ init {
                 portNum = portNum + 1
             })
             with( emb ) {
-                .filepath = "-C LOCATION=\"" + "socket://localhost:" + portNum + "\" B.ol";
+                .filepath = "-C LOCATION=\"" + "socket://localhost:" + portNum + "\" PeerB.ol";
                 .type = "Jolie"
             };
             loadEmbeddedService@Runtime( emb )()
@@ -69,7 +69,7 @@ main {
 
     println@Console("\nUtilizzi la porta " + num_port + "\n")()
 
-    press@portaStampaConsole( "Hello" )(  )
+    press@portaStampaConsole( "Hello" )()
 
     //SIGN IN
     user.port = num_port

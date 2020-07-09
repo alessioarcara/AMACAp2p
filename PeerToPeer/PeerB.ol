@@ -1,8 +1,6 @@
 include "console.iol"
 include "interfacce.iol"
 include "string_utils.iol"
-include "Interfacce&Tipi.iol"
-
 
 execution{ concurrent }
 
@@ -18,7 +16,7 @@ outputPort out {
 }
 
 outputPort portaStampaConsole {
-    Location: "socket://localhost:50000"
+    Location: "socket://localhost:30000"
     Protocol: http
     Interfaces: teniamoTraccia
 }
@@ -56,7 +54,7 @@ main {
         out.location = "socket://localhost:" + newuser.port
         hello@out(global.user)
 
-        println@Console("\n\n" + newuser.name + " si è unito alla rete!\n")()
+        //println@Console("\n\n" + newuser.name + " si è unito alla rete!\n")()
         press@portaStampaConsole( string(newuser.name) + " si è unito alla rete!" )()
     }
 
