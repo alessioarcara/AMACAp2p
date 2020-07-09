@@ -13,7 +13,7 @@ inputPort portaStampaConsole {
 }
 
 init {
-    println@Console( "\tCONSOLE DI TRACCIAMENTO" )()
+    println@Console( "CONSOLE DI TRACCIAMENTO" )()
 }
 
 main {

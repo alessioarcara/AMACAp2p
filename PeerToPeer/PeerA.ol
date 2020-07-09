@@ -35,9 +35,6 @@ init {
             condition = false
         }
     } 
-
-
-    registerForInput@Console()()
 }
 
 define startChat
@@ -53,12 +50,21 @@ define startChat
         //invia richiesta di chat al destinatario
         chatRequest@port( user.name )( response )
         if ( response ) {
-            print@Console("Ora puoi scrivere i messaggi e inviarli.\n\n")()
-            in( msg.text )
+            // print@Console("Ora puoi scrivere i messaggi e inviarli.\n\n")()
+            // in( msg.text )
+            
+            showInputDialog@SwingUI( "Ora puoi scrivere i messaggi e inviarli." )( responseMessage )
+            msg.text = responseMessage
+            
             while(msg.text != "EXIT") {
                 sendStringhe@port(msg)(response)
                 print@Console("\n")()
-                in( msg.text )
+                // in( msg.text )
+                
+                showInputDialog@SwingUI( "Inserisci messaggio: " )( responseMessage )
+                msg.text = responseMessage
+
+                println@Console( msg.text )()
                 println@Console()()
             }
         } else {
@@ -89,6 +95,7 @@ main {
 
     //SIGN IN
     user.port = num_port
+    
     showInputDialog@SwingUI( "Inserisci username: " )( responseUser )
     user.name = responseUser
 
@@ -114,8 +121,12 @@ main {
         //else if (instruction == "LIST") {}
         else if ( instruction == "CHAT" ) {
             //searchChat
-            print@Console( "\nInserisci username da contattare: " )(  )
-            in(dest)
+            // print@Console( "\nInserisci username da contattare: " )(  )
+            // in(dest)
+
+            showInputDialog@SwingUI( "Inserisci username da contattare: " )( responseContact )
+            dest = responseContact
+
             searchPeer@port(dest)(dest_port)
             if ( dest_port == 0 ) {
                 println@Console( "L'username ricercato non esiste." )(  )

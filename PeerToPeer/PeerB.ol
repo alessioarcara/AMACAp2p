@@ -29,7 +29,7 @@ init {
     global.count = 0
     global.peer_names[0] = void
     global.peer_port[0] = void
-    registerForInput@Console()()
+    //registerForInput@Console()()
 }
 
 main {
@@ -120,8 +120,8 @@ main {
     //RICEVI RICHIESTA DI CHAT
     [
         chatRequest( username )( response ) {
-            showInputDialog@SwingUI(username + " vuole inviarti un messaggio. Inserisci ACCETTA per iniziare a ricevere messaggi da " + username + ".")(resp)
-            if(resp == "ACCETTA") {
+            showYesNoQuestionDialog@SwingUI(username + " vuole inviarti un messaggio. Vuoi accetare per iniziare a ricevere messaggi da " + username + ".")( resp )
+            if( int( resp ) == 0 ) {
                 response = true
                 println@Console("Per rispondere a " + username + " avvia una chat con lui.")()
             } else {
