@@ -42,7 +42,7 @@ define startChat
     //START CHATTING
     scope(e) {
 
-        install( RuntimeException => println@Console( "L'utente inserito è andato offline.")() )
+        install( IOException => println@Console( "L'utente inserito è andato offline.")() )
 
         msg.username = user.name 
         port.location = "socket://localhost:" + dest_port
@@ -64,7 +64,11 @@ define startChat
                 showInputDialog@SwingUI( "Inserisci messaggio: " )( responseMessage )
                 msg.text = responseMessage
 
-                println@Console( msg.text )()
+                if ( msg.text == "EXIT" ) {
+                    sendStringhe@port( "Abbandono lo chat..." )(  )
+                } else {
+                    println@Console( msg.text )()
+                }
                 println@Console()()
             }
         } else {
@@ -118,11 +122,8 @@ main {
         if ( instruction == "EXIT" ) {
             status = false
         } 
-        //else if (instruction == "LIST") {}
+        
         else if ( instruction == "CHAT" ) {
-            //searchChat
-            // print@Console( "\nInserisci username da contattare: " )(  )
-            // in(dest)
 
             showInputDialog@SwingUI( "Inserisci username da contattare: " )( responseContact )
             dest = responseContact
@@ -134,6 +135,15 @@ main {
                 startChat
             }
         }
+
+        else if ( instruction == "CREA GRUPPO") {
+            //inserisci nome gruppo da creare
+            //controlla che non ci sia già un gruppo con quel nome
+            //crea processo figlio => un peer hosta il gruppo, se il peer in questione esce, il gruppo viene smantellato
+            println@Console(  )(  )
+            //creare un processo PeerGroup e poi fare l'embedding
+        }
+
         else {
             println@Console("\nIstruzione sconosciuta.")()
         }
