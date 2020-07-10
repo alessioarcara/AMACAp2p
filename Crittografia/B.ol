@@ -8,7 +8,8 @@ execution{ concurrent }
 
 init {
     
-    restituzioneChiavi@KeyGeneratorServiceOutputPort(  )( returnChiavi )
+    println@Console( "avvio client B in ricezione..." )(  )
+    GenerazioneChiavi@KeyGeneratorServiceOutputPort(  )( returnChiavi )
 
     chiaviPubbliche.publickey1 = returnChiavi.publickey1
     chiaviPubbliche.publickey2 = returnChiavi.publickey2   
@@ -45,29 +46,24 @@ constants {
 main {
 
     [sendStringhe( request )( ) {
-    
-        // with( rq_w ) {
-
-        //     response = "messaggio ricevuto"
-        //     println@Console( "il messaggio criptato ricevuto è: " )(  )
-        //     println@Console( request.message )(  )
-        //     // println@Console( "La chiave pubblica è: " )(  )
-        //     // println@Console( request.publickey )(  )
-        //     .filename = FILENAME;
-        //     .content = request + "\n";
-        //     .append = 1
-
-        // }
-        
-        // writeFile@File( rq_w )()
 
         //DECRIPTAZIONE
         request.publickey1 = chiaviPubbliche.publickey1
         request.privatekey = chiavePrivata.privatekey
 
-        DecryptedMessage@DecryptingServiceOutputPort( request )( response );
+        Decodifica_RSA@DecryptingServiceOutputPort( request )( response );
         println@Console( "il messaggio decriptato è: " ) (  )
         println@Console( response.message )(  )
+
+        with( rq_w ) {
+
+            .filename = FILENAME;
+            .content = response.message + "\n";
+            .append = 1
+
+        }
+        
+        writeFile@File( rq_w )()
 
     }]
 }

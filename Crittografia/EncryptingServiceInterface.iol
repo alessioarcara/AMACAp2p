@@ -11,5 +11,5 @@ type EncryptedMessageResponse: void {
 
 interface EncryptingServiceInterface {
   RequestResponse:
-    EncryptedMessage( EncryptedMessageRequest )( EncryptedMessageResponse )
+    Codifica_RSA( EncryptedMessageRequest )( EncryptedMessageResponse )
 }

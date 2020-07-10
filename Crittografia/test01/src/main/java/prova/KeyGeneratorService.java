@@ -9,10 +9,7 @@ import java.security.SecureRandom;
 
 public class KeyGeneratorService extends JavaService {
 
-    public BigInteger Euclide(BigInteger toziente){
-
-        System.out.println("");
-        System.out.println("** inizializzazione algoritmo di Euclide **");
+    private BigInteger Euclide(BigInteger toziente){
 
         BigInteger t = toziente;
         BigInteger e = BigInteger.valueOf(2);
@@ -22,21 +19,18 @@ public class KeyGeneratorService extends JavaService {
         while(!(r.equals(BigInteger.ONE))){
 
             r = e.gcd(t);
-            System.out.println("resto: " + r);
 
             if(r.equals(BigInteger.ONE)){
                 break;
             }
 
             e = e.add(BigInteger.ONE);
-            System.out.println("contatore: " + e);
         }
-        System.out.println("");
         return e;
 
     }
 
-    private String [] GenerazioneChiavi(){
+    public Value GenerazioneChiavi(){
 
         //inizializzazione variabili BigInteger
         BigInteger p;
@@ -63,26 +57,13 @@ public class KeyGeneratorService extends JavaService {
         // e = BigInteger.valueOf(65537);
 
         //chiave privata
-        // d = (e.pow(-1)).mod(toziente);
         d = e.modPow(new BigInteger("-1"), toziente);
-        // d = e.modInverse(toziente);
-
-        String s [] = new String[3];
-        s[0] = n.toString();
-        s[1] = e.toString();
-        s[2] = d.toString();
-
-        return s;
-    }
-
-    public Value restituzioneChiavi( Value request ) {
 
         //output
         Value response = Value.create();
-        String [] chiavi = GenerazioneChiavi();
-        response.getFirstChild( "publickey1" ).setValue(chiavi[0]);
-        response.getFirstChild( "publickey2" ).setValue(chiavi[1]);
-        response.getFirstChild( "privatekey" ).setValue(chiavi[2]);
+        response.getFirstChild( "publickey1" ).setValue(n.toString());
+        response.getFirstChild( "publickey2" ).setValue(e.toString());
+        response.getFirstChild( "privatekey" ).setValue(d.toString());
         return response;
     }
 }

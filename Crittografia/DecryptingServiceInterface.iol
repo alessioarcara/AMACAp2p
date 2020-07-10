@@ -10,5 +10,5 @@ type DecryptedMessageResponse: void {
 
 interface DecryptingServiceInterface {
   RequestResponse:
-    DecryptedMessage( DecryptedMessageRequest )( DecryptedMessageResponse )
+    Decodifica_RSA( DecryptedMessageRequest )( DecryptedMessageResponse )
 }

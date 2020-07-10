@@ -9,10 +9,7 @@ import java.security.*;
 
 public class EncryptingService extends JavaService {
 
-    private SecureRandom random = new SecureRandom();
-    private MessageDigest md;
-
-    public String stringToBinaryString(byte[] bytes){
+    private String ByteArrayToBinaryString(byte[] bytes){
         
         String finalString = "";
 
@@ -24,7 +21,7 @@ public class EncryptingService extends JavaService {
         return finalString;
     }
 
-    public String xor_a_b(String s, String t) {
+    private String xor_a_b(String s, String t) {
 
         String s_xor = "";
         for (int i=0; i < s.length(); i++){
@@ -38,65 +35,53 @@ public class EncryptingService extends JavaService {
         return s_xor;
     }
 
-    private String Pad_SOAEP(String s){
+    private String Padding_SAEP(String s){
 
-        String m = s;
-        byte[] bytes = m.getBytes();
-        m = stringToBinaryString(bytes);
+        MessageDigest md;
+        SecureRandom random = new SecureRandom();
+
+        byte[] bytes = s.getBytes();
+        String m = ByteArrayToBinaryString(bytes);
         
-        int x = 0;
         m = m.concat("1");
         while(m.length() < 512){
             m = m.concat("0");
-            x++;
         }
 
-        byte seed[] = new byte[64]; //512 bits in 64 bytes
+        byte seed[] = new byte[64];
         random.nextBytes(seed);
-        String r = stringToBinaryString(seed);
+        String r = ByteArrayToBinaryString(seed);
 
         String g = "";
         try {
             md = MessageDigest.getInstance("SHA-512");
             byte[] data = md.digest(seed);
-            g = stringToBinaryString(data);
+            g = ByteArrayToBinaryString(data);
         } 
         catch(Exception e) {
             System.out.println(e); 
         }
 
-        String mm = xor_a_b(m, g);
-        mm = mm.concat(r);
-        return mm;
+        m = xor_a_b(m, g).concat(r);
+        return m;
     }
 
-    private BigInteger RSA(BigInteger[] m){
+    public Value Codifica_RSA(Value request){
 
-        BigInteger [] mc = m;
+        BigInteger [] mc = new BigInteger[4];
+
+        mc[0] = new BigInteger(Padding_SAEP(request.getFirstChild( "message" ).strValue()), 2);
+        mc[1] = new BigInteger(request.getFirstChild( "publickey1" ).strValue());
+        mc[2] = new BigInteger(request.getFirstChild( "publickey2" ).strValue());
+        mc[3] = new BigInteger(request.getFirstChild( "privatekey" ).strValue());
+
+        //c = m^e mod n
         mc[0] = mc[0].modPow(mc[2], mc[1]);
 
-        return mc[0];
-    }
-
-    public Value EncryptedMessage( Value request ) {
-        
-        //input
-        BigInteger [] ChiaviPlusMessage = new BigInteger[4];
-
-        //trasformazione
-        String s = request.getFirstChild( "message" ).strValue();
-        byte[] bytes = s.getBytes();
-        BigInteger message = new BigInteger(Pad_SOAEP(s), 2);
-
-        ChiaviPlusMessage[0] = message;
-        ChiaviPlusMessage[1] = new BigInteger(request.getFirstChild( "publickey1" ).strValue());
-        ChiaviPlusMessage[2] = new BigInteger(request.getFirstChild( "publickey2" ).strValue());
-        ChiaviPlusMessage[3] = new BigInteger(request.getFirstChild( "privatekey" ).strValue());
-        
         //output
         Value response = Value.create();
-        response.getFirstChild( "message" ).setValue(RSA(ChiaviPlusMessage).toString());
+        response.getFirstChild( "message" ).setValue(mc[0].toString());
         return response;
-    }
+    }   
 }
 

@@ -41,7 +41,7 @@ main {
 
     //restituzione delle due chiavi pubbliche e chiave privata
 
-    restituzioneChiavi@KeyGeneratorServiceOutputPort(  )( returnChiavi );
+    GenerazioneChiavi@KeyGeneratorServiceOutputPort(  )( returnChiavi );
 
     chiaviPubbliche.publickey1 = returnChiavi.publickey1;
     chiaviPubbliche.publickey2 = returnChiavi.publickey2;    
@@ -81,7 +81,7 @@ main {
                     request.publickey1 = chiaviResponse.publickey1
                     request.publickey2 = chiaviResponse.publickey2
                     request.privatekey = chiavePrivata.privatekey
-                    EncryptedMessage@EncryptingServiceOutputPort( request )( response )
+                    Codifica_RSA@EncryptingServiceOutputPort( request )( response )
 
                     //il javaservice *EncryptingService* mi ritorna il ciphertext 
                     println@Console( "" )(  )
@@ -91,7 +91,7 @@ main {
                     with( w ) {
 
                         .filename = FILENAME;
-                        .content = response.message + "\n";
+                        .content = request.message + "\n";
                         .append = 1
 
                     }
@@ -104,7 +104,7 @@ main {
 
                 } else {
                     
-                    println@Console( "errore" )(  )
+                    println@Console( "errore: messaggio troppo lungo" )(  )
                     
                 }
                 

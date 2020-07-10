@@ -6,5 +6,5 @@ type restituzioneChiaviResponse: void {
 
 interface KeyGeneratorServiceInterface {
   RequestResponse:
-    restituzioneChiavi( void )( restituzioneChiaviResponse )
+    GenerazioneChiavi( void )( restituzioneChiaviResponse )
 }
