@@ -27,5 +27,5 @@ interface interfacciaB {
     RequestResponse: sendStringhe( message )( string ),
     RequestResponse: sendInfo( user )( void ),
     RequestResponse: chatRequest( string )( bool ),
-    RequestResponse: informazione( void )( string )
+    RequestResponse: infoUser( void )( string )
 }
