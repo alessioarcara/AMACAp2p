@@ -6,7 +6,7 @@ include "ui/swing_ui.iol"
 
 outputPort port {
     Protocol: http
-    Interfaces: interfacciaB
+    Interfaces: interfacciaB, IGroup
 }
 
 outputPort portaStampaConsole {
@@ -144,7 +144,20 @@ main {
         else 
             if ( instruction == "CREA GRUPPO") {
                 //inserisci nome gruppo da creare
-                showInputDialog@SwingUI( user.name + "\nInserisci nome gruppo da creare" )()
+                showInputDialog@SwingUI( user.name + "\nInserisci nome gruppo da creare" )( groupName )
+
+                // group.name = groupName
+                // group.port = user.port
+                verifyGroup@port( groupName )( responseGroup )
+
+                println@Console( responseGroup )()
+
+                if( responseGroup ) {
+                    press@portaStampaConsole( "Il gruppo " + groupName + " è già presente" )()
+                } else {
+                    press@portaStampaConsole( "Il gruppo " + groupName + " può essere creato" )()
+                    addGroup@port( groupName )
+                }
 
                 //controlla che non ci sia già un gruppo con quel nome
                 //crea processo figlio => un peer hosta il gruppo, se il peer in questione esce, il gruppo viene smantellato

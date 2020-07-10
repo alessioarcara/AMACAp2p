@@ -9,12 +9,12 @@ execution{ concurrent }
 inputPort port {
     Location: LOCATION
     Protocol: http
-    Interfaces: interfacciaB
+    Interfaces: interfacciaB, IGroup
 }
 
 outputPort out {
     Protocol: http
-    Interfaces: interfacciaB
+    Interfaces: interfacciaB, IGroup
 }
 
 outputPort portaStampaConsole {
@@ -27,8 +27,12 @@ init {
     global.user.name = "undefined"
     global.user.port = 0
     global.count = 0
-    global.peer_names[0] = void
-    global.peer_port[0] = void
+    global.peer_names[ 0 ] = void
+    global.peer_port[ 0 ] = void
+
+    //Variabili gruppo .
+    global.group_name[ 0 ] = void
+    global.countGroup = 0
 }
 
 main {
@@ -145,4 +149,32 @@ main {
             response = global.user.name
         }
     ]
+
+
+    //VERIFICA SE IL GRUPPO INSERITO ESISTE .
+    [
+        verifyGroup( groupName )( response ) {
+            //Variabile flag da restituire .
+            flag = false
+
+            println@Console( #global.countGroup )()
+
+            for( i = 0, i < #global.group_name, i++ ) {
+                
+                if( groupName == global.group_name[ i ] ) {
+                    flag = true
+                }
+            }
+
+            //Restituisco la risposta .
+            response = flag
+        }
+    ]
+
+
+    //AGGIUNTA GRUPPO .
+    [addGroup( request )] {
+        global.group_name[ global.countGroup ] = request
+        global.countGroup = global.countGroup + 1
+    }
 }

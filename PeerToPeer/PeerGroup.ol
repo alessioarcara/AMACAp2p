@@ -1,12 +1,16 @@
-include "console.iol"
-include "interfacce.iol"
+// include "console.iol"
+// include "interfacce.iol"
 
-inputPort GroupPort {
-    Location: LOCATION
-    Protocol: http
-    Interfaces: interfacciaB
-}
+// inputPort GroupPort {
+//     Location: LOCATION
+//     Protocol: http
+//     Interfaces: IGroup
+// }
 
-init {
-    global.group.name = "undefined"
-}
+// init {
+    
+// }
+
+// main {
+ 
+// }
