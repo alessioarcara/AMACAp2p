@@ -34,7 +34,16 @@ init {
             num_port = portNum
             condition = false
         }
-    } 
+    }
+
+    //Gestione errore dovuto al button "cancel" nelle SwingUI .
+    install( TypeMismatch => {
+        if( !is_defined( user.name ) ) {
+            press@portaStampaConsole( "Un utente si è arrestato inaspettatamente!" )()
+        } else {
+            press@portaStampaConsole( user.name + " si è arrestato inaspettatamente!" )()
+        }
+    })
 }
 
 define startChat
@@ -159,7 +168,7 @@ main {
                     addGroup@port( groupName )
                 }
 
-                //controlla che non ci sia già un gruppo con quel nome
+                //Controlla che non ci sia già un gruppo con quel nome
                 //crea processo figlio => un peer hosta il gruppo, se il peer in questione esce, il gruppo viene smantellato
                 println@Console()()
                 //creare un processo PeerGroup e poi fare l'embedding
