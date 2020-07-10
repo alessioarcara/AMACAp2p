@@ -12,6 +12,11 @@ type message: void {
 
 type users: any {?}
 
+type group: void {
+    .name: string
+    .port: int
+}
+
 
 ///////////////////////// INTERFACES /////////////////////////
 
@@ -27,5 +32,12 @@ interface interfacciaB {
     RequestResponse: sendStringhe( message )( string ),
     RequestResponse: sendInfo( user )( void ),
     RequestResponse: chatRequest( string )( bool ),
-    RequestResponse: informazione( void )( string )
+    RequestResponse: infoUser( void )( string )
+    // RequestResponse: verifyGroup( group )( bool ),
+    // OneWay: addGroup( group )
+}
+
+interface IGroup {
+    RequestResponse: verifyGroup( string )( bool ),
+    OneWay: addGroup( string )
 }

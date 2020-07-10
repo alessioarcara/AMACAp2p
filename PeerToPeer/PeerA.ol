@@ -6,7 +6,7 @@ include "ui/swing_ui.iol"
 
 outputPort port {
     Protocol: http
-    Interfaces: interfacciaB
+    Interfaces: interfacciaB, IGroup
 }
 
 outputPort portaStampaConsole {
@@ -34,7 +34,16 @@ init {
             num_port = portNum
             condition = false
         }
-    } 
+    }
+
+    //Gestione errore dovuto al button "cancel" nelle SwingUI .
+    install( TypeMismatch => {
+        if( !is_defined( user.name ) ) {
+            press@portaStampaConsole( "Un utente si è arrestato inaspettatamente!" )()
+        } else {
+            press@portaStampaConsole( user.name + " si è arrestato inaspettatamente!" )()
+        }
+    })
 }
 
 define startChat
@@ -59,13 +68,13 @@ define startChat
             while( msg.text != "EXIT" ) {
                 sendStringhe@port( msg )( response )
                 print@Console("\n")()
-                // in( msg.text )
                 
-                showInputDialog@SwingUI( user.name + "\nInserisci messaggio: " )( responseMessage )
+                showInputDialog@SwingUI( user.name + "\nInserisci messaggio ( 'EXIT' per uscire ):" )( responseMessage )
                 msg.text = responseMessage
 
                 if ( msg.text == "EXIT" ) {
-                    sendStringhe@port( "Abbandono lo chat..." )()
+                    sendStringhe@port( msg )( response )
+                    press@portaStampaConsole( user.name + " ha abbandonato la comunicazione con " + dest )()
                 } else {
                     println@Console( msg.text )()
                 }
@@ -107,7 +116,7 @@ main {
     port.location = "socket://localhost:" + user.port //Cambio la porta dopo aver eseguito il broadcastMsg .
 
     //Verifichiamo tutte le volte se un peer abbia eventualmente cambiato nome .
-    informazione@port()( responseNewUser )
+    infoUser@port()( responseNewUser )
     user.name = responseNewUser //Setto eventualmente il nuovo nome .
 
     //Stampo su monitor il peer aggiunto alla rete .
@@ -127,43 +136,57 @@ main {
             status = false
             press@portaStampaConsole( user.name + " ha abbandonato la rete" )()
         } 
-        
-        else if ( instruction == "CHAT" ) {
+        else 
+            if ( instruction == "CHAT" ) {
 
-            showInputDialog@SwingUI( user.name + "\nInserisci username da contattare: " )( responseContact )
-            dest = responseContact
+                showInputDialog@SwingUI( user.name + "\nInserisci username da contattare: " )( responseContact )
+                dest = responseContact
 
-            searchPeer@port( dest )( dest_port )
+                searchPeer@port( dest )( dest_port )
+            
             if ( dest_port == 0 ) {
                 println@Console( "L'username ricercato non esiste." )(  )
             } else {
                 startChat
             }
         }
+        else 
+            if ( instruction == "CREA GRUPPO") {
+                //inserisci nome gruppo da creare
+                showInputDialog@SwingUI( user.name + "\nInserisci nome gruppo da creare" )( groupName )
 
-        else if ( instruction == "CREA GRUPPO") {
-            //inserisci nome gruppo da creare
-            //controlla che non ci sia già un gruppo con quel nome
-            //crea processo figlio => un peer hosta il gruppo, se il peer in questione esce, il gruppo viene smantellato
-            println@Console()()
-            //creare un processo PeerGroup e poi fare l'embedding
-        }
+                // group.name = groupName
+                // group.port = user.port
+                verifyGroup@port( groupName )( responseGroup )
 
-        else {
-            println@Console("\nIstruzione sconosciuta.")()
-        }
-    } 
+                println@Console( responseGroup )()
 
-    /* condition = true
-    portNum = 11000
-    while(condition) {
-        scope( e ){
-            install( IOException  => println@Console("\nSearching...\n")());
-            sendStringhe@port( args[0] )( response )
-            println@Console("\nIl servizio B è nella porta " + portNum + "\n")()
-            condition = false
-        }
-        portNum = portNum + 1
-        port.location = "socket://localhost:" + portNum
-    } */
+                if( responseGroup ) {
+                    press@portaStampaConsole( "Il gruppo " + groupName + " è già presente" )()
+                } else {
+                    press@portaStampaConsole( "Il gruppo " + groupName + " può essere creato" )()
+                    addGroup@port( groupName )
+                }
+
+                //Controlla che non ci sia già un gruppo con quel nome
+                //crea processo figlio => un peer hosta il gruppo, se il peer in questione esce, il gruppo viene smantellato
+                println@Console()()
+                //creare un processo PeerGroup e poi fare l'embedding
+            } else {
+                println@Console("\nIstruzione sconosciuta.")()
+            }
+    }   
+
+        /* condition = true
+        portNum = 11000
+        while(condition) {
+            scope( e ){
+                install( IOException  => println@Console("\nSearching...\n")());
+                sendStringhe@port( args[0] )( response )
+                println@Console("\nIl servizio B è nella porta " + portNum + "\n")()
+                condition = false
+            }
+            portNum = portNum + 1
+            port.location = "socket://localhost:" + portNum
+        } */
 }
