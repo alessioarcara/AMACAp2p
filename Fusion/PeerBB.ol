@@ -2,6 +2,9 @@ include "console.iol"
 include "interfacce.iol"
 include "string_utils.iol"
 include "ui/swing_ui.iol"
+include "EncryptingServiceInterface.iol"
+include "DecryptingServiceInterface.iol"
+include "KeyGeneratorServiceInterface.iol"
 
 
 execution{ concurrent }
@@ -33,9 +36,21 @@ init {
     //Variabili gruppo .
     global.group_name[ 0 ] = void
     global.countGroup = 0
+
+    //Chiavi salvate .
+    chiaviPubbliche.publickey1 = string
+    chiaviPubbliche.publickey2 = string
+    chiavePrivata.privatekey = string
 }
 
 main {
+
+    GenerazioneChiavi@KeyGeneratorServiceOutputPort()( returnChiavi )
+
+    chiaviPubbliche.publickey1 = returnChiavi.publickey1
+    chiaviPubbliche.publickey2 = returnChiavi.publickey2   
+    chiavePrivata.privatekey = returnChiavi.privatekey
+
 
     //BROADCAST
     [broadcast( newuser )] {
@@ -105,8 +120,14 @@ main {
     //METODO PER SCAMBIARSI MESSAGGI
     [
         sendStringhe( request )( response ) {
+            
+            plaintextRequest.message = request.text
+            plaintextRequest.publickey1 = chiaviPubbliche.publickey1
+            plaintextRequest.privatekey = chiavePrivata.privatekey
+            Decodifica_RSA@DecryptingServiceOutputPort( plaintextRequest )( plainTextResponse )
+            
             response = "ACK"
-            println@Console( request.username + " : " + request.text + "\n" )()
+            println@Console( request.username + " : " + plainTextResponse.message + "\n" )()
         }
     ]
 
@@ -177,4 +198,11 @@ main {
         global.group_name[ global.countGroup ] = request
         global.countGroup = global.countGroup + 1
     }
+
+    //RESTITUZIONE CHIAVI PUBBLICHE .
+    [
+        richiestaChiavi( void )( response ) {
+            response = chiaviPubbliche
+        }
+    ]
 }

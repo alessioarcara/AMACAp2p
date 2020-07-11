@@ -5,12 +5,11 @@ include "ui/swing_ui.iol"
 include "EncryptingServiceInterface.iol"
 include "DecryptingServiceInterface.iol"
 include "KeyGeneratorServiceInterface.iol"
-include "ServerInterface.iol"
 
 
 outputPort port {
     Protocol: http
-    Interfaces: interfacciaB, IGroup, ServerInterface, scambioChiaviInterface
+    Interfaces: interfacciaB, IGroup
 }
 
 outputPort portaStampaConsole {
@@ -39,16 +38,19 @@ embedded {
 }
 
 init {
+    println@Console( "OK" )()
+
     // SEARCH THE FIRST FREE PORT
     condition = true
     portNum = 10001
     while( condition ) {
+        println@Console( portNum )()
         scope( e ){
             install( RuntimeException  => {
                 portNum = portNum + 1
             })
             with( emb ) {
-                .filepath = "-C LOCATION=\"" + "socket://localhost:" + portNum + "\" PeerB.ol";
+                .filepath = "-C LOCATION=\"" + "socket://localhost:" + portNum + "\" PeerBB.ol"
                 .type = "Jolie"
             };
             loadEmbeddedService@Runtime( emb )()
@@ -57,15 +59,7 @@ init {
         }
     }
 
-    //GENERAZIONE CHIAVI .
-    GenerazioneChiavi@KeyGeneratorServiceOutputPort(  )( returnChiavi )
-
-    chiaviPubbliche.publickey1 = returnChiavi.publickey1
-    chiaviPubbliche.publickey2 = returnChiavi.publickey2   
-    chiavePrivata.privatekey = returnChiavi.privatekey
-
-    
-
+    println@Console( "OK2" )()
 
     //Gestione errore dovuto al button "cancel" nelle SwingUI .
     install( TypeMismatch => {
@@ -75,6 +69,8 @@ init {
             press@portaStampaConsole( user.name + " si è arrestato inaspettatamente!" )()
         }
     })
+
+     println@Console( "OK2" )(  )
 }
 
 define startChat {
@@ -90,8 +86,8 @@ define startChat {
         chatRequest@port( user.name )( response )
         if ( response ) {
             
-            //Scambio chiavi .
-            scambioChiavi( chiaviPubbliche_A )( chiaviPubbliche )
+            //Recupero chiavi pubbliche del destinatario .
+            richiestaChiavi@port()( chiaviPubblicheDestinatario )
 
             press@portaStampaConsole( user.name + " ha iniziato la comunicazione con " + dest )()
             showInputDialog@SwingUI( user.name + "\nOra puoi scrivere i messaggi e inviarli.\nEXIT per uscire" )( responseMessage )
@@ -102,11 +98,11 @@ define startChat {
                 print@Console("\n")()
                 
                 showInputDialog@SwingUI( user.name + "\nInserisci messaggio ( 'EXIT' per uscire ):" )( responseMessage )
+                
                 //passo il plaintext al javaservice *EncryptingService*
                 request.message = responseMessage
-                request.publickey1 = chiaviResponse.publickey1
-                request.publickey2 = chiaviResponse.publickey2
-                request.privatekey = chiavePrivata.privatekey
+                request.publickey1 = chiaviPubblicheDestinatario.publickey1
+                request.publickey2 = chiaviPubblicheDestinatario.publickey2
                 Codifica_RSA@EncryptingServiceOutputPort( request )( response )
 
                 msg.text = response

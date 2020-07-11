@@ -17,6 +17,16 @@ type group: void {
     .port: int
 }
 
+type scambioChiaviRequest: void {
+  .publickey1: string
+  .publickey2: string
+}
+
+type scambioChiaviResponse: void {
+  .publickey1: string
+  .publickey2: string
+}
+
 
 ///////////////////////// INTERFACES /////////////////////////
 
@@ -32,7 +42,8 @@ interface interfacciaB {
     RequestResponse: sendStringhe( message )( string ),
     RequestResponse: sendInfo( user )( void ),
     RequestResponse: chatRequest( string )( bool ),
-    RequestResponse: infoUser( void )( string )
+    RequestResponse: infoUser( void )( string ),
+    RequestResponse: richiestaChiavi( void )( scambioChiaviRequest )
     // RequestResponse: verifyGroup( group )( bool ),
     // OneWay: addGroup( group )
 }
