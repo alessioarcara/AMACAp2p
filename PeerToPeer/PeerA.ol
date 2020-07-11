@@ -15,6 +15,10 @@ outputPort portaStampaConsole {
     Interfaces: teniamoTraccia
 }
 
+constants {
+    menu =  "1. Chat privata ( CHAT )\n2. Chat gruppo ( CREA GRUPPO )\n3. Esci dalla rete ( EXIT )\n"
+}
+
 
 init {
     // SEARCH THE FIRST FREE PORT
@@ -96,15 +100,6 @@ define broadcastMsg {
     }
 }
 
-// constants {
-//     //Stampa del menù iniziale per la gestione dei peer e dei messaggi .
-//     menu =  " ----------------------------------------------\n"  +
-//             "| 1. Avvia una chat privata ( CHAT )           |\n" +
-//             "| 2. Avvia una chat di gruppo ( CREA GRUPPO )  |\n"
-//             "| 3. Esci dalla rete ( EXIT )                  |\n"
-//             " ----------------------------------------------"
-// }
-
 main {
 
     println@Console( "\nUtilizzi la porta " + num_port + "\n" )()
@@ -134,7 +129,7 @@ main {
     status = true
     while ( status ) {
 
-        showInputDialog@SwingUI( user.name + "\n" + menuIniziale + "\nInserisci istruzione: " )( responseIstruzione )
+        showInputDialog@SwingUI( "User: " + user.name + "\n" + menu + "\nInserisci istruzione: " )( responseIstruzione )
         instruction = responseIstruzione
 
         port.location = "socket://localhost:" + user.port
