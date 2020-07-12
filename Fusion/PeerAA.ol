@@ -38,8 +38,6 @@ embedded {
 }
 
 init {
-    println@Console( "OK" )()
-
     // SEARCH THE FIRST FREE PORT
     condition = true
     portNum = 10001
@@ -59,18 +57,14 @@ init {
         }
     }
 
-    println@Console( "OK2" )()
-
     //Gestione errore dovuto al button "cancel" nelle SwingUI .
-    install( TypeMismatch => {
-        if( !is_defined( user.name ) ) {
-            press@portaStampaConsole( "Un utente si è arrestato inaspettatamente!" )()
-        } else {
-            press@portaStampaConsole( user.name + " si è arrestato inaspettatamente!" )()
-        }
-    })
-
-     println@Console( "OK2" )(  )
+    // install( TypeMismatch => {
+    //     if( !is_defined( user.name ) ) {
+    //         press@portaStampaConsole( "Un utente si è arrestato inaspettatamente!" )()
+    //     } else {
+    //         press@portaStampaConsole( user.name + " si è arrestato inaspettatamente!" )()
+    //     }
+    // })
 }
 
 define startChat {
@@ -83,29 +77,38 @@ define startChat {
         port.location = "socket://localhost:" + dest_port
 
         //invia richiesta di chat al destinatario
-        chatRequest@port( user.name )( response )
-        if ( response ) {
-            
+        chatRequest@port( user.name )( enter )
+
+        if ( enter ) {
+
             //Recupero chiavi pubbliche del destinatario .
             richiestaChiavi@port()( chiaviPubblicheDestinatario )
 
             press@portaStampaConsole( user.name + " ha iniziato la comunicazione con " + dest )()
             showInputDialog@SwingUI( user.name + "\nOra puoi scrivere i messaggi e inviarli.\nEXIT per uscire" )( responseMessage )
-            msg.text = responseMessage
+            
+            //Passo il plaintext al javaservice *EncryptingService*
+            request.message = responseMessage
+            request.publickey1 = chiaviPubblicheDestinatario.publickey1
+            request.publickey2 = chiaviPubblicheDestinatario.publickey2
+            Codifica_RSA@EncryptingServiceOutputPort( request )( response )
+
+            msg.text = response.message
             
             while( msg.text != "EXIT" ) {
                 sendStringhe@port( msg )( response )
                 print@Console("\n")()
                 
                 showInputDialog@SwingUI( user.name + "\nInserisci messaggio ( 'EXIT' per uscire ):" )( responseMessage )
-                
-                //passo il plaintext al javaservice *EncryptingService*
+
+                //Passo il plaintext al javaservice *EncryptingService*
                 request.message = responseMessage
                 request.publickey1 = chiaviPubblicheDestinatario.publickey1
                 request.publickey2 = chiaviPubblicheDestinatario.publickey2
                 Codifica_RSA@EncryptingServiceOutputPort( request )( response )
 
-                msg.text = response
+                msg.text = response.message
+                
 
                 if ( msg.text == "EXIT" ) {
                     sendStringhe@port( msg )( response )
@@ -165,6 +168,9 @@ main {
 
     //Stampo su monitor il peer aggiunto alla rete .
     press@portaStampaConsole( user.name + " si è unito/a alla rete!" )()
+
+    //GENERAZIONE CHIAVI .
+    generateKey@port()
 
 
     //WAIT FOR INSTRUCTION

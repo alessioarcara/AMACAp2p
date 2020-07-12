@@ -73,7 +73,7 @@ public class EncryptingService extends JavaService {
         mc[0] = new BigInteger(Padding_SAEP(request.getFirstChild( "message" ).strValue()), 2);
         mc[1] = new BigInteger(request.getFirstChild( "publickey1" ).strValue());
         mc[2] = new BigInteger(request.getFirstChild( "publickey2" ).strValue());
-        mc[3] = new BigInteger(request.getFirstChild( "privatekey" ).strValue());
+        //mc[3] = new BigInteger(request.getFirstChild( "privatekey" ).strValue());
 
         //c = m^e mod n
         mc[0] = mc[0].modPow(mc[2], mc[1]);

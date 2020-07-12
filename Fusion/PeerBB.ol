@@ -26,6 +26,25 @@ outputPort portaStampaConsole {
     Interfaces: teniamoTraccia
 }
 
+outputPort KeyGeneratorServiceOutputPort {
+  Interfaces: KeyGeneratorServiceInterface
+}
+
+outputPort EncryptingServiceOutputPort {
+    Interfaces: EncryptingServiceInterface
+}
+
+outputPort DecryptingServiceOutputPort {
+    Interfaces: DecryptingServiceInterface
+}
+
+embedded {
+  Java:
+    "blend.KeyGeneratorService" in KeyGeneratorServiceOutputPort,
+    "blend.EncryptingService" in EncryptingServiceOutputPort,
+    "blend.DecryptingService" in DecryptingServiceOutputPort
+}
+
 init {
     global.user.name = "undefined"
     global.user.port = 0
@@ -38,18 +57,21 @@ init {
     global.countGroup = 0
 
     //Chiavi salvate .
-    chiaviPubbliche.publickey1 = string
-    chiaviPubbliche.publickey2 = string
-    chiavePrivata.privatekey = string
+    global.chiaviPubbliche.publickey1 = void
+    global.chiaviPubbliche.publickey2 = void
+    global.chiavePrivata.privatekey = void
 }
 
 main {
 
-    GenerazioneChiavi@KeyGeneratorServiceOutputPort()( returnChiavi )
+    //GENERAZIONE CHIAVI .
+    [generateKey()] {
+        GenerazioneChiavi@KeyGeneratorServiceOutputPort()( returnChiavi )
 
-    chiaviPubbliche.publickey1 = returnChiavi.publickey1
-    chiaviPubbliche.publickey2 = returnChiavi.publickey2   
-    chiavePrivata.privatekey = returnChiavi.privatekey
+        global.chiaviPubbliche.publickey1 = returnChiavi.publickey1
+        global.chiaviPubbliche.publickey2 = returnChiavi.publickey2   
+        global.chiavePrivata.privatekey = returnChiavi.privatekey
+    }
 
 
     //BROADCAST
@@ -119,15 +141,17 @@ main {
     
     //METODO PER SCAMBIARSI MESSAGGI
     [
-        sendStringhe( request )( response ) {
+        sendStringhe( plaintextRequest )( response ) {
+
+            println@Console( "Messaggio codificato: " + plaintextRequest.text )()
             
-            plaintextRequest.message = request.text
-            plaintextRequest.publickey1 = chiaviPubbliche.publickey1
-            plaintextRequest.privatekey = chiavePrivata.privatekey
-            Decodifica_RSA@DecryptingServiceOutputPort( plaintextRequest )( plainTextResponse )
+            request.message = plaintextRequest.text
+            request.publickey1 = global.chiaviPubbliche.publickey1
+            request.privatekey = global.chiavePrivata.privatekey
+            Decodifica_RSA@DecryptingServiceOutputPort( request )( plainTextResponse )
             
             response = "ACK"
-            println@Console( request.username + " : " + plainTextResponse.message + "\n" )()
+            println@Console( plaintextRequest.username + " : " + plainTextResponse.message + "\n" )()
         }
     ]
 
@@ -138,6 +162,7 @@ main {
             global.user.port = self.port
         }
     ]
+
     [
         searchPeer( username )( port ) {
             port = 0
@@ -153,7 +178,7 @@ main {
     [
         chatRequest( username )( response ) {
             showYesNoQuestionDialog@SwingUI( username + " vuole inviarti un messaggio. Vuoi accettare ed iniziare a ricevere messaggi da " + username + "." )( responseQuestion )
-            if( int( responseQuestion ) == 0 ) {
+            if( responseQuestion == 0 ) {
                 response = true
                 println@Console("Per rispondere a " + username + " avvia una chat con lui.")()
             } else {
@@ -201,8 +226,10 @@ main {
 
     //RESTITUZIONE CHIAVI PUBBLICHE .
     [
-        richiestaChiavi( void )( response ) {
-            response = chiaviPubbliche
+        richiestaChiavi()( response ) {
+            //println@Console(global.chiaviPubbliche.publickey1 + " " + global.chiaviPubbliche.publickey2 )()
+            response.publickey1 = global.chiaviPubbliche.publickey1
+            response.publickey2 = global.chiaviPubbliche.publickey2
         }
     ]
 }
