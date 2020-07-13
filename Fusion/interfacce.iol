@@ -30,21 +30,18 @@ interface teniamoTraccia {
 }
 
 interface interfacciaB {
-    OneWay: broadcast( user ),
+    OneWay: broadcast( int ),
+    RequestResponse: login(int)(string),
     RequestResponse: searchPeer( string )( int ),
     OneWay: hello( user ),
+    OneWay: sendHi( user ),
     RequestResponse: getCount( void )( int ),
     RequestResponse: sendStringhe( message )( string ),
-    RequestResponse: sendInfo( user )( void ),
     RequestResponse: chatRequest( string )( bool ),
-    RequestResponse: infoUser( void )( string ),
     RequestResponse: richiestaChiavi( void )( richiestaChiaviResponse ),
     OneWay: generateKey( void )
-    // RequestResponse: verifyGroup( group )( bool ),
-    // OneWay: addGroup( group )
 }
 
 interface IGroup {
-    RequestResponse: verifyGroup( string )( bool ),
-    OneWay: addGroup( string )
+    RequestResponse: setGroupName(string)(void)
 }

@@ -4,7 +4,12 @@ include "interfacce.iol"
 inputPort GroupPort {
     Location: LOCATION
     Protocol: http
-    Interfaces: IGroup
+    Interfaces: IGroup, interfacciaB
+}
+
+outputPort out {
+    Protocol: http
+    Interfaces: interfacciaB, IGroup
 }
 
 outputPort portaStampaConsole {
@@ -14,35 +19,27 @@ outputPort portaStampaConsole {
 }
 
 init {
-    global.group_name[ 0 ] = void
-    global.countGroup = 0
+    global.group.name = ""
+    global.group.port = 0
 }
 
 main {
-    //VERIFICA SE IL GRUPPO INSERITO ESISTE .
+
+    //inizializza nome e porta del gruppo
     [
-        verifyGroup( groupName )( response ) {
-            //Variabile flag da restituire .
-            flag = false
-
-            println@Console( #global.countGroup )()
-
-            for( i = 0, i < #global.group_name, i++ ) {
-                
-                if( groupName == global.group_name[ i ] ) {
-                    flag = true
-                }
-            }
-
-            //Restituisco la risposta .
-            response = flag
+        setGroupName(request)() {
+            global.group.name = request.name
+            global.group.port = request.port
         }
     ]
 
-
-    //AGGIUNTA GRUPPO .
-    [addGroup( request )] {
-        global.group_name[ global.countGroup ] = request
-        global.countGroup = global.countGroup + 1
+    //BROADCAST
+    [broadcast( newuser )] {
+        out.location = "socket://localhost:" + newuser.port
+        hello@out( global.group )
     }
+
+    
+
+
 }
