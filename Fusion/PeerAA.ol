@@ -37,6 +37,10 @@ embedded {
     "blend.DecryptingService" in DecryptingServiceOutputPort
 }
 
+constants {
+    menu =  "1. Chat privata ( CHAT )\n2. Chat gruppo ( CREA GRUPPO )\n3. Esci dalla rete ( EXIT )\n"
+}
+
 init {
     // SEARCH THE FIRST FREE PORT
     condition = true
@@ -58,13 +62,13 @@ init {
     }
 
     //Gestione errore dovuto al button "cancel" nelle SwingUI .
-    // install( TypeMismatch => {
-    //     if( !is_defined( user.name ) ) {
-    //         press@portaStampaConsole( "Un utente si è arrestato inaspettatamente!" )()
-    //     } else {
-    //         press@portaStampaConsole( user.name + " si è arrestato inaspettatamente!" )()
-    //     }
-    // })
+    install( TypeMismatch => {
+        if( !is_defined( user.name ) ) {
+            press@portaStampaConsole( "Un utente si è arrestato inaspettatamente!" )()
+        } else {
+            press@portaStampaConsole( user.name + " si è arrestato inaspettatamente!" )()
+        }
+    })
 }
 
 define startChat {
@@ -87,7 +91,7 @@ define startChat {
             press@portaStampaConsole( user.name + " ha iniziato la comunicazione con " + dest )()
             showInputDialog@SwingUI( user.name + "\nOra puoi scrivere i messaggi e inviarli.\nEXIT per uscire" )( responseMessage )
             
-            //Passo il plaintext al javaservice *EncryptingService*
+            //Passo plaintext al javaservice .
             request.message = responseMessage
             request.publickey1 = chiaviPubblicheDestinatario.publickey1
             request.publickey2 = chiaviPubblicheDestinatario.publickey2
@@ -95,7 +99,7 @@ define startChat {
 
             msg.text = response.message
             
-            while( msg.text != "EXIT" ) {
+            while( responseMessage != "EXIT" ) {
                 sendStringhe@port( msg )( response )
                 print@Console("\n")()
                 
@@ -110,8 +114,8 @@ define startChat {
                 msg.text = response.message
                 
 
-                if ( msg.text == "EXIT" ) {
-                    sendStringhe@port( msg )( response )
+                if ( responseMessage == "EXIT" ) {
+                    //sendStringhe@port( msg )( response )
                     press@portaStampaConsole( user.name + " ha abbandonato la comunicazione con " + dest )()
                 } else {
                     println@Console( msg.text )()
@@ -177,7 +181,7 @@ main {
     status = true
     while ( status ) {
 
-        showInputDialog@SwingUI( user.name + "\n" + menuIniziale + "\nInserisci istruzione: " )( responseIstruzione )
+        showInputDialog@SwingUI( "User: " + user.name + "\n" + menu + "\nInserisci istruzione: " )( responseIstruzione )
         instruction = responseIstruzione
 
         port.location = "socket://localhost:" + user.port
