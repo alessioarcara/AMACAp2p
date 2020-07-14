@@ -1,27 +1,51 @@
 package blend;
 
 import javax.swing.*;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import javax.swing.plaf.basic.BasicOptionPaneUI.ButtonActionListener;
+import java.awt.event.*;
+import java.awt.*;
 
 import jolie.runtime.JavaService;
+import jolie.runtime.embedding.RequestResponse;
 
 public class JavaSwingConsole extends JavaService {
 
     public static void aperturaConsole() {
-        JFrame f=new JFrame();//creating instance of JFrame  
-          
-        JButton b=new JButton("click");//creating instance of JButton  
-        b.setBounds(130,100,100, 40);//x axis, y axis, width, height  
-                
+   
+        //CREAZIONE FRAME .
+        JFrame frame = new JFrame();
 
-        f.add(b);//adding button in JFrame  
-                
-        f.setSize(400,500);//400 width and 500 height  
-        f.setLayout(null);//using no layout managers  
-        f.setVisible(true);//making the frame visible 
+        //CREAZIONE BUTTON .
+        JButton buttonChat = new JButton( "CHAT PRIVATA" );
+        JButton buttonGroup = new JButton( "CHAT PUBBLICA" );
+        JButton buttonExit = new JButton( "ESCI" );
+        
+        //SETTAGGIO BOTTONI .
+        buttonChat.setAlignmentX( Component.CENTER_ALIGNMENT );
+        buttonGroup.setAlignmentX( Component.CENTER_ALIGNMENT );
+        buttonExit.setAlignmentX( Component.CENTER_ALIGNMENT );
 
-        f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        //GESTIONE EVENTI .
+        ActionListener listener = new buttonListener();
+
+        buttonExit.addActionListener( listener );
+        buttonChat.addActionListener( listener );
+        buttonGroup.addActionListener( listener );
+
+        BoxLayout buttonPanel =  new BoxLayout( frame.getContentPane(), BoxLayout.Y_AXIS );
+
+        frame.setLayout( buttonPanel );
+
+        //AGGIUNTA BUTTON A FRAME .
+        frame.add( buttonChat );
+        frame.add( buttonGroup );
+        frame.add( buttonExit );
+
+        frame.pack();
+
+        frame.setVisible( true );
+
+        //CHIUSURA CONSOLE .
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
-
 }
