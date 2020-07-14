@@ -80,7 +80,6 @@ main {
                     request.message = b
                     request.publickey1 = chiaviResponse.publickey1
                     request.publickey2 = chiaviResponse.publickey2
-                    request.privatekey = chiavePrivata.privatekey
                     Codifica_RSA@EncryptingServiceOutputPort( request )( response )
 
                     //il javaservice *EncryptingService* mi ritorna il ciphertext 
