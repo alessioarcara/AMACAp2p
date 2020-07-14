@@ -12,14 +12,15 @@ type message: void {
 
 type users: any {?}
 
-type group: void {
-    .name: string
-    .port: int
-}
-
 type richiestaChiaviResponse: void {
     .publickey1: string
     .publickey2: string
+}
+
+type group: void {
+    .name: string
+    .port: int
+    .host: int
 }
 
 
@@ -30,21 +31,22 @@ interface teniamoTraccia {
 }
 
 interface interfacciaB {
-    OneWay: broadcast( user ),
+    OneWay: broadcast( int ),
+    RequestResponse: login(int)(string),
     RequestResponse: searchPeer( string )( int ),
     OneWay: hello( user ),
+    OneWay: sendHi( user ),
     RequestResponse: getCount( void )( int ),
     RequestResponse: sendStringhe( message )( string ),
-    RequestResponse: sendInfo( user )( void ),
     RequestResponse: chatRequest( string )( bool ),
-    RequestResponse: infoUser( void )( string ),
     RequestResponse: richiestaChiavi( void )( richiestaChiaviResponse ),
     OneWay: generateKey( void )
-    // RequestResponse: verifyGroup( group )( bool ),
-    // OneWay: addGroup( group )
 }
 
 interface IGroup {
-    RequestResponse: verifyGroup( string )( bool ),
-    OneWay: addGroup( string )
+    RequestResponse: setGroup(group)(void),
+    OneWay: sendMessage(message),
+    OneWay: verify(void),
+    OneWay: forwardMessage(message),
+    RequestResponse: enterGroup(user)(void)
 }

@@ -37,12 +37,16 @@ embedded {
     "blend.DecryptingService" in DecryptingServiceOutputPort
 }
 
+constants {
+    menu =  "1. Chat privata ( CHAT )\n2. Chat gruppo ( CREA GRUPPO )\n3. Esci dalla rete ( EXIT )\n",
+    limiteLunghezzaMessaggio = 63
+}
+
 init {
     // SEARCH THE FIRST FREE PORT
     condition = true
     portNum = 10001
     while( condition ) {
-        println@Console( portNum )()
         scope( e ){
             install( RuntimeException  => {
                 portNum = portNum + 1
@@ -58,13 +62,13 @@ init {
     }
 
     //Gestione errore dovuto al button "cancel" nelle SwingUI .
-    // install( TypeMismatch => {
-    //     if( !is_defined( user.name ) ) {
-    //         press@portaStampaConsole( "Un utente si è arrestato inaspettatamente!" )()
-    //     } else {
-    //         press@portaStampaConsole( user.name + " si è arrestato inaspettatamente!" )()
-    //     }
-    // })
+    /* install( TypeMismatch => {
+        if( !is_defined( user.name ) ) {
+            press@portaStampaConsole( "Un utente si è arrestato inaspettatamente!" )()
+        } else {
+            press@portaStampaConsole( user.name + " si è arrestato inaspettatamente!" )()
+        }
+    }) */
 }
 
 define startChat {
@@ -83,40 +87,35 @@ define startChat {
 
             //Recupero chiavi pubbliche del destinatario .
             richiestaChiavi@port()( chiaviPubblicheDestinatario )
-
-            press@portaStampaConsole( user.name + " ha iniziato la comunicazione con " + dest )()
-            showInputDialog@SwingUI( user.name + "\nOra puoi scrivere i messaggi e inviarli.\nEXIT per uscire" )( responseMessage )
-            
-            //Passo il plaintext al javaservice *EncryptingService*
-            request.message = responseMessage
             request.publickey1 = chiaviPubblicheDestinatario.publickey1
             request.publickey2 = chiaviPubblicheDestinatario.publickey2
-            Codifica_RSA@EncryptingServiceOutputPort( request )( response )
 
-            msg.text = response.message
+            press@portaStampaConsole( user.name + " ha iniziato la comunicazione con " + dest )()
             
-            while( msg.text != "EXIT" ) {
-                sendStringhe@port( msg )( response )
-                print@Console("\n")()
-                
-                showInputDialog@SwingUI( user.name + "\nInserisci messaggio ( 'EXIT' per uscire ):" )( responseMessage )
+            responseMessage = ""
+            
+            while( responseMessage != "EXIT" ) {
+                scope( exception ) {
+                    install( StringIndexOutOfBoundsException => {
+                        press@portaStampaConsole( user.name + " ha inserito un messaggio troppo lungo!" )() 
+                    })
+                    showInputDialog@SwingUI( user.name + "\nInserisci messaggio per " + dest + " ( 'EXIT' per uscire ):" )( responseMessage )         
 
-                //Passo il plaintext al javaservice *EncryptingService*
-                request.message = responseMessage
-                request.publickey1 = chiaviPubblicheDestinatario.publickey1
-                request.publickey2 = chiaviPubblicheDestinatario.publickey2
-                Codifica_RSA@EncryptingServiceOutputPort( request )( response )
-
-                msg.text = response.message
-                
-
-                if ( msg.text == "EXIT" ) {
-                    sendStringhe@port( msg )( response )
-                    press@portaStampaConsole( user.name + " ha abbandonato la comunicazione con " + dest )()
-                } else {
-                    println@Console( msg.text )()
+                    if ( responseMessage == "EXIT" ) {
+                        //sendStringhe@port( msg )( response )
+                        press@portaStampaConsole( user.name + " ha abbandonato la comunicazione con " + dest )()
+                    } else {
+                        //Passo il plaintext al javaservice .
+                        if( !( #responseMessage > limiteLunghezzaMessaggio ) ){ //Controllo lunghezza messaggio .
+                            request.message = responseMessage
+                            Codifica_RSA@EncryptingServiceOutputPort( request )( response )
+                            msg.text = response.message  
+                            sendStringhe@port( msg )( response )
+                            //println@Console( msg.text )()
+                        }
+                    }
+                    println@Console()()
                 }
-                println@Console()()
             }
         } else {
             println@Console( "L'utente ha rifiutato la tua richiesta di chattare." )()
@@ -130,41 +129,59 @@ define broadcastMsg {
             install( IOException => i = i /*println@Console("-- Error with " + i + " --")()*/ )
             if( i != user.port ) {
                 port.location = "socket://localhost:" + i
-                broadcast@port( user )
+                broadcast@port( user.port )
             }
         }
     }
 }
 
-// constants {
-//     //Stampa del menù iniziale per la gestione dei peer e dei messaggi .
-//     menu =  " ----------------------------------------------\n"  +
-//             "| 1. Avvia una chat privata ( CHAT )           |\n" +
-//             "| 2. Avvia una chat di gruppo ( CREA GRUPPO )  |\n"
-//             "| 3. Esci dalla rete ( EXIT )                  |\n"
-//             " ----------------------------------------------"
-// }
+define startGroupChat {
+    //START CHATTING
+    scope( e ) {
+
+        //install( IOException => println@Console( "L'host del gruppo è andato offline.")() )
+
+        msg.username = user.name 
+
+        press@portaStampaConsole( user.name + " ha iniziato la comunicazione con il gruppo " + group.name )()
+        
+        responseMessage = ""
+        
+        while( responseMessage != "EXIT" ) {
+            scope( exception ) {
+                /* install( StringIndexOutOfBoundsException => {
+                    press@portaStampaConsole( user.name + " ha inserito un messaggio troppo lungo!" )() 
+                }) */
+                showInputDialog@SwingUI( user.name + "\nInserisci messaggio per il gruppo " + group.name + " ( 'EXIT' per uscire ):" )( responseMessage )         
+
+                if ( responseMessage == "EXIT" ) {
+                    //sendStringhe@port( msg )( response )
+                    press@portaStampaConsole( user.name + " ha abbandonato il gruppo " + group.name )()
+                } else {
+                    msg.text = responseMessage
+                    port.location = "socket://localhost:" + group.port
+                    sendMessage@port(msg)
+                }
+                //println@Console()()
+            }
+        }
+    }
+}
 
 main {
 
     println@Console( "\nUtilizzi la porta " + num_port + "\n" )()
 
 
-    //SIGN IN
+    //Invio broadcast
     user.port = num_port
 
-    showInputDialog@SwingUI( "Inserisci username: " )( responseUser )
-    user.name = responseUser
-
-    port.location = "socket://localhost:" + user.port
-    sendInfo@port( user )()
     broadcastMsg
 
-    port.location = "socket://localhost:" + user.port //Cambio la porta dopo aver eseguito il broadcastMsg .
+    //Iscrizione nella rete
+    port.location = "socket://localhost:" + user.port
+    login@port(user.port)(user.name)
 
-    //Verifichiamo tutte le volte se un peer abbia eventualmente cambiato nome .
-    infoUser@port()( responseNewUser )
-    user.name = responseNewUser //Setto eventualmente il nuovo nome .
 
     //Stampo su monitor il peer aggiunto alla rete .
     press@portaStampaConsole( user.name + " si è unito/a alla rete!" )()
@@ -177,7 +194,7 @@ main {
     status = true
     while ( status ) {
 
-        showInputDialog@SwingUI( user.name + "\n" + menuIniziale + "\nInserisci istruzione: " )( responseIstruzione )
+        showInputDialog@SwingUI( "User: " + user.name + "\n" + menu + "\nInserisci istruzione: " )( responseIstruzione )
         instruction = responseIstruzione
 
         port.location = "socket://localhost:" + user.port
@@ -194,49 +211,85 @@ main {
 
                 searchPeer@port( dest )( dest_port )
             
-            if ( dest_port == 0 ) {
-                println@Console( "L'username ricercato non esiste." )(  )
-            } else {
-                startChat
-            }
-        }
-        else 
-            if ( instruction == "CREA GRUPPO") {
-                //inserisci nome gruppo da creare
-                showInputDialog@SwingUI( user.name + "\nInserisci nome gruppo da creare" )( groupName )
-
-                // group.name = groupName
-                // group.port = user.port
-                verifyGroup@port( groupName )( responseGroup )
-
-                println@Console( responseGroup )()
-
-                if( responseGroup ) {
-                    press@portaStampaConsole( "Il gruppo " + groupName + " è già presente" )()
+                if ( dest_port == 0 ) {
+                    println@Console( "L'username ricercato non esiste." )(  )
                 } else {
-                    press@portaStampaConsole( "Il gruppo " + groupName + " può essere creato" )()
-                    addGroup@port( groupName )
+                    startChat
                 }
+        }
+        else if ( instruction == "CREA GRUPPO" || instruction == "CREA") {
 
-                //Controlla che non ci sia già un gruppo con quel nome
-                //crea processo figlio => un peer hosta il gruppo, se il peer in questione esce, il gruppo viene smantellato
-                println@Console()()
-                //creare un processo PeerGroup e poi fare l'embedding
-            } else {
-                println@Console("\nIstruzione sconosciuta.")()
+            // SEARCH THE FIRST FREE PORT
+            condition = true
+            portNum = 10001
+            while( condition ) {
+                scope( e ){
+                    install( RuntimeException  => {
+                        portNum = portNum + 1
+                    })
+                    with( emb ) {
+                        .filepath = "-C LOCATION=\"" + "socket://localhost:" + portNum + "\" PeerGroup.ol"
+                        .type = "Jolie"
+                    };
+                    loadEmbeddedService@Runtime( emb )()
+                    group.port = portNum
+                    condition = false
+                }
             }
+
+            //inserisci nome gruppo da creare e controllo
+            condition = true
+            while(condition) {
+                showInputDialog@SwingUI( user.name + "\nInserisci nome gruppo da creare" )( group.name )
+
+                port.locaiton = "socket://localhost:" + user.port
+                searchPeer@port( group.name )( response )
+
+                if ( response == 0 ) {
+                    condition = false
+                } else {
+                    println@Console( "Impossibile creare un gruppo con questo nome." )(  )
+                }
+            }
+            port.location = "socket://localhost:" + group.port
+            group.host = user.port
+            setGroup@port( group )()
+            
+            //messaggio broadcast per avvisare gli altri peer della creazione del gruppo
+            for( i = 10001, i < 10101, i++ ) {
+                scope( e ) {
+                    install( IOException => i = i)
+                    if( i != group.port ) {
+                        port.location = "socket://localhost:" + i
+                        broadcast@port( group.port )
+                    }
+                }
+            }
+
+            //inizio chat del gruppo
+            startGroupChat
+
+        } 
+        else if ( instruction == "PARTECIPA" ) {
+            
+            showInputDialog@SwingUI( user.name + "\nInserisci nome del gruppo: " )( responseContact )
+            group.name = responseContact
+
+            searchPeer@port( group.name )( group.port )
+        
+            if ( group.port == 0 ) {
+                println@Console( "Il gruppo ricercato non esiste." )(  )
+            } else {
+                port.location = "socket://localhost:" + group.port
+                enterGroup@port(user)() 
+                println@Console( "\nBenvenuto nel gruppo " + group.name + "!\n" )(  )
+                startGroupChat
+            }
+
+        }
+        else {
+            println@Console("\nIstruzione sconosciuta.")()
+        }
     }   
 
-        /* condition = true
-        portNum = 11000
-        while(condition) {
-            scope( e ){
-                install( IOException  => println@Console("\nSearching...\n")());
-                sendStringhe@port( args[0] )( response )
-                println@Console("\nIl servizio B è nella porta " + portNum + "\n")()
-                condition = false
-            }
-            portNum = portNum + 1
-            port.location = "socket://localhost:" + portNum
-        } */
 }
