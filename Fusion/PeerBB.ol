@@ -73,8 +73,11 @@ main {
     //BROADCAST
     [broadcast( newuser.port )] {
         out.location = "socket://localhost:" + newuser.port
-        install( IOException => a=0)
-        hello@out( global.user )
+        //gestione dell'errore nel caso in cui si invia un "hello" ad un gruppo
+        scope(e) {
+            install( IOException => a=0)
+            hello@out( global.user )
+        }
     }
 
     //HELLO
@@ -135,8 +138,11 @@ main {
 
             for ( i=0, i < #global.peer_port, i++ ) {
                 if ( global.peer_port[0] != 0 ) {
-                    out.location = "socket://localhost:" + global.peer_port[i]
-                    sendHi@out(global.user)
+                    scope(e) {
+                        install( CorrelationError => i=i )
+                        out.location = "socket://localhost:" + global.peer_port[i]
+                        sendHi@out(global.user)
+                    }
                 }
             }
         }
@@ -201,4 +207,9 @@ main {
             response.publickey2 = global.chiaviPubbliche.publickey2
         }
     ]
+
+    //RICEZIONE MESSAGGIO DA GRUPPO
+    [forwardMessage(msg)] {
+        println@Console(msg.username + ": " + msg.text)()
+    }
 }

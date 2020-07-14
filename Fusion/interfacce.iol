@@ -12,14 +12,15 @@ type message: void {
 
 type users: any {?}
 
-type group: void {
-    .name: string
-    .port: int
-}
-
 type richiestaChiaviResponse: void {
     .publickey1: string
     .publickey2: string
+}
+
+type group: void {
+    .name: string
+    .port: int
+    .host: int
 }
 
 
@@ -43,5 +44,9 @@ interface interfacciaB {
 }
 
 interface IGroup {
-    RequestResponse: setGroupName(string)(void)
+    RequestResponse: setGroup(group)(void),
+    OneWay: sendMessage(message),
+    OneWay: verify(void),
+    OneWay: forwardMessage(message),
+    RequestResponse: enterGroup(user)(void)
 }
