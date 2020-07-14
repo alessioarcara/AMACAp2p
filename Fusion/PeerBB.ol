@@ -72,29 +72,6 @@ main {
 
     //BROADCAST
     [broadcast( newuser.port )] {
-        /* //Controllo che non ci sia un peer già registrato con lo stesso nome
-        condition = false
-
-        //Si verificano gli user.name semplicemente mettendoli tutti maiuscoli .
-        toUpperCase@StringUtils( newuser.name )( responseNewUser )
-        toUpperCase@StringUtils( global.user.name )( responseGlobalUser )
-
-        for ( i = 0, i < #global.peer_names, i++ ) {
-
-            if( responseNewUser == responseGlobalUser ) {
-                condition = true
-            }
-        }
-
-        //Se username risulta presente in rete, si aggiunge un numero alla fine del nome
-        //utilizzando global.count così da assicurare l'unicità .
-        if ( condition ) {
-            newuser.name = newuser.name + global.count
-        }
-
-        global.peer_names[ global.count ] = newuser.name
-        global.peer_port[ global.count ] = newuser.port */
-
         out.location = "socket://localhost:" + newuser.port
         install( IOException => a=0)
         hello@out( global.user )

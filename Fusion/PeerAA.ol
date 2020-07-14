@@ -38,7 +38,8 @@ embedded {
 }
 
 constants {
-    menu =  "1. Chat privata ( CHAT )\n2. Chat gruppo ( CREA GRUPPO )\n3. Esci dalla rete ( EXIT )\n"
+    menu =  "1. Chat privata ( CHAT )\n2. Chat gruppo ( CREA GRUPPO )\n3. Esci dalla rete ( EXIT )\n",
+    limiteLunghezzaMessaggio = 63
 }
 
 init {
@@ -94,21 +95,27 @@ define startChat {
             responseMessage = ""
             
             while( responseMessage != "EXIT" ) {
-                
-                showInputDialog@SwingUI( user.name + "\nInserisci messaggio ( 'EXIT' per uscire ):" )( responseMessage )         
+                scope( exception ) {
+                    install( StringIndexOutOfBoundsException => {
+                        press@portaStampaConsole( user.name + " ha inserito un messaggio troppo lungo!" )() 
+                    })
+                    showInputDialog@SwingUI( user.name + "\nInserisci messaggio per " + dest + " ( 'EXIT' per uscire ):" )( responseMessage )         
 
-                if ( responseMessage == "EXIT" ) {
-                    //sendStringhe@port( msg )( response )
-                    press@portaStampaConsole( user.name + " ha abbandonato la comunicazione con " + dest )()
-                } else {
-                    //Passo il plaintext al javaservice *EncryptingService*
-                    request.message = responseMessage
-                    Codifica_RSA@EncryptingServiceOutputPort( request )( response )
-                    msg.text = response.message  
-                    sendStringhe@port( msg )( response )
-                    //println@Console( msg.text )()
+                    if ( responseMessage == "EXIT" ) {
+                        //sendStringhe@port( msg )( response )
+                        press@portaStampaConsole( user.name + " ha abbandonato la comunicazione con " + dest )()
+                    } else {
+                        //Passo il plaintext al javaservice .
+                        if( !( #responseMessage > limiteLunghezzaMessaggio ) ){ //Controllo lunghezza messaggio .
+                            request.message = responseMessage
+                            Codifica_RSA@EncryptingServiceOutputPort( request )( response )
+                            msg.text = response.message  
+                            sendStringhe@port( msg )( response )
+                            //println@Console( msg.text )()
+                        }
+                    }
+                    println@Console()()
                 }
-                println@Console()()
             }
         } else {
             println@Console( "L'utente ha rifiutato la tua richiesta di chattare." )()
