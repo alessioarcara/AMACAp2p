@@ -31,10 +31,6 @@ init {
 
 main {
 
-    [verify()] {
-        println@Console("  ==>  VERIFICA")()
-    } 
-
     //inizializza nome e porta del gruppo
     [
         setGroup(request)() {
