@@ -161,14 +161,12 @@ main {
     [
         sendStringhe( plaintextRequest )( response ) {
 
-            //println@Console( "Messaggio codificato: " + plaintextRequest.text )()
-            
             request.message = plaintextRequest.text
             request.publickey1 = global.chiaviPubbliche.publickey1
             request.privatekey = global.chiavePrivata.privatekey
             Decodifica_RSA@DecryptingServiceOutputPort( request )( plainTextResponse )
             
-            response = "ACK"
+            response = "ACK"  //Utilizzabile per verificare la corretta ricezione di messaggio .
             println@Console( plaintextRequest.username + " : " + plainTextResponse.message + "\n" )()
         }
     ]

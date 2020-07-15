@@ -60,7 +60,7 @@ main {
             for ( i=0, i < #global.members, i++ ) {
                 if ( global.members[i] != -1 ) {    
                     out.location = "socket://localhost:" + global.members[i]
-                    msg.username = "***"
+                    msg.username = group.name
                     msg.text = peer.name + " è entrato nel gruppo!"
                     forwardMessage@out(msg)
                 }

@@ -62,13 +62,13 @@ init {
     }
 
     //Gestione errore dovuto al button "cancel" nelle SwingUI .
-    /* install( TypeMismatch => {
+    install( TypeMismatch => {
         if( !is_defined( user.name ) ) {
             press@portaStampaConsole( "Un utente si è arrestato inaspettatamente!" )()
         } else {
             press@portaStampaConsole( user.name + " si è arrestato inaspettatamente!" )()
         }
-    }) */
+    })
 }
 
 define startChat {
@@ -162,7 +162,6 @@ define startGroupChat {
                     port.location = "socket://localhost:" + group.port
                     sendMessage@port(msg)
                 }
-                //println@Console()()
             }
         }
     }
@@ -248,7 +247,8 @@ main {
                 if ( response == 0 ) {
                     condition = false
                 } else {
-                    println@Console( "Impossibile creare un gruppo con questo nome." )(  )
+                    println@Console( "Impossibile creare un gruppo con questo nome." )()
+                    press@portaStampaConsole( user.name + " ha provato a creare il gruppo " + group.name + " già esistente!" )()
                 }
             }
             port.location = "socket://localhost:" + group.port
@@ -280,7 +280,8 @@ main {
                 searchPeer@port( group.name )( group.port )
             
                 if ( group.port == 0 ) {
-                    println@Console( "Il gruppo ricercato non esiste." )(  )
+                    println@Console( "Il gruppo ricercato non esiste." )()
+                    press@portaStampaConsole( user.name + " ha ricercato un gruppo " + group.name + " inesistente!")()
                 } else {
                     port.location = "socket://localhost:" + group.port
                     enterGroup@port(user)() 
