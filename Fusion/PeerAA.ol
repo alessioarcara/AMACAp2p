@@ -139,10 +139,9 @@ define startGroupChat {
     //START CHATTING
     scope( e ) {
 
-        //install( IOException => println@Console( "L'host del gruppo è andato offline.")() )
+        install( IOException => println@Console( "L'host del gruppo è andato offline.")() )
 
         msg.username = user.name 
-
         press@portaStampaConsole( user.name + " ha iniziato la comunicazione con il gruppo " + group.name )()
         
         responseMessage = ""
@@ -155,7 +154,8 @@ define startGroupChat {
                 showInputDialog@SwingUI( user.name + "\nInserisci messaggio per il gruppo " + group.name + " ( 'EXIT' per uscire ):" )( responseMessage )         
 
                 if ( responseMessage == "EXIT" ) {
-                    //sendStringhe@port( msg )( response )
+                    port.location = "socket://localhost:" + group.port
+                    exitGroup@port( user )( )
                     press@portaStampaConsole( user.name + " ha abbandonato il gruppo " + group.name )()
                 } else {
                     msg.text = responseMessage
@@ -271,19 +271,22 @@ main {
 
         } 
         else if ( instruction == "PARTECIPA" ) {
-            
-            showInputDialog@SwingUI( user.name + "\nInserisci nome del gruppo: " )( responseContact )
-            group.name = responseContact
+            scope(e) {
+                install( IOException => println@Console("L'host del gruppo è andato offline.")() )
 
-            searchPeer@port( group.name )( group.port )
-        
-            if ( group.port == 0 ) {
-                println@Console( "Il gruppo ricercato non esiste." )(  )
-            } else {
-                port.location = "socket://localhost:" + group.port
-                enterGroup@port(user)() 
-                println@Console( "\nBenvenuto nel gruppo " + group.name + "!\n" )(  )
-                startGroupChat
+                showInputDialog@SwingUI( user.name + "\nInserisci nome del gruppo: " )( responseContact )
+                group.name = responseContact
+
+                searchPeer@port( group.name )( group.port )
+            
+                if ( group.port == 0 ) {
+                    println@Console( "Il gruppo ricercato non esiste." )(  )
+                } else {
+                    port.location = "socket://localhost:" + group.port
+                    enterGroup@port(user)() 
+                    println@Console( "\nBenvenuto nel gruppo " + group.name + "!\n" )(  )
+                    startGroupChat
+                }
             }
 
         }

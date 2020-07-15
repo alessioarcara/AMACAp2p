@@ -48,5 +48,6 @@ interface IGroup {
     OneWay: sendMessage(message),
     OneWay: verify(void),
     OneWay: forwardMessage(message),
-    RequestResponse: enterGroup(user)(void)
+    RequestResponse: enterGroup(user)(void),
+    RequestResponse: exitGroup(user)(void)
 }

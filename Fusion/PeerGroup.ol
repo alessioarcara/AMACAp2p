@@ -25,6 +25,8 @@ init {
     global.group.port = 0
     //global.group.host = 0
     global.members[0] = void
+
+    install( ChannelClosingException => println@Console("L'host del gruppo è andato offline.")() )
 }
 
 main {
@@ -60,20 +62,42 @@ main {
     [
         enterGroup(peer)() {
             for ( i=0, i < #global.members, i++ ) {
-                out.location = "socket://localhost:" + global.members[i]
-                msg.username = "***"
-                msg.text = peer.name + " è entrato nel gruppo!"
-                forwardMessage@out(msg)
+                if ( global.members[i] != -1 ) {    
+                    out.location = "socket://localhost:" + global.members[i]
+                    msg.username = "***"
+                    msg.text = peer.name + " è entrato nel gruppo!"
+                    forwardMessage@out(msg)
+                }
             }
             global.members[#global.members] = peer.port
+        }
+    ]
+
+    //metodo per uscire dal gruppo
+    [
+        exitGroup(peer)() {
+            for ( i=0, i < #global.members, i++ ) {
+                //println@Console("-> " + global.members[i] + " peer : " + peer.name + " " + peer.port)()
+                if ( global.members[i] == peer.port ) {
+                    //println@Console("KKKK")()
+                    global.members[i] = -1   
+                } else if (global.members[i] != -1) {
+                    out.location = "socket://localhost:" + global.members[i]
+                    msg.username = "***"
+                    msg.text = peer.name + " è uscito dal gruppo!"
+                    forwardMessage@out(msg)
+                }
+            }
         }
     ]
 
     //metodo per ricevere messaggi dai peer e spedirli a tutti gli altri peer partecipanti
     [sendMessage(msg)] {
         for ( i=0, i < #global.members, i++ ) {
-            out.location = "socket://localhost:" + global.members[i]
-            forwardMessage@out(msg)
+            if ( global.members[i] != -1 ) {
+                out.location = "socket://localhost:" + global.members[i]
+                forwardMessage@out(msg)
+            }
         }
     }
 
