@@ -1,5 +1,6 @@
 include "console.iol"
 include "runtime.iol"
+include "string_utils.iol"
 include "interfacce.iol"
 include "ui/swing_ui.iol"
 include "EncryptingServiceInterface.iol"
@@ -38,7 +39,7 @@ embedded {
 }
 
 constants {
-    menu =  "1. Chat privata ( CHAT )\n2. Chat gruppo ( CREA GRUPPO )\n3. Esci dalla rete ( EXIT )\n",
+    menu =  "1. Chat privata ( CHAT )\n2. Chat gruppo ( CREA )\n3. Entra in un gruppo ( PARTECIPA )\n4. Esci dalla rete ( EXIT )",
     limiteLunghezzaMessaggio = 63
 }
 
@@ -63,10 +64,11 @@ init {
 
     //Gestione errore dovuto al button "cancel" nelle SwingUI .
     install( TypeMismatch => {
-        if( !is_defined( user.name ) ) {
-            press@portaStampaConsole( "Un utente si è arrestato inaspettatamente!" )()
-        } else {
+        trim@StringUtils( user.name )( responseTrim ) //Trim dell strina passata come request .
+        if( is_defined( user.name ) && !( responseTrim instanceof void ) ) {
             press@portaStampaConsole( user.name + " si è arrestato inaspettatamente!" )()
+        } else {
+            press@portaStampaConsole( "Un utente si è arrestato inaspettatamente!" )()
         }
     })
 }
@@ -139,7 +141,10 @@ define startGroupChat {
     //START CHATTING
     scope( e ) {
 
-        install( IOException => println@Console( "L'host del gruppo è andato offline.")() )
+        install( IOException => {
+            println@Console( "L'host del gruppo è andato offline.")()
+            press@portaStampaConsole( user.name + " non può più scrivere. Gruppo " + group.name + " eliminato!")()
+        })
 
         msg.username = user.name 
         press@portaStampaConsole( user.name + " ha iniziato la comunicazione con il gruppo " + group.name )()
@@ -155,7 +160,7 @@ define startGroupChat {
 
                 if ( responseMessage == "EXIT" ) {
                     port.location = "socket://localhost:" + group.port
-                    exitGroup@port( user )( )
+                    exitGroup@port( user )()
                     press@portaStampaConsole( user.name + " ha abbandonato il gruppo " + group.name )()
                 } else {
                     msg.text = responseMessage
@@ -187,7 +192,6 @@ main {
 
     //GENERAZIONE CHIAVI .
     generateKey@port()
-
 
     //WAIT FOR INSTRUCTION
     status = true
@@ -272,7 +276,10 @@ main {
         } 
         else if ( instruction == "PARTECIPA" ) {
             scope(e) {
-                install( IOException => println@Console("L'host del gruppo è andato offline.")() )
+                install( IOException => {
+                    println@Console("L'host del gruppo è andato offline.")()
+                    press@portaStampaConsole( user.name + " ha ricercato un gruppo " + group.name + " inesistente!" )() 
+                })
 
                 showInputDialog@SwingUI( user.name + "\nInserisci nome del gruppo: " )( responseContact )
                 group.name = responseContact

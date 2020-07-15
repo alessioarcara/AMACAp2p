@@ -26,7 +26,10 @@ init {
     //global.group.host = 0
     global.members[0] = void
 
-    install( ChannelClosingException => println@Console("L'host del gruppo è andato offline.")() )
+    install( ChannelClosingException => {
+        println@Console("L'host del gruppo è andato offline.")() 
+        //press@portaStampaConsole( group.name + " è stato eliminato, creare nuovamente il gruppo!" )()
+    })
 }
 
 main {
@@ -60,7 +63,8 @@ main {
             for ( i=0, i < #global.members, i++ ) {
                 if ( global.members[i] != -1 ) {    
                     out.location = "socket://localhost:" + global.members[i]
-                    msg.username = "***"
+                    // msg.username = "***"
+                    msg.username = global.group.name
                     msg.text = peer.name + " è entrato nel gruppo!"
                     forwardMessage@out(msg)
                 }
@@ -79,7 +83,8 @@ main {
                     global.members[i] = -1   
                 } else if (global.members[i] != -1) {
                     out.location = "socket://localhost:" + global.members[i]
-                    msg.username = "***"
+                    // msg.username = "***"
+                    msg.username = global.group.name
                     msg.text = peer.name + " è uscito dal gruppo!"
                     forwardMessage@out(msg)
                 }

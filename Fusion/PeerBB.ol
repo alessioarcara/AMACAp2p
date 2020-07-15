@@ -5,6 +5,7 @@ include "ui/swing_ui.iol"
 include "EncryptingServiceInterface.iol"
 include "DecryptingServiceInterface.iol"
 include "KeyGeneratorServiceInterface.iol"
+include "time.iol"
 
 
 execution{ concurrent }
@@ -82,7 +83,7 @@ main {
 
     //HELLO
     [hello( peer )] {
-        println@Console(peer.name + " è online.")()
+        println@Console( peer.name + " è online." )()
 
         global.peer_names[ global.count ] = peer.name
         global.peer_port[ global.count ] = peer.port
@@ -94,11 +95,14 @@ main {
     [sendHi( peer )] {
         
         temp = -1
-        for ( i = 0, i < #global.peer_names, i++ ) {
+        for( i = 0, i < #global.peer_names, i++ ) {
+
+            //Registro la posizione .
             if( peer.name == global.peer_names[i] ) {
                 temp = i
             }
         }
+
         if ( temp > -1 ) {
             global.peer_names[ temp ] = peer.name
             global.peer_port[ temp ] = peer.port
@@ -114,11 +118,20 @@ main {
     [
         login(user.port)(response) {
 
-            condition = true
+            condition = true    //Condizione per inserire user . 
             while ( condition ) {
+
+                install( TypeMismatch => {
+                    if( responseUser instanceof void ) {
+                        press@portaStampaConsole( "Un utente si è arrestato inaspettatamente!" )()
+                    }
+                })
+                
                 showInputDialog@SwingUI( "Inserisci username: " )( responseUser )
                 isOriginal = true
                 for ( i = 0, i < #global.peer_names, i++ ) {
+                    
+                    //UpperCase per la verifica degli user .
                     toUpperCase@StringUtils( string(global.peer_names[i]) )( responsePeer )
                     toUpperCase@StringUtils( responseUser )( responseUserUppercase )
                     if( responsePeer == responseUserUppercase ) {
@@ -136,12 +149,12 @@ main {
             global.user.name = responseUser
             global.user.port = user.port
 
-            for ( i=0, i < #global.peer_port, i++ ) {
+            for( i=0, i < #global.peer_port, i++ ) {
                 if ( global.peer_port[0] != 0 ) {
-                    scope(e) {
+                    scope( e ) {
                         install( CorrelationError => i=i )
                         out.location = "socket://localhost:" + global.peer_port[i]
-                        sendHi@out(global.user)
+                        sendHi@out( global.user )
                     }
                 }
             }
@@ -167,7 +180,15 @@ main {
             Decodifica_RSA@DecryptingServiceOutputPort( request )( plainTextResponse )
             
             response = "ACK"  //Utilizzabile per verificare la corretta ricezione di messaggio .
-            println@Console( plaintextRequest.username + " : " + plainTextResponse.message + "\n" )()
+
+            //Formato settato .
+            requestFormat.format = "yyyy/MM/dd HH:mm:ss"
+
+            //Regisrazione data ed ora del messaggio .
+            getCurrentDateTime@Time( requestFormat )( responseDateTime )
+
+            //Stampa messaggio con data, ora e username .
+            println@Console( responseDateTime + "\t" + plaintextRequest.username + " : " + plainTextResponse.message + "\n" )()
         }
     ]
 
@@ -175,8 +196,8 @@ main {
     [
         searchPeer( username )( port ) {
             port = 0
-            for ( i=0, i<#global.peer_names, i++ ) {
-                if(global.peer_names[i]==username) {
+            for( i=0, i<#global.peer_names, i++ ) {
+                if( global.peer_names[i] == username ) {
                     port = global.peer_port[i]
                 }
             }
@@ -189,7 +210,7 @@ main {
             showYesNoQuestionDialog@SwingUI( username + " vuole inviarti un messaggio. Vuoi accettare ed iniziare a ricevere messaggi da " + username + "." )( responseQuestion )
             if( responseQuestion == 0 ) {
                 response = true
-                println@Console("Per rispondere a " + username + " avvia una chat con lui.")()
+                println@Console( "Per rispondere a " + username + " avvia una chat con lui." )()
             } else {
                 response = false
             }
@@ -200,14 +221,20 @@ main {
     //RESTITUZIONE CHIAVI PUBBLICHE .
     [
         richiestaChiavi()( response ) {
-            //println@Console(global.chiaviPubbliche.publickey1 + " " + global.chiaviPubbliche.publickey2 )()
             response.publickey1 = global.chiaviPubbliche.publickey1
             response.publickey2 = global.chiaviPubbliche.publickey2
         }
     ]
 
     //RICEZIONE MESSAGGIO DA GRUPPO
-    [forwardMessage(msg)] {
-        println@Console(msg.username + ": " + msg.text)()
+    [forwardMessage( msg )] {
+
+        //Settaggio formato data e ora .
+        requestFormat.format = "yyyy/MM/dd HH:mm:ss"
+
+        //Servizio per permettere di stabilire la data e ora corrente del messaggio .
+        getCurrentDateTime@Time( requestFormat )( responseDateTime )
+        
+        println@Console( responseDateTime + "\t" + msg.username + ": " + msg.text )()
     }
 }
