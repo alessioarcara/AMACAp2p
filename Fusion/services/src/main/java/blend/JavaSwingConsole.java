@@ -4,13 +4,15 @@ import javax.swing.*;
 import javax.swing.plaf.basic.BasicOptionPaneUI.ButtonActionListener;
 import java.awt.event.*;
 import java.awt.*;
+import java.sql.Timestamp;
 
 import jolie.runtime.JavaService;
+import jolie.runtime.Value;
 import jolie.runtime.embedding.RequestResponse;
 
 public class JavaSwingConsole extends JavaService {
 
-    public static void aperturaConsole() {
+    public static void aperturaMenu() {
    
         //CREAZIONE FRAME .
         JFrame frame = new JFrame();
@@ -47,5 +49,40 @@ public class JavaSwingConsole extends JavaService {
 
         //CHIUSURA CONSOLE .
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    }
+
+    private JFrame frame = new JFrame();
+    private JTextArea textArea;
+    private JScrollPane scrollPane;
+    private final static String newline = "\n";
+    private Timestamp timestamp;
+
+    public void aperturaConsole() {
+
+        //CREAZIONE FRAME
+        frame = new JFrame();
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(400,400);
+
+        //CREAZIONE TEXT AREA
+        textArea = new JTextArea(5, 20);
+
+        scrollPane = new JScrollPane(textArea); 
+        textArea.setEditable(false);
+
+        //AGGIUNTA TEXT AREA A FRAME
+        frame.add(scrollPane);
+
+        // frame.pack();   
+        frame.setLocationRelativeTo(null);
+        frame.setVisible(true);
+    }
+
+    public void modificaConsole(Value request){
+    
+        String text = request.strValue();
+        timestamp = new Timestamp(System.currentTimeMillis());
+        textArea.append(text + " (" + timestamp + ") "+ newline);
+
     }
 }

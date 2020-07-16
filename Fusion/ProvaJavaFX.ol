@@ -1,7 +1,7 @@
 include "console.iol"
 
 interface ISwing {
-  RequestResponse: aperturaConsole( void )( void )
+  RequestResponse: aperturaMenu( void )( void )
 }
 
 outputPort JavaSwingConsolePort {
@@ -14,6 +14,7 @@ embedded {
 }
 
 main {
-    aperturaConsole@JavaSwingConsolePort()()
+
+    aperturaMenu@JavaSwingConsolePort()()
     in( var )
 }
