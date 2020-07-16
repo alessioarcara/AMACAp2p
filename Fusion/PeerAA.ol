@@ -240,10 +240,13 @@ main {
                 }
             }
 
-            //inserisci nome gruppo da creare e controllo
+            //Inserisci nome gruppo da creare e controllo
             condition = true
             while(condition) {
-                showInputDialog@SwingUI( user.name + "\nInserisci nome gruppo da creare" )( group.name )
+                showInputDialog@SwingUI( user.name + "\nInserisci nome gruppo da creare" )( groupName )
+
+                //Settaggio gruppo ad UpperCase .
+                toUpperCase@StringUtils( groupName )( group.name )
 
                 port.locaiton = "socket://localhost:" + user.port
                 searchPeer@port( group.name )( response )

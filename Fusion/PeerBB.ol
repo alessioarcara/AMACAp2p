@@ -59,6 +59,51 @@ init {
     global.chiavePrivata.privatekey = void
 }
 
+define settaggioCaratteri {
+    //Salvo la stringa contenente lo username .
+    stringa = responseUser
+
+    //Ricavo la lunghezza massima .
+    length@StringUtils( responseUser )( length )
+    
+    with( stringa ) {
+        .begin = 0
+        .end = 1
+    }
+    
+    //Setto la prima lettera Up .
+    substring@StringUtils( stringa )( responseFirst )
+    toUpperCase@StringUtils( responseFirst )( responseUp )
+
+    with( stringa ) {
+        .begin = 1
+        .end = length
+    }
+
+    //Setto tutte le altre lettere a Lower .
+    substring@StringUtils( stringa )( responseSecond )
+    toLowerCase@StringUtils( responseSecond )( responseLower )
+}
+
+define riconoscimentoUserGroup {
+    flag = false
+
+    stringaGroupUser = peer.name
+    length@StringUtils( stringaGroupUser )( lengthGroupUser )
+
+    with( stringaGroupUser ) {
+        .begin = lengthGroupUser - 1
+        .end = lengthGroupUser
+    }
+
+    substring@StringUtils( stringaGroupUser )( responseLast )
+    toUpperCase@StringUtils( responseLast )( responseUpLast )
+    
+    if( responseLast == responseUpLast ) {
+        flag = true
+    }
+}
+
 main {
 
     //GENERAZIONE CHIAVI .
@@ -69,7 +114,6 @@ main {
         global.chiaviPubbliche.publickey2 = returnChiavi.publickey2   
         global.chiavePrivata.privatekey = returnChiavi.privatekey
     }
-
 
     //BROADCAST
     [broadcast( newuser.port )] {
@@ -83,7 +127,14 @@ main {
 
     //HELLO
     [hello( peer )] {
-        println@Console( peer.name + " è online." )()
+
+        riconoscimentoUserGroup
+
+        if( flag ) {
+            println@Console( "Il gruppo " + peer.name + " è online!" )()
+        } else {
+            println@Console( peer.name + " è online." )()
+        }
 
         global.peer_names[ global.count ] = peer.name
         global.peer_port[ global.count ] = peer.port
@@ -140,13 +191,21 @@ main {
                 }
                 if ( isOriginal ) {
                     condition = false
-                    response = responseUser
+
+                    //Richiamo metodo per sistemare i caratteri .
+                    settaggioCaratteri
+
+                    // response = responseUser
+                    response = responseUp + responseLower
                 } else {
                     showMessageDialog@SwingUI("Username già utilizzato.")()
                 }
             }
 
-            global.user.name = responseUser
+
+
+            // global.user.name = responseUser
+            global.user.name = response
             global.user.port = user.port
 
             for( i=0, i < #global.peer_port, i++ ) {
