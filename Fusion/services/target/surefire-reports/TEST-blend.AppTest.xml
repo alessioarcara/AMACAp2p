@@ -1,57 +1,57 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd" name="blend.AppTest" time="0.028" tests="1" errors="0" skipped="0" failures="0">
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd" name="blend.AppTest" time="0.032" tests="1" errors="0" skipped="0" failures="0">
   <properties>
-    <property name="java.specification.version" value="13"/>
+    <property name="java.specification.version" value="14"/>
     <property name="sun.jnu.encoding" value="UTF-8"/>
-    <property name="java.class.path" value="/Users/diaclo/Downloads/Progetto_Jolie/amacap2p/Fusion/services/target/test-classes:/Users/diaclo/Downloads/Progetto_Jolie/amacap2p/Fusion/services/target/classes:/Users/diaclo/.m2/repository/junit/junit/4.11/junit-4.11.jar:/Users/diaclo/.m2/repository/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar:/Users/diaclo/.m2/repository/jolie/jolie/1.9.1/jolie-1.9.1.jar:"/>
+    <property name="java.class.path" value="/Users/michaelcarchesio/Documents/amacap2p/Fusion/services/target/test-classes:/Users/michaelcarchesio/Documents/amacap2p/Fusion/services/target/classes:/Users/michaelcarchesio/.m2/repository/junit/junit/4.11/junit-4.11.jar:/Users/michaelcarchesio/.m2/repository/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar:/Users/michaelcarchesio/.m2/repository/jolie/jolie/1.9.1/jolie-1.9.1.jar:"/>
     <property name="java.vm.vendor" value="Oracle Corporation"/>
     <property name="sun.arch.data.model" value="64"/>
     <property name="java.vendor.url" value="https://openjdk.java.net/"/>
     <property name="os.name" value="Mac OS X"/>
-    <property name="java.vm.specification.version" value="13"/>
+    <property name="java.vm.specification.version" value="14"/>
     <property name="sun.java.launcher" value="SUN_STANDARD"/>
     <property name="user.country" value="IT"/>
-    <property name="sun.boot.library.path" value="/usr/local/Cellar/openjdk/13.0.2+8_2/libexec/openjdk.jdk/Contents/Home/lib"/>
-    <property name="sun.java.command" value="/Users/diaclo/Downloads/Progetto_Jolie/amacap2p/Fusion/services/target/surefire/surefirebooter7156347680751713193.jar /Users/diaclo/Downloads/Progetto_Jolie/amacap2p/Fusion/services/target/surefire 2020-07-16T15-41-50_700-jvmRun1 surefire10242056726366611700tmp surefire_017988366218976859646tmp"/>
+    <property name="sun.boot.library.path" value="/usr/local/Cellar/openjdk/14.0.1/libexec/openjdk.jdk/Contents/Home/lib"/>
+    <property name="sun.java.command" value="/Users/michaelcarchesio/Documents/amacap2p/Fusion/services/target/surefire/surefirebooter17889259347055060090.jar /Users/michaelcarchesio/Documents/amacap2p/Fusion/services/target/surefire 2020-07-16T17-23-24_515-jvmRun1 surefire7076989168356485226tmp surefire_012891117126849707211tmp"/>
     <property name="http.nonProxyHosts" value="local|*.local|169.254/16|*.169.254/16"/>
     <property name="jdk.debug" value="release"/>
-    <property name="surefire.test.class.path" value="/Users/diaclo/Downloads/Progetto_Jolie/amacap2p/Fusion/services/target/test-classes:/Users/diaclo/Downloads/Progetto_Jolie/amacap2p/Fusion/services/target/classes:/Users/diaclo/.m2/repository/junit/junit/4.11/junit-4.11.jar:/Users/diaclo/.m2/repository/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar:/Users/diaclo/.m2/repository/jolie/jolie/1.9.1/jolie-1.9.1.jar:"/>
+    <property name="surefire.test.class.path" value="/Users/michaelcarchesio/Documents/amacap2p/Fusion/services/target/test-classes:/Users/michaelcarchesio/Documents/amacap2p/Fusion/services/target/classes:/Users/michaelcarchesio/.m2/repository/junit/junit/4.11/junit-4.11.jar:/Users/michaelcarchesio/.m2/repository/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar:/Users/michaelcarchesio/.m2/repository/jolie/jolie/1.9.1/jolie-1.9.1.jar:"/>
     <property name="sun.cpu.endian" value="little"/>
-    <property name="user.home" value="/Users/diaclo"/>
+    <property name="user.home" value="/Users/michaelcarchesio"/>
     <property name="user.language" value="it"/>
     <property name="java.specification.vendor" value="Oracle Corporation"/>
-    <property name="java.version.date" value="2020-01-14"/>
-    <property name="java.home" value="/usr/local/Cellar/openjdk/13.0.2+8_2/libexec/openjdk.jdk/Contents/Home"/>
+    <property name="java.version.date" value="2020-04-14"/>
+    <property name="java.home" value="/usr/local/Cellar/openjdk/14.0.1/libexec/openjdk.jdk/Contents/Home"/>
     <property name="file.separator" value="/"/>
-    <property name="basedir" value="/Users/diaclo/Downloads/Progetto_Jolie/amacap2p/Fusion/services"/>
+    <property name="basedir" value="/Users/michaelcarchesio/Documents/amacap2p/Fusion/services"/>
     <property name="java.vm.compressedOopsMode" value="Zero based"/>
     <property name="line.separator" value="&#10;"/>
     <property name="java.specification.name" value="Java Platform API Specification"/>
     <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
-    <property name="surefire.real.class.path" value="/Users/diaclo/Downloads/Progetto_Jolie/amacap2p/Fusion/services/target/surefire/surefirebooter7156347680751713193.jar"/>
+    <property name="surefire.real.class.path" value="/Users/michaelcarchesio/Documents/amacap2p/Fusion/services/target/surefire/surefirebooter17889259347055060090.jar"/>
     <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
     <property name="ftp.nonProxyHosts" value="local|*.local|169.254/16|*.169.254/16"/>
-    <property name="java.runtime.version" value="13.0.2+8"/>
-    <property name="user.name" value="diaclo"/>
+    <property name="java.runtime.version" value="14.0.1+14"/>
+    <property name="user.name" value="michaelcarchesio"/>
     <property name="path.separator" value=":"/>
-    <property name="os.version" value="10.15.6"/>
+    <property name="os.version" value="10.15.5"/>
     <property name="java.runtime.name" value="OpenJDK Runtime Environment"/>
     <property name="file.encoding" value="UTF-8"/>
     <property name="java.vm.name" value="OpenJDK 64-Bit Server VM"/>
-    <property name="localRepository" value="/Users/diaclo/.m2/repository"/>
+    <property name="localRepository" value="/Users/michaelcarchesio/.m2/repository"/>
     <property name="java.vendor.url.bug" value="https://bugreport.java.com/bugreport/"/>
-    <property name="java.io.tmpdir" value="/var/folders/47/60l9pqqn2qb5pjhfh9gc_dhm0000gn/T/"/>
-    <property name="java.version" value="13.0.2"/>
-    <property name="user.dir" value="/Users/diaclo/Downloads/Progetto_Jolie/amacap2p/Fusion/services"/>
+    <property name="java.io.tmpdir" value="/var/folders/_8/98mv2svd2zs05h6k1kf1plr40000gn/T/"/>
+    <property name="java.version" value="14.0.1"/>
+    <property name="user.dir" value="/Users/michaelcarchesio/Documents/amacap2p/Fusion/services"/>
     <property name="os.arch" value="x86_64"/>
     <property name="java.vm.specification.name" value="Java Virtual Machine Specification"/>
-    <property name="java.library.path" value="/Users/diaclo/Library/Java/Extensions:/Library/Java/Extensions:/Network/Library/Java/Extensions:/System/Library/Java/Extensions:/usr/lib/java:."/>
+    <property name="java.library.path" value="/Users/michaelcarchesio/Library/Java/Extensions:/Library/Java/Extensions:/Network/Library/Java/Extensions:/System/Library/Java/Extensions:/usr/lib/java:."/>
     <property name="java.vm.info" value="mixed mode, sharing"/>
     <property name="java.vendor" value="N/A"/>
-    <property name="java.vm.version" value="13.0.2+8"/>
+    <property name="java.vm.version" value="14.0.1+14"/>
     <property name="sun.io.unicode.encoding" value="UnicodeBig"/>
     <property name="socksNonProxyHosts" value="local|*.local|169.254/16|*.169.254/16"/>
-    <property name="java.class.version" value="57.0"/>
+    <property name="java.class.version" value="58.0"/>
   </properties>
   <testcase name="shouldAnswerWithTrue" classname="blend.AppTest" time="0.002"/>
 </testsuite>

@@ -36,12 +36,12 @@ main {
         press( message )() {
             println@Console( message )()
             modificaConsole@JavaSwingConsolePort( message )()
-            if( message == "USCITA DALLA RETE IN CORSO..." ) {
-                callExit@Runtime()()
-                sleep@Time( 3000 )()
-                showMessageDialog@SwingUI( "SEI USCITO DA AMACAp2p" )(  )
-                halt@Runtime()()
-            }
+            // if( message == "USCITA DALLA RETE IN CORSO..." ) {
+            //     callExit@Runtime()()
+            //     sleep@Time( 3000 )()
+            //     showMessageDialog@SwingUI( "SEI USCITO DA AMACAp2p" )(  )
+            //     halt@Runtime()()
+            // }
         }
      ]
 }

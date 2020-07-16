@@ -1,22 +1,26 @@
 package blend;
 
 import javax.swing.*;
-import javax.swing.plaf.basic.BasicOptionPaneUI.ButtonActionListener;
 import java.awt.event.*;
 import java.awt.*;
 import java.sql.Timestamp;
 
 import jolie.runtime.JavaService;
 import jolie.runtime.Value;
-import jolie.runtime.embedding.RequestResponse;
 
 public class JavaSwingConsole extends JavaService {
 
-    public static void aperturaMenu() {
-   
-        //CREAZIONE FRAME .
-        JFrame frame = new JFrame();
+    private JFrame frame;
+    private textAreaWithImage textArea;
+    private JScrollPane scrollPane;
+    private final static String newline = "\n";
+    private Timestamp timestamp;
 
+    public void aperturaMenu() {
+
+        //CREAZIONE ISTANZA FRAME .
+        frame = new JFrame();
+        
         //CREAZIONE BUTTON .
         JButton buttonChat = new JButton( "CHAT PRIVATA" );
         JButton buttonGroup = new JButton( "CHAT PUBBLICA" );
@@ -48,41 +52,46 @@ public class JavaSwingConsole extends JavaService {
         frame.setVisible( true );
 
         //CHIUSURA CONSOLE .
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
     }
-
-    private JFrame frame = new JFrame();
-    private JTextArea textArea;
-    private JScrollPane scrollPane;
-    private final static String newline = "\n";
-    private Timestamp timestamp;
 
     public void aperturaConsole() {
 
-        //CREAZIONE FRAME
+        //CREAZIONE ISTANZA FRAME .
         frame = new JFrame();
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(400,400);
 
-        //CREAZIONE TEXT AREA
-        textArea = new JTextArea(5, 20);
+        //SETTAGGI FRAME .
+        frame.setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
+        frame.setSize( 550, 400 );
+        frame.setResizable( false );
 
-        scrollPane = new JScrollPane(textArea); 
-        textArea.setEditable(false);
+        //SETTAGGIO NOME CONSOLE .
+        frame.setTitle( "CONSOLE DI TRACCIAMENTO" );
+        
+        //CREAZIONE TEXT AREA DELLA CLASSE textAreaWithImage E SETTAGGI .
+        textArea = new textAreaWithImage( 5, 20 );
+        textArea.setBackground( new Color(1,1,1, ( float ) 0.01) );
+        textArea.setEditable( false );
+        
+        //SETTAGGIO FONT E COLORE TESTO SU TEXTAREA .
+        Font font = new Font( "Times New Roman", Font.BOLD, 14 );
+        textArea.setFont( font );  //AGGIUNTA FONT A textArea .
+        textArea.setForeground( Color.WHITE ); //Settaggio colore .
 
-        //AGGIUNTA TEXT AREA A FRAME
-        frame.add(scrollPane);
+        //ISTANZA SCROLLPANE .
+        scrollPane = new JScrollPane( textArea ); 
 
-        // frame.pack();   
-        frame.setLocationRelativeTo(null);
-        frame.setVisible(true);
+        //AGGIUNTA SCROLLPANE A FRAME
+        frame.add( scrollPane );
+  
+        frame.setLocationRelativeTo( null );
+        frame.setVisible( true );        
     }
 
-    public void modificaConsole(Value request){
+    public void modificaConsole( Value request ){
     
         String text = request.strValue();
-        timestamp = new Timestamp(System.currentTimeMillis());
-        textArea.append(text + " (" + timestamp + ") "+ newline);
-
+        timestamp = new Timestamp( System.currentTimeMillis() );
+        textArea.append( text + " (" + timestamp + ") "+ newline );
     }
 }

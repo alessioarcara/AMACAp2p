@@ -104,7 +104,6 @@ define startChat {
                     showInputDialog@SwingUI( user.name + "\nInserisci messaggio per " + dest + " ( 'EXIT' per uscire ):" )( responseMessage )         
 
                     if ( responseMessage == "EXIT" ) {
-                        //sendStringhe@port( msg )( response )
                         press@portaStampaConsole( user.name + " ha abbandonato la comunicazione con " + dest )()
                     } else {
                         //Passo il plaintext al javaservice .
@@ -116,7 +115,7 @@ define startChat {
                             //println@Console( msg.text )()
                         }
                     }
-                    println@Console()()
+                    //println@Console()()
                 }
             }
         } else {
