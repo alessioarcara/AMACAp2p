@@ -1,11 +1,11 @@
 include "console.iol"
 
 interface ISwing {
-  RequestResponse: aperturaMenu( string )( void )
+  RequestResponse: aperturaMenu( string )( int )
 }
 
 outputPort JavaSwingConsolePort {
-    interfaces: ISwing
+  interfaces: ISwing
 }
 
 embedded {
@@ -13,8 +13,8 @@ embedded {
 }
 
 main {
+  
+  aperturaMenu@JavaSwingConsolePort("Eccomiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii")( response )
+  println@Console( response )()
 
-    aperturaMenu@JavaSwingConsolePort("Eccomiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii")( message.text )
-    println@Console( message.text )()
-    in( var )
 }

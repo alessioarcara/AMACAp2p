@@ -31,11 +31,16 @@ outputPort DecryptingServiceOutputPort {
     Interfaces: DecryptingServiceInterface
 }
 
+outputPort JavaSwingConsolePort {
+  interfaces: ISwing
+}
+
 embedded {
   Java:
     "blend.KeyGeneratorService" in KeyGeneratorServiceOutputPort,
     "blend.EncryptingService" in EncryptingServiceOutputPort,
-    "blend.DecryptingService" in DecryptingServiceOutputPort
+    "blend.DecryptingService" in DecryptingServiceOutputPort,
+    "blend.JavaSwingConsole" in JavaSwingConsolePort
 }
 
 constants {
@@ -195,17 +200,18 @@ main {
     status = true
     while ( status ) {
 
-        showInputDialog@SwingUI( "User: " + user.name + "\n" + menu + "\nInserisci istruzione: " )( responseIstruzione )
+        // showInputDialog@SwingUI( "User: " + user.name + "\n" + menu + "\nInserisci istruzione: " )( responseIstruzione )
+        aperturaMenu@JavaSwingConsolePort( "User: " + user.name + "\nSeleziona istruzione: " )( responseIstruzione )
         instruction = responseIstruzione
 
         port.location = "socket://localhost:" + user.port
 
-        if ( instruction == "EXIT" ) {
+        if ( instruction == 2 ) {
             status = false
             press@portaStampaConsole( user.name + " ha abbandonato la rete" )()
         } 
         else 
-            if ( instruction == "CHAT" ) {
+            if ( instruction == 0 ) {
 
                 showInputDialog@SwingUI( user.name + "\nInserisci username da contattare: " )( responseContact )
                 dest = responseContact
@@ -218,7 +224,7 @@ main {
                     startChat
                 }
         }
-        else if ( instruction == "CREA GRUPPO" || instruction == "CREA") {
+        else if ( instruction == 3 ) {
 
             // SEARCH THE FIRST FREE PORT
             condition = true
@@ -275,7 +281,7 @@ main {
             startGroupChat
 
         } 
-        else if ( instruction == "PARTECIPA" ) {
+        else if ( instruction == 1 ) {
             scope(e) {
                 install( IOException => {
                     println@Console("L'host del gruppo è andato offline.")()
@@ -299,7 +305,10 @@ main {
             }
 
         }
-        else {
+        else if( instruction == -1 ) {
+            status = false
+            press@portaStampaConsole( user.name + " ha abbandonato la rete" )()
+        } else {
             println@Console("\nIstruzione sconosciuta.")()
         }
     }   

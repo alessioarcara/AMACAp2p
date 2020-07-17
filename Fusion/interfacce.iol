@@ -51,3 +51,7 @@ interface IGroup {
     RequestResponse: enterGroup(user)(void),
     RequestResponse: exitGroup(user)(void)
 }
+
+interface ISwing {
+  RequestResponse: aperturaMenu( string )( int )
+}

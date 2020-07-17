@@ -11,68 +11,25 @@ import jolie.runtime.Value;
 import java.util.Calendar;
 import java.text.SimpleDateFormat;
 
+
 public class JavaSwingConsole extends JavaService {
 
     //DICHIARAZIONE .
     private JFrame frame;
     private textAreaWithImage textArea;
     private JScrollPane scrollPane;
-    private final static String newline = "\n";
 
-    private buttonListener requestJolie;
+    public Integer aperturaMenu( Value request ) {
 
-    public void aperturaMenu( Value request ) {
-        //RACCOLGO LA STRINGA IN INPUT .
+        //Acquisisco valore string in ingresso .
         String stringa = request.strValue();
 
-        //CREAZIONE ISTANZA FRAME .
-        frame = new JFrame();
-        
-        //CREAZIONE BUTTON .
-        JButton buttonChat = new JButton( "CHAT PRIVATA" );
-        JButton buttonGroup = new JButton( "CHAT PUBBLICA" );
-        JButton buttonExit = new JButton( "ESCI" );
-        
-        //SETTAGGIO BOTTONI .
-        buttonChat.setAlignmentX( Component.CENTER_ALIGNMENT );
-        buttonGroup.setAlignmentX( Component.CENTER_ALIGNMENT );
-        buttonExit.setAlignmentX( Component.CENTER_ALIGNMENT );
+        //Inizializzo una stringa di bottoni .
+        String[] buttons = { "CHAT PRIVATA", "PARTECIPA", "EXIT", "CREA GRUPPO" };
 
-        //GESTIONE EVENTI .
-        ActionListener listener = new buttonListener();
+        //RITORNO IL VALORE INTERO DA CONFRONTARE NEL PeerAA.ol .
+        return JOptionPane.showOptionDialog(null, stringa, "SCEGLI ISTRUZIONE", JOptionPane.WARNING_MESSAGE, 0, new ImageIcon("services/src/main/java/blend/icoAmaca.jpg"), buttons, buttons[2]);
 
-        buttonExit.addActionListener( listener );
-        buttonChat.addActionListener( listener );
-        buttonGroup.addActionListener( listener );
-
-        requestJolie.contattaJolie();
-
-        BoxLayout buttonPanel =  new BoxLayout( frame.getContentPane(), BoxLayout.Y_AXIS );
-
-        frame.setLayout( buttonPanel );
-
-        //AGGIUNTA STRINGA .
-        JTextArea textArea;
-        textArea = new JTextArea( stringa );
-
-        //SETTAGGIO TEXTAREA .
-        textArea.setAlignmentX( Component.CENTER_ALIGNMENT );
-        textArea.setEditable( false );
-        
-        //AGGIUNTA TEXTAREA AL FRAME .
-        frame.add( textArea );
-
-        //AGGIUNTA BUTTON A FRAME .
-        frame.add( buttonChat );
-        frame.add( buttonGroup );
-        frame.add( buttonExit );
-
-        frame.pack();
-
-        frame.setVisible( true );
-
-        //CHIUSURA CONSOLE .
-        frame.setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
     }
 
     public void aperturaConsole() {
@@ -95,7 +52,7 @@ public class JavaSwingConsole extends JavaService {
         
         //SETTAGGIO FONT E COLORE TESTO SU TEXTAREA .
         Font font = new Font( "Arial", Font.BOLD, 14 );
-        textArea.setFont( font );  //AGGIUNTA FONT A textArea .
+        textArea.setFont( font );  //AGGIUNTA FONT a textArea .
         textArea.setForeground( Color.WHITE ); //Settaggio colore .
 
         //ISTANZA SCROLLPANE .
@@ -103,9 +60,8 @@ public class JavaSwingConsole extends JavaService {
 
         //AGGIUNTA SCROLLPANE A FRAME
         frame.add( scrollPane );
-  
-        frame.setLocationRelativeTo( null );
-        frame.setVisible( true );        
+        frame.setVisible( true ); 
+    
     }
 
     public void modificaConsole( Value request ){
@@ -123,6 +79,6 @@ public class JavaSwingConsole extends JavaService {
         SimpleDateFormat ora = new SimpleDateFormat("HH:mm:ss");
         
         //VISUALIZZAZIONE MESSAGGIO SU CONSOLE .
-        textArea.append( "(" + data.format( calendario.getTime() ) + ", " + ora.format( calendario.getTime() ) + ") - " + text + newline );
+        textArea.append( "(" + data.format( calendario.getTime() ) + ", " + ora.format( calendario.getTime() ) + ") - " + text + "\n" );
     }
 }

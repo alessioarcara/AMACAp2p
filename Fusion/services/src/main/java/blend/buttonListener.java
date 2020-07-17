@@ -6,7 +6,7 @@ import jolie.runtime.Value;
 
 public class buttonListener implements ActionListener {
 
-    private Value message = Value.create();  //Crea Value .
+    Value message = Value.create();  //Crea Value .
     
     public void actionPerformed( ActionEvent evt ) {
         String comando = evt.getActionCommand();
@@ -15,8 +15,9 @@ public class buttonListener implements ActionListener {
             System.exit(0);
         } else
             if( comando.equals( "CHAT PRIVATA" ) ) {
-                // System.out.println( "CHAT PRIVATA" );
-                message.getFirstChild( "text" ).setValue( "CHAT".toString() );
+                System.out.println( "CHAT PRIVATA" );
+                message.setValue("Private");
+                contattaJolie();
             } else
                 if( comando.equals( "CHAT PUBBLICA" ) ) {
                     System.out.println( "CHAT PUBBLICA" );
