@@ -23,28 +23,25 @@ outputPort portaStampaConsole {
 init {
     global.group.name = ""
     global.group.port = 0
-    //global.group.host = 0
     global.members[0] = void
 
     install( ChannelClosingException => {
-        println@Console("L'host del gruppo è andato offline.")() 
-        //press@portaStampaConsole( group.name + " è stato eliminato, creare nuovamente il gruppo!" )()
+        println@Console( "L'host del gruppo è andato offline." )() 
     })
 }
 
 main {
 
-    //inizializza nome e porta del gruppo
+    //INIZIALIZZAZIONE NOME GRUPPO E PORTA DEL GRUPPO .
     [
-        setGroup(request)() {
+        setGroup( request )() {
             global.group.name = request.name
             global.group.port = request.port
-            //global.group.host = request.host
             global.members[0] = request.host
         }
     ]
 
-    //metodo per quando riceve un messaggio di broadcast
+    //PER RICEZIONE MESSAGGI DI BROADCAST .
     [broadcast( newuser )] {
         out.location = "socket://localhost:" + newuser
         hello@out( global.group )
@@ -53,7 +50,7 @@ main {
     //metodo per rispondere a un saluto
     [hello( peer )] {
         out.location = "socket://localhost:" + peer.port
-        sendHi@out(global.group)
+        sendHi@out( global.group )
     }
 
 
@@ -63,7 +60,7 @@ main {
             for ( i=0, i < #global.members, i++ ) {
                 if ( global.members[i] != -1 ) {    
                     out.location = "socket://localhost:" + global.members[i]
-                    // msg.username = "***"
+                    
                     msg.username = global.group.name
                     msg.text = peer.name + " è entrato nel gruppo!"
                     forwardMessage@out(msg)
@@ -73,17 +70,16 @@ main {
         }
     ]
 
-    //metodo per uscire dal gruppo
+    //RICHIESTA DI USCITA DAL GRUPPO .
     [
-        exitGroup(peer)() {
-            for ( i=0, i < #global.members, i++ ) {
-                //println@Console("-> " + global.members[i] + " peer : " + peer.name + " " + peer.port)()
-                if ( global.members[i] == peer.port ) {
-                    //println@Console("KKKK")()
+        exitGroup( peer )() {
+            for( i=0, i < #global.members, i++ ) {
+               
+                if( global.members[i] == peer.port ) {
                     global.members[i] = -1   
-                } else if (global.members[i] != -1) {
+                } else if( global.members[i] != -1 ) {
                     out.location = "socket://localhost:" + global.members[i]
-                    // msg.username = "***"
+                    
                     msg.username = global.group.name
                     msg.text = peer.name + " è uscito dal gruppo!"
                     forwardMessage@out(msg)

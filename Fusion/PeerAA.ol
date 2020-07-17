@@ -66,7 +66,7 @@ init {
     install( TypeMismatch => {
         trim@StringUtils( user.name )( responseTrim ) //Trim dell strina passata come request .
         if( is_defined( user.name ) && !( responseTrim instanceof void ) ) {
-            press@portaStampaConsole( user.name + " si è arrestato inaspettatamente!" )()
+            press@portaStampaConsole( user.name + " si è arrestato/a inaspettatamente!" )()
         } else {
             press@portaStampaConsole( "Un utente si è arrestato inaspettatamente!" )()
         }
@@ -173,8 +173,7 @@ define startGroupChat {
 
 main {
 
-    println@Console( "\nUtilizzi la porta " + num_port + "\n" )()
-
+    //println@Console( "\nUtilizzi la porta " + num_port + "\n" )()
 
     //Invio broadcast
     user.port = num_port
@@ -187,7 +186,7 @@ main {
 
 
     //Stampo su monitor il peer aggiunto alla rete .
-    press@portaStampaConsole( user.name + " si è unito/a alla rete!" )()
+    press@portaStampaConsole( user.name + " si è unito/a alla rete! " + "( " + num_port + " )" )()
 
     //GENERAZIONE CHIAVI .
     generateKey@port()

@@ -1,11 +1,12 @@
 package blend;
 
-import javax.swing.*;
-import javax.swing.plaf.basic.BasicOptionPaneUI.ButtonActionListener;
 import java.awt.event.*;
-import java.awt.*;
+
+import jolie.runtime.Value;
 
 public class buttonListener implements ActionListener {
+
+    private Value message = Value.create();  //Crea Value .
     
     public void actionPerformed( ActionEvent evt ) {
         String comando = evt.getActionCommand();
@@ -14,10 +15,15 @@ public class buttonListener implements ActionListener {
             System.exit(0);
         } else
             if( comando.equals( "CHAT PRIVATA" ) ) {
-                System.out.println( "CHAT PRIVATA" );
+                // System.out.println( "CHAT PRIVATA" );
+                message.getFirstChild( "text" ).setValue( "CHAT".toString() );
             } else
                 if( comando.equals( "CHAT PUBBLICA" ) ) {
                     System.out.println( "CHAT PUBBLICA" );
                 }
+    }
+
+    public Value contattaJolie() {
+        return message;
     }
 }

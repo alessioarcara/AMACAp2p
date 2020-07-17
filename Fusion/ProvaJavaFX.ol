@@ -1,7 +1,7 @@
 include "console.iol"
 
 interface ISwing {
-  RequestResponse: aperturaMenu( void )( void )
+  RequestResponse: aperturaMenu( string )( void )
 }
 
 outputPort JavaSwingConsolePort {
@@ -9,12 +9,12 @@ outputPort JavaSwingConsolePort {
 }
 
 embedded {
-  Java:
-    "blend.JavaSwingConsole" in JavaSwingConsolePort
+  Java: "blend.JavaSwingConsole" in JavaSwingConsolePort
 }
 
 main {
 
-    aperturaMenu@JavaSwingConsolePort()()
+    aperturaMenu@JavaSwingConsolePort("Eccomiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii")( message.text )
+    println@Console( message.text )()
     in( var )
 }

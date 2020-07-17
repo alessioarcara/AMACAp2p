@@ -8,15 +8,22 @@ import java.sql.Timestamp;
 import jolie.runtime.JavaService;
 import jolie.runtime.Value;
 
+import java.util.Calendar;
+import java.text.SimpleDateFormat;
+
 public class JavaSwingConsole extends JavaService {
 
+    //DICHIARAZIONE .
     private JFrame frame;
     private textAreaWithImage textArea;
     private JScrollPane scrollPane;
     private final static String newline = "\n";
-    private Timestamp timestamp;
 
-    public void aperturaMenu() {
+    private buttonListener requestJolie;
+
+    public void aperturaMenu( Value request ) {
+        //RACCOLGO LA STRINGA IN INPUT .
+        String stringa = request.strValue();
 
         //CREAZIONE ISTANZA FRAME .
         frame = new JFrame();
@@ -38,9 +45,22 @@ public class JavaSwingConsole extends JavaService {
         buttonChat.addActionListener( listener );
         buttonGroup.addActionListener( listener );
 
+        requestJolie.contattaJolie();
+
         BoxLayout buttonPanel =  new BoxLayout( frame.getContentPane(), BoxLayout.Y_AXIS );
 
         frame.setLayout( buttonPanel );
+
+        //AGGIUNTA STRINGA .
+        JTextArea textArea;
+        textArea = new JTextArea( stringa );
+
+        //SETTAGGIO TEXTAREA .
+        textArea.setAlignmentX( Component.CENTER_ALIGNMENT );
+        textArea.setEditable( false );
+        
+        //AGGIUNTA TEXTAREA AL FRAME .
+        frame.add( textArea );
 
         //AGGIUNTA BUTTON A FRAME .
         frame.add( buttonChat );
@@ -62,7 +82,7 @@ public class JavaSwingConsole extends JavaService {
 
         //SETTAGGI FRAME .
         frame.setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
-        frame.setSize( 550, 400 );
+        frame.setSize( 600, 400 );
         frame.setResizable( false );
 
         //SETTAGGIO NOME CONSOLE .
@@ -74,7 +94,7 @@ public class JavaSwingConsole extends JavaService {
         textArea.setEditable( false );
         
         //SETTAGGIO FONT E COLORE TESTO SU TEXTAREA .
-        Font font = new Font( "Times New Roman", Font.BOLD, 14 );
+        Font font = new Font( "Arial", Font.BOLD, 14 );
         textArea.setFont( font );  //AGGIUNTA FONT A textArea .
         textArea.setForeground( Color.WHITE ); //Settaggio colore .
 
@@ -90,8 +110,19 @@ public class JavaSwingConsole extends JavaService {
 
     public void modificaConsole( Value request ){
     
+        //RICEZIONE TESTO .
         String text = request.strValue();
-        timestamp = new Timestamp( System.currentTimeMillis() );
-        textArea.append( text + " (" + timestamp + ") "+ newline );
+
+        //ISTANZA DI CALENDAR .
+        Calendar calendario = Calendar.getInstance();
+ 
+        //SETTAGGIO DATA CON GIORNO, MESE E ANNO .
+        SimpleDateFormat data = new SimpleDateFormat("dd/MM/yyyy");
+
+        //SETTAGGIO ORA .
+        SimpleDateFormat ora = new SimpleDateFormat("HH:mm:ss");
+        
+        //VISUALIZZAZIONE MESSAGGIO SU CONSOLE .
+        textArea.append( "(" + data.format( calendario.getTime() ) + ", " + ora.format( calendario.getTime() ) + ") - " + text + newline );
     }
 }

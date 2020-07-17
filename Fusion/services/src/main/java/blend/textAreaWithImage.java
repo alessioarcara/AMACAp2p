@@ -16,7 +16,7 @@ public class textAreaWithImage extends JTextArea {
         super( a, b );
 
         try {
-            immagine = ImageIO.read( new File("services/src/main/java/blend/logoAmaca.jpg"));
+            immagine = ImageIO.read( new File( "services/src/main/java/blend/logoAmaca.jpeg" ));
         } catch( IOException exception ) {
             exception.printStackTrace();
         }
