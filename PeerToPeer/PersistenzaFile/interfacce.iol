@@ -1,4 +1,3 @@
-interface Interfaccia1{
+interface invioMessaggio{
     RequestResponse: sendMessage(string)(void)
 }
-
