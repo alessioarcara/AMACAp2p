@@ -1,8 +1,8 @@
-type HashMessageResponse: void {
+type HashMessageRequest: void {
   .message: string
 }
 
-type HashMessageRequest: void {
+type HashMessageResponse: void {
   .message: string
 }
 

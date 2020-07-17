@@ -2,6 +2,13 @@ type sendStringheRequest: void {
   .message: string
 }
 
+type FirmaDigitaleRequest: void {
+  .plaintext: string
+  .hashcriptato: string
+  .publickey1: string
+  .publickey2: string
+}
+
 type scambioChiaviRequest: void {
   .publickey1: string
   .publickey2: string
@@ -13,10 +20,10 @@ type scambioChiaviResponse: void {
 }
 
 interface ServerInterface {
-    
     RequestResponse: 
         sendStringhe( sendStringheRequest )( void )
-
+    RequestResponse: 
+        sendStringhePubblico( FirmaDigitaleRequest )( void )
 }
 
 interface scambioChiaviInterface {

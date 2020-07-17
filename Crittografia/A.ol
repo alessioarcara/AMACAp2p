@@ -121,16 +121,24 @@ main {
                 //il javaservice "ShaAlgorithmService" ritorna l'hash del messaggio
                 println@Console( "questo è l'hash del messaggio: "+ response.message )(  )
 
-                //passo l'hash del messaggio al javaservice "EncryptingService"
+                //il javaservice "EncryptingService" codifica con la chiave privata l'hash del messaggio
                 request.message = response.message
                 request.publickey1 = chiaviPubbliche.publickey1
                 request.privatekey = chiavePrivata.privatekey
                 Codifica_SHA@EncryptingServiceOutputPort( request )( response )
 
-                //il javaservice "EncryptingService" ritorna il ciphertext
+                //il javaservice "EncryptingService" ritorna il ciphertext dell'hash del messaggio
                 println@Console( "" )(  )
-                println@Console( "il messaggio criptato è: "  )()
-                println@Console( response.message )(  )
+                println@Console( "il messaggio criptato è: "+ response.message)()
+                
+                //invio al lato receiver il messaggio e il criptato con la chiave privata dell'hash del messaggio
+
+                firma_digitale.plaintext = b
+                firma_digitale.hashcriptato = response.message
+                firma_digitale.publickey1 = chiaviPubbliche.publickey1
+                firma_digitale.publickey2 = chiaviPubbliche.publickey2
+
+                sendStringhePubblico@B( firma_digitale )( )
                 
             }
         }
