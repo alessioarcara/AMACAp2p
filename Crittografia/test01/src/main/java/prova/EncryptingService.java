@@ -81,6 +81,24 @@ public class EncryptingService extends JavaService {
         Value response = Value.create();
         response.getFirstChild( "message" ).setValue(mc[0].toString());
         return response;
+    }
+
+    public Value Codifica_SHA(Value request){
+
+        BigInteger [] mc = new BigInteger[3];
+
+        mc[0] = new BigInteger(request.getFirstChild( "message" ).strValue(), 2);
+        mc[1] = new BigInteger(request.getFirstChild( "publickey1" ).strValue());
+        mc[2] = new BigInteger(request.getFirstChild( "privatekey" ).strValue());
+
+        //c = m^d mod n
+        mc[0] = mc[0].modPow(mc[2], mc[1]);
+
+        //output
+        Value response = Value.create();
+        response.getFirstChild( "message" ).setValue(mc[0].toString());
+        return response;
     }   
+    
 }
 

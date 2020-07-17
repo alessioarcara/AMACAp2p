@@ -121,30 +121,35 @@ public class ShaAlgorithmService extends JavaService {
     //     return finalString;
 
     // }
+    private String ByteArrayToBinaryString(byte[] bytes){
+        
+        String finalString = "";
+
+        for(int i = 0; i<bytes.length; i++){
+            
+            String tempBit =  String.format("%8s", Integer.toBinaryString(bytes[i] & 0xFF)).replace(' ', '0');;
+            finalString = finalString + tempBit;
+        }
+        return finalString;
+    }
 
     public Value ShaPreprocessingMessage( Value request ) {
 
         //input
         String s = request.getFirstChild( "message" ).strValue();
+        String sb = "";
 
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-512");
             byte[] data = md.digest(s.getBytes());
-            StringBuilder sb = new StringBuilder();
-            for(int i=0;i<data.length;i++){
-                sb.append(Integer.toString((data[i] & 0xff) + 0x100, 16).substring(1));
-            }
-            System.out.println(sb);
+            sb = ByteArrayToBinaryString(data);
         } catch(Exception e) {
             System.out.println(e); 
         }
-
-        
         
         //output
         Value response = Value.create();
-        response.getFirstChild("message").setValue(request.getFirstChild( "message" ).strValue());
-        // response.getFirstChild( "message" ).setValue(RSA(ChiaviPlusMessage).toString());
+        response.getFirstChild("message").setValue(sb);
         return response;
     }
 

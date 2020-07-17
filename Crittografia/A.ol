@@ -113,9 +113,25 @@ main {
                 
                 println@Console("Inserisci un messaggio: ")()
                 in(b)
+
+                //passo il plaintext al javaservice "ShaAlgorithmService"
                 request.message = b
                 ShaPreprocessingMessage@ShaAlgorithmServiceOutputPort ( request ) ( response )
-                println@Console( "questa è la risposta: "+ request.message )(  )
+
+                //il javaservice "ShaAlgorithmService" ritorna l'hash del messaggio
+                println@Console( "questo è l'hash del messaggio: "+ response.message )(  )
+
+                //passo l'hash del messaggio al javaservice "EncryptingService"
+                request.message = response.message
+                request.publickey1 = chiaviPubbliche.publickey1
+                request.privatekey = chiavePrivata.privatekey
+                Codifica_SHA@EncryptingServiceOutputPort( request )( response )
+
+                //il javaservice "EncryptingService" ritorna il ciphertext
+                println@Console( "" )(  )
+                println@Console( "il messaggio criptato è: "  )()
+                println@Console( response.message )(  )
+                
             }
         }
 
