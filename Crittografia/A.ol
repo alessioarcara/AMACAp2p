@@ -50,6 +50,7 @@ main {
     registerForInput@Console()();
 
     println@Console("Vuoi avviare una chat con il peer B?") ( )
+    println@Console( "" )(  )
     println@Console( "INSERISCI: *si* per iniziare la chat" )(  )
     println@Console( "INSERISCI: *no* per uscire dal programma" )(  )
     println@Console( "" )(  )
@@ -66,20 +67,26 @@ main {
             println@Console( "INSERISCI: *privato* per mandare un messaggio privato" )(  )
             println@Console( "INSERISCI: *pubblico* per mandare un messaggio pubblico" )(  )
             println@Console( "INSERISCI: *exit* per uscire dal programma" )(  )
+            println@Console( "" )(  )
             in(c);
 
             if (c == "privato"){
 
+                println@Console( "" )(  )
                 println@Console("Inserisci un messaggio: ")()
+                println@Console( "" )(  )
                 in(b)
                 
                 length@StringUtils( b )( length_b )
                 if ( length_b < 64 ) {
 
                     //passo il plaintext al javaservice *EncryptingService*
+
                     request.message = b
                     request.publickey1 = chiaviResponse.publickey1
-                    request.publickey2 = chiaviResponse.publickey2
+                    request.pub_priv_key = chiaviResponse.publickey2
+                    request.cripto_bit = 1
+                    
                     Codifica_RSA@EncryptingServiceOutputPort( request )( response )
 
                     //il javaservice *EncryptingService* mi ritorna il ciphertext 
@@ -88,11 +95,9 @@ main {
                     println@Console( response.message )(  )
 
                     with( w ) {
-
                         .filename = FILENAME;
                         .content = request.message + "\n";
                         .append = 1
-
                     }
 
                     //scrivo il File
@@ -101,51 +106,49 @@ main {
                     //inserisco chiave pubblica nel messaggio
                     sendStringhe@B( response )( )
 
-                } else {
-                    
+                } else { 
                     println@Console( "errore: messaggio troppo lungo" )(  )
-                    
                 }
-                
             }
 
             if ( c == "pubblico" ) {
-                
+                println@Console( "" )(  )
                 println@Console("Inserisci un messaggio: ")()
+                println@Console( "" )(  )
                 in(b)
 
                 //passo il plaintext al javaservice "ShaAlgorithmService"
-                request.message = b
-                ShaPreprocessingMessage@ShaAlgorithmServiceOutputPort ( request ) ( response )
+                hash.message = b
+                ShaPreprocessingMessage@ShaAlgorithmServiceOutputPort ( hash ) ( hash_response )
 
                 //il javaservice "ShaAlgorithmService" ritorna l'hash del messaggio
-                println@Console( "questo è l'hash del messaggio: "+ response.message )(  )
+                println@Console( "" )(  )
+                println@Console( "Message Hash *H(M)* : " + hash_response.message )(  )
 
                 //il javaservice "EncryptingService" codifica con la chiave privata l'hash del messaggio
-                request.message = response.message
-                request.publickey1 = chiaviPubbliche.publickey1
-                request.privatekey = chiavePrivata.privatekey
-                Codifica_SHA@EncryptingServiceOutputPort( request )( response )
+                
+                codifica.message = hash_response.message
+                codifica.publickey1 = chiaviPubbliche.publickey1
+                codifica.pub_priv_key = chiavePrivata.privatekey
+                codifica.cripto_bit = 0
+
+                Codifica_RSA@EncryptingServiceOutputPort( codifica )( codifica_response )
 
                 //il javaservice "EncryptingService" ritorna il ciphertext dell'hash del messaggio
                 println@Console( "" )(  )
-                println@Console( "il messaggio criptato è: "+ response.message)()
+                println@Console( "Message Crypted *K_S(H(M))* : " + codifica_response.message)()
                 
                 //invio al lato receiver il messaggio e il criptato con la chiave privata dell'hash del messaggio
-
+                
                 firma_digitale.plaintext = b
-                firma_digitale.hashcriptato = response.message
+                firma_digitale.message = codifica_response.message
                 firma_digitale.publickey1 = chiaviPubbliche.publickey1
                 firma_digitale.publickey2 = chiaviPubbliche.publickey2
 
                 sendStringhePubblico@B( firma_digitale )( )
-                
             }
         }
-
     } else {
-
         println@Console("Esco dal programma...") ( )
-
     }
-}
+}        

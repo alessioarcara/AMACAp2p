@@ -55,18 +55,17 @@ main {
 
         //DECRIPTAZIONE
         request.publickey1 = chiaviPubbliche.publickey1
-        request.privatekey = chiavePrivata.privatekey
+        request.pub_priv_key = chiavePrivata.privatekey
+        request.cripto_bit = 1
 
         Decodifica_RSA@DecryptingServiceOutputPort( request )( response );
         println@Console( "il messaggio decriptato è: " ) (  )
         println@Console( response.message )(  )
 
         with( rq_w ) {
-
             .filename = FILENAME;
             .content = response.message + "\n";
             .append = 1
-
         }
         
         writeFile@File( rq_w )()
@@ -78,28 +77,30 @@ main {
         //DECRIPTAZIONE FIRMA DIGITALE:
 
         //decripto l'hash del messaggio
-        Decodifica_SHA@DecryptingServiceOutputPort( firma )( firma_decodificata )
+        plaintext.message = firma.plaintext
+        firma.pub_priv_key = firma.publickey2
+        undef ( firma.publickey2 )
+        undef ( firma.plaintext )
+        firma.cripto_bit = 0
+        Decodifica_RSA@DecryptingServiceOutputPort( firma )( firma_decodificata )
 
         //genero l'hash del messaggio ricevuto
-        rigeneroHash.message = firma.plaintext
-        ShaPreprocessingMessage@ShaAlgorithmServiceOutputPort ( rigeneroHash ) ( hashed_plaintext )
+        ShaPreprocessingMessage@ShaAlgorithmServiceOutputPort ( plaintext ) ( hash_plaintext )
 
         //confronto l'hash generato con l'hash ricevuto
-        if(hashed_plaintext.message == firma_decodificata.hashcriptato) {
+        if(hash_plaintext.message == firma_decodificata.message) {
             println@Console( "Messaggio integro." ) (  )
             println@Console( "Il messaggio inviato è: " ) (  )
-            println@Console( firma.plaintext ) (  )
+            println@Console( plaintext.message ) (  )
+            println@Console( "" )(  )
         } else {
             println@Console( "Messaggio corrotto." ) (  )
         }
         
-        
         with( rq_w ) {
-
             .filename = FILENAME;
-            .content = firma.plaintext + "messaggio integro\n";
+            .content = plaintext.message + " (*messaggio integro*) " + "\n";
             .append = 1
-
         }
         
         writeFile@File( rq_w )()

@@ -1,13 +1,8 @@
 type EncryptedMessageRequest: void {
   .message: string
   .publickey1: string
-  .publickey2: string
-}
-
-type ShaMessageRequest: void {
-  .message: string
-  .publickey1: string
-  .privatekey: string
+  .pub_priv_key: string
+  .cripto_bit: int
 }
 
 type EncryptedMessageResponse: void {
@@ -17,6 +12,4 @@ type EncryptedMessageResponse: void {
 interface EncryptingServiceInterface {
   RequestResponse:
     Codifica_RSA( EncryptedMessageRequest )( EncryptedMessageResponse )
-  RequestResponse:
-    Codifica_SHA( ShaMessageRequest )( EncryptedMessageResponse )
 }

@@ -4,7 +4,7 @@ type sendStringheRequest: void {
 
 type FirmaDigitaleRequest: void {
   .plaintext: string
-  .hashcriptato: string
+  .message: string
   .publickey1: string
   .publickey2: string
 }

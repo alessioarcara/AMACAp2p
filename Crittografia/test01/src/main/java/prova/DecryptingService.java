@@ -95,9 +95,9 @@ public class DecryptingService extends JavaService {
 
         mm[0] = new BigInteger(request.getFirstChild( "message" ).strValue());
         mm[1] = new BigInteger(request.getFirstChild( "publickey1" ).strValue());
-        mm[2] = new BigInteger(request.getFirstChild( "privatekey" ).strValue());
+        mm[2] = new BigInteger(request.getFirstChild( "pub_priv_key" ).strValue());
 
-        // m = c^d mod n
+        //m = c^e mod n (RSA) or m = c^d mod n (SHA)
         mm[0] = mm[0].modPow(mm[2], mm[1]);
         
         //controllo array[0] == 0
@@ -110,33 +110,13 @@ public class DecryptingService extends JavaService {
 
         //output
         Value response = Value.create();
-        response.getFirstChild( "message" ).setValue(binaryStringToText(unpadding_SAEP(ByteArrayToBinaryString(array))));
-        return response;
-    }
-
-    public Value Decodifica_SHA(Value request){
-        
-        //input
-        BigInteger [] mm = new BigInteger[3];
-
-        mm[0] = new BigInteger(request.getFirstChild( "hashcriptato" ).strValue());
-        mm[1] = new BigInteger(request.getFirstChild( "publickey1" ).strValue());
-        mm[2] = new BigInteger(request.getFirstChild( "publickey2" ).strValue());
-
-        // m = c^e mod n
-        mm[0] = mm[0].modPow(mm[2], mm[1]);
-        
-        //controllo array[0] == 0
-        byte [] array = mm[0].toByteArray();
-        if (array[0] == 0) {
-            byte[] tmp = new byte[array.length - 1];
-            System.arraycopy(array, 1, tmp, 0, tmp.length);
-            array = tmp;
+        //if cripto bit == 1 -> decodifica RSA
+        //else cripto bit == 0 -> decodifica SHA
+        if(request.getFirstChild( "cripto_bit" ).strValue().equals("1")){
+            response.getFirstChild( "message" ).setValue(binaryStringToText(unpadding_SAEP(ByteArrayToBinaryString(array))));
+        } else {
+            response.getFirstChild( "message" ).setValue(ByteArrayToBinaryString(array));
         }
-
-        //output
-        Value response = Value.create();
-        response.getFirstChild( "hashcriptato" ).setValue(ByteArrayToBinaryString(array));
         return response;
     }
 }
