@@ -191,7 +191,12 @@ main {
                     //UpperCase per la verifica degli user .
                     toUpperCase@StringUtils( string(global.peer_names[i]) )( responsePeer )
                     toUpperCase@StringUtils( responseUser )( responseUserUppercase )
-                    if( responsePeer == responseUserUppercase ) {
+
+                    //Acquisisco lunghezza stringa per controllo aggiuntivo .
+                    length@StringUtils( responseUser )( lengthUserWord )
+                    
+                    length@StringUtils( responseUserUppercase)( lengthUser )
+                    if( (responsePeer == responseUserUppercase) || (lengthUserWord < 2) ) {
                         isOriginal = false
                     }
                 }
@@ -204,7 +209,7 @@ main {
                     // response = responseUser
                     response = responseUp + responseLower
                 } else {
-                    showMessageDialog@SwingUI("Username già utilizzato.")()
+                    showMessageDialog@SwingUI("Username già utilizzato o nome troppo corto")()
                 }
             }
 
@@ -248,7 +253,7 @@ main {
             response = "ACK"  //Utilizzabile per verificare la corretta ricezione di messaggio .
 
             //Formato settato .
-            requestFormat.format = "yyyy/MM/dd HH:mm:ss"
+            requestFormat.format = "dd/MM/yyyy HH:mm:ss"
 
             //Regisrazione data ed ora del messaggio .
             getCurrentDateTime@Time( requestFormat )( responseDateTime )
@@ -311,15 +316,15 @@ main {
        
         Decodifica_RSA@DecryptingServiceOutputPort( firma )( firma_decodificata )
 
-        //genero l'hash del messaggio ricevuto
+        //GENERAZIONE HASH DEL MESSAGGIO RICEVUTO IN CHIARO .
         plaintext.message = msg.text
         ShaPreprocessingMessage@ShaAlgorithmServiceOutputPort ( plaintext ) ( hash_plaintext )
 
-        //confronto l'hash generato con l'hash ricevuto
+        //EFFETTUIAMO CONFRONTO TRA HASH ACQUISITO E GENERATO .
         if(hash_plaintext.message == firma_decodificata.message) {
 
             //Settaggio formato data e ora .
-            requestFormat.format = "yyyy/MM/dd HH:mm:ss"
+            requestFormat.format = "dd/MM/yyyy HH:mm:ss"
 
             //Servizio per permettere di stabilire la data e ora corrente del messaggio .
             getCurrentDateTime@Time( requestFormat )( responseDateTime )
