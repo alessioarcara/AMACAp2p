@@ -112,14 +112,16 @@ define riconoscimentoUserGroup {
 
 main {
 
-    //GENERAZIONE CHIAVI .
-    [generateKey()() {
-        GenerazioneChiavi@KeyGeneratorServiceOutputPort()( returnChiavi )
+    //GENERAZIONE CHIAVI PUBBLICHE E PRIVATA PER PEER .
+    [
+        generateKey()() {
+            GenerazioneChiavi@KeyGeneratorServiceOutputPort()( returnChiavi )
 
-        global.chiaviPubbliche.publickey1 = returnChiavi.publickey1
-        global.chiaviPubbliche.publickey2 = returnChiavi.publickey2   
-        global.chiavePrivata.privatekey = returnChiavi.privatekey
-    }]
+            global.chiaviPubbliche.publickey1 = returnChiavi.publickey1
+            global.chiaviPubbliche.publickey2 = returnChiavi.publickey2   
+            global.chiavePrivata.privatekey = returnChiavi.privatekey
+        }
+    ]
 
     //BROADCAST
     [broadcast( newuser.port )] {
@@ -151,7 +153,7 @@ main {
     //RESPOND TO HELLO
     [sendHi( peer )] {
         
-        temp = -1
+        temp = -1 //Settaggio a -1 per successivo controllo .
         for( i = 0, i < #global.peer_names, i++ ) {
 
             //Registro la posizione .
@@ -160,6 +162,7 @@ main {
             }
         }
 
+        //Se temp > -1 allora sovrascriviamo .
         if ( temp > -1 ) {
             global.peer_names[ temp ] = peer.name
             global.peer_port[ temp ] = peer.port
@@ -195,7 +198,6 @@ main {
                     //Acquisisco lunghezza stringa per controllo aggiuntivo .
                     length@StringUtils( responseUser )( lengthUserWord )
                     
-                    length@StringUtils( responseUserUppercase)( lengthUser )
                     if( (responsePeer == responseUserUppercase) || (lengthUserWord < 2) ) {
                         isOriginal = false
                     }
@@ -203,19 +205,16 @@ main {
                 if ( isOriginal ) {
                     condition = false
 
-                    //Richiamo metodo per sistemare i caratteri .
+                    //Richiamo define per sistemare i caratteri .
                     settaggioCaratteri
 
-                    // response = responseUser
+                    //Genero username completo combinando i caratteri restituiti dalla define .
                     response = responseUp + responseLower
                 } else {
                     showMessageDialog@SwingUI("Username già utilizzato o nome troppo corto")()
                 }
             }
 
-
-
-            // global.user.name = responseUser
             global.user.name = response
             global.user.port = user.port
 
@@ -232,7 +231,7 @@ main {
     ]
 
 
-    //METODO CHE RESTITUISCE IL COUNTER
+    //METODO CHE RESTITUISCE IL CONTATORE .
     [
         getCount()( response ) {
             response = global.count
@@ -240,14 +239,14 @@ main {
     ]
     
     
-    //METODO PER SCAMBIARSI MESSAGGI
+    //METODO PER SCAMBIARSI MESSAGGI PRIVATI .
     [
         sendStringhe( plaintextRequest )( response ) {
 
             request.message = plaintextRequest.text
             request.publickey1 = global.chiaviPubbliche.publickey1
             request.pub_priv_key = global.chiavePrivata.privatekey
-            request.cripto_bit = 1
+            request.cripto_bit = 1 //Settato ad 1 permette di sfruttare RSA con padding .
             Decodifica_RSA@DecryptingServiceOutputPort( request )( plainTextResponse )
             
             response = "ACK"  //Utilizzabile per verificare la corretta ricezione di messaggio .
@@ -289,7 +288,7 @@ main {
     ]
     
 
-    //RESTITUZIONE CHIAVI PUBBLICHE .
+    //RESTITUZIONE CHIAVI PUBBLICHE PER CHAT PRIVATA .
     [
         richiestaChiavi()( response ) {
             response.publickey1 = global.chiaviPubbliche.publickey1
@@ -297,7 +296,7 @@ main {
         }
     ]
 
-    //RESTITUZIONE CHIAVI PROPRIE .
+    //RESTITUZIONE CHIAVI PERSONALI PER CHAT PUBBLICA E FIRMA DIGITALE .
     [
         richiestaProprieChiavi()( response ) {
             response.publickey1 = global.chiaviPubbliche.publickey1
@@ -306,7 +305,7 @@ main {
         }
     ]
 
-    //RICEZIONE MESSAGGIO DA GRUPPO
+    //RICEZIONE MESSAGGIO DA GRUPPO .
     [forwardMessage( msg )] {
 
         firma.message = msg.message
@@ -317,11 +316,11 @@ main {
         Decodifica_RSA@DecryptingServiceOutputPort( firma )( firma_decodificata )
 
         //GENERAZIONE HASH DEL MESSAGGIO RICEVUTO IN CHIARO .
-        plaintext.message = msg.text
-        ShaPreprocessingMessage@ShaAlgorithmServiceOutputPort ( plaintext ) ( hash_plaintext )
+        plaintext.message = msg.text  //Messaggio in chiaro da passare alla funzione .
+        ShaPreprocessingMessage@ShaAlgorithmServiceOutputPort( plaintext )( hash_plaintext )
 
         //EFFETTUIAMO CONFRONTO TRA HASH ACQUISITO E GENERATO .
-        if(hash_plaintext.message == firma_decodificata.message) {
+        if( hash_plaintext.message == firma_decodificata.message ) {
 
             //Settaggio formato data e ora .
             requestFormat.format = "dd/MM/yyyy HH:mm:ss"
@@ -331,7 +330,7 @@ main {
             
             println@Console( responseDateTime + "\t" + msg.username + ": " + msg.text )()
         } else {
-            println@Console( "Messaggio corrotto." ) (  )
+            println@Console( "Il messaggio è corrotto." )()
         }
     }
 }
