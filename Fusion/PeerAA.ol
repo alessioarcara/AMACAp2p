@@ -6,6 +6,7 @@ include "ui/swing_ui.iol"
 include "EncryptingServiceInterface.iol"
 include "DecryptingServiceInterface.iol"
 include "KeyGeneratorServiceInterface.iol"
+include "ShaAlgorithmServiceInterface.iol"
 
 
 outputPort port {
@@ -31,6 +32,10 @@ outputPort DecryptingServiceOutputPort {
     Interfaces: DecryptingServiceInterface
 }
 
+outputPort ShaAlgorithmServiceOutputPort {
+    Interfaces: ShaAlgorithmServiceInterface
+}
+
 outputPort JavaSwingConsolePort {
   interfaces: ISwing
 }
@@ -40,6 +45,7 @@ embedded {
     "blend.KeyGeneratorService" in KeyGeneratorServiceOutputPort,
     "blend.EncryptingService" in EncryptingServiceOutputPort,
     "blend.DecryptingService" in DecryptingServiceOutputPort,
+    "blend.ShaAlgorithmService" in ShaAlgorithmServiceOutputPort,
     "blend.JavaSwingConsole" in JavaSwingConsolePort
 }
 
@@ -95,7 +101,8 @@ define startChat {
             //Recupero chiavi pubbliche del destinatario .
             richiestaChiavi@port()( chiaviPubblicheDestinatario )
             request.publickey1 = chiaviPubblicheDestinatario.publickey1
-            request.publickey2 = chiaviPubblicheDestinatario.publickey2
+            request.pub_priv_key = chiaviPubblicheDestinatario.publickey2
+            request.cripto_bit = 1
 
             press@portaStampaConsole( user.name + " ha iniziato la comunicazione con " + dest )()
             
@@ -167,9 +174,30 @@ define startGroupChat {
                     exitGroup@port( user )()
                     press@portaStampaConsole( user.name + " ha abbandonato il gruppo " + group.name )()
                 } else {
+                    hash.message = responseMessage
+                    ShaPreprocessingMessage@ShaAlgorithmServiceOutputPort ( hash ) ( hash_response )
+
+                    port.location = "socket://localhost:" + user.port
+                    richiestaProprieChiavi@port()( chiaviPersonaliResponse )
+
+                    println@Console( "key2: " + chiaviPersonaliResponse.publickey2 )()
+
+                    codifica.message = hash_response.message
+                    codifica.publickey1 = chiaviPersonaliResponse.publickey1
+                    codifica.pub_priv_key = chiaviPersonaliResponse.privatekey
+                    codifica.cripto_bit = 0
+
+                    Codifica_RSA@EncryptingServiceOutputPort( codifica )( codifica_response )
+                    
                     msg.text = responseMessage
+                    msg.message = codifica_response.message
+                    msg.publickey1 = chiaviPersonaliResponse.publickey1
+                    msg.publickey2 = chiaviPersonaliResponse.publickey2
+
+                    println@Console( "Publickey2 assegnazione: " + msg.publickey2 )()
+
                     port.location = "socket://localhost:" + group.port
-                    sendMessage@port(msg)
+                    sendMessage@port( msg )
                 }
             }
         }
@@ -252,7 +280,7 @@ main {
                 //Settaggio gruppo ad UpperCase .
                 toUpperCase@StringUtils( groupName )( group.name )
 
-                port.locaiton = "socket://localhost:" + user.port
+                port.location = "socket://localhost:" + user.port
                 searchPeer@port( group.name )( response )
 
                 if ( response == 0 ) {
@@ -312,5 +340,5 @@ main {
             println@Console("\nIstruzione sconosciuta.")()
         }
     }   
-
+    
 }

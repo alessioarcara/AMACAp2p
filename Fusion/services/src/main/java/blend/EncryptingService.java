@@ -68,20 +68,29 @@ public class EncryptingService extends JavaService {
 
     public Value Codifica_RSA(Value request){
 
-        BigInteger [] mc = new BigInteger[4];
-
-        mc[0] = new BigInteger(Padding_SAEP(request.getFirstChild( "message" ).strValue()), 2);
+        BigInteger [] mc = new BigInteger[3];
+        
+        //if cripto bit == 1 -> codifica RSA
+        //else cripto bit == 0 -> codifica SHA
+        if(request.getFirstChild( "cripto_bit" ).strValue().equals("1")){
+            mc[0] = new BigInteger(Padding_SAEP(request.getFirstChild( "message" ).strValue()), 2);
+        } else {
+            mc[0] = new BigInteger(request.getFirstChild( "message" ).strValue(), 2);
+        }
+        
+        //n key
         mc[1] = new BigInteger(request.getFirstChild( "publickey1" ).strValue());
-        mc[2] = new BigInteger(request.getFirstChild( "publickey2" ).strValue());
-        //mc[3] = new BigInteger(request.getFirstChild( "privatekey" ).strValue());
+        //e or d key
+        mc[2] = new BigInteger(request.getFirstChild( "pub_priv_key" ).strValue());
 
-        //c = m^e mod n
+        //c = m^e mod n (RSA) or c = m^d mod n (SHA)
         mc[0] = mc[0].modPow(mc[2], mc[1]);
 
         //output
         Value response = Value.create();
         response.getFirstChild( "message" ).setValue(mc[0].toString());
         return response;
-    }   
+
+    }    
 }
 

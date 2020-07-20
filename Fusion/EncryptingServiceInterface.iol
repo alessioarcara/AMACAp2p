@@ -1,8 +1,8 @@
 type EncryptedMessageRequest: void {
   .message: string
   .publickey1: string
-  .publickey2: string
-  //.privatekey: string
+  .pub_priv_key: string
+  .cripto_bit: int
 }
 
 type EncryptedMessageResponse: void {

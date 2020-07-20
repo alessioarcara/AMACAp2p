@@ -5,6 +5,7 @@ include "ui/swing_ui.iol"
 include "EncryptingServiceInterface.iol"
 include "DecryptingServiceInterface.iol"
 include "KeyGeneratorServiceInterface.iol"
+include "ShaAlgorithmServiceInterface.iol"
 include "time.iol"
 
 
@@ -39,11 +40,16 @@ outputPort DecryptingServiceOutputPort {
     Interfaces: DecryptingServiceInterface
 }
 
+outputPort ShaAlgorithmServiceOutputPort {
+    Interfaces: ShaAlgorithmServiceInterface
+}
+
 embedded {
   Java:
     "blend.KeyGeneratorService" in KeyGeneratorServiceOutputPort,
     "blend.EncryptingService" in EncryptingServiceOutputPort,
-    "blend.DecryptingService" in DecryptingServiceOutputPort
+    "blend.DecryptingService" in DecryptingServiceOutputPort,
+    "blend.ShaAlgorithmService" in ShaAlgorithmServiceOutputPort
 }
 
 init {
@@ -235,7 +241,8 @@ main {
 
             request.message = plaintextRequest.text
             request.publickey1 = global.chiaviPubbliche.publickey1
-            request.privatekey = global.chiavePrivata.privatekey
+            request.pub_priv_key = global.chiavePrivata.privatekey
+            request.cripto_bit = 1
             Decodifica_RSA@DecryptingServiceOutputPort( request )( plainTextResponse )
             
             response = "ACK"  //Utilizzabile per verificare la corretta ricezione di messaggio .
@@ -285,8 +292,38 @@ main {
         }
     ]
 
+    //RESTITUZIONE CHIAVI PROPRIE .
+    [
+        richiestaProprieChiavi()( response ) {
+            response.publickey1 = global.chiaviPubbliche.publickey1
+            response.publickey2 = global.chiaviPubbliche.publickey2
+            response.privatekey = global.chiavePrivata.privatekey
+        }
+    ]
+
     //RICEZIONE MESSAGGIO DA GRUPPO
     [forwardMessage( msg )] {
+
+        firma.message = msg.message
+        firma.publickey1 = msg.publickey1
+        firma.pub_priv_key = msg.publickey2
+        firma.cripto_bit = 0
+       
+        Decodifica_RSA@DecryptingServiceOutputPort( firma )( firma_decodificata )
+
+        //genero l'hash del messaggio ricevuto
+        plaintext.message = msg.text
+        ShaPreprocessingMessage@ShaAlgorithmServiceOutputPort ( plaintext ) ( hash_plaintext )
+
+        //confronto l'hash generato con l'hash ricevuto
+        if(hash_plaintext.message == firma_decodificata.message) {
+            println@Console( "Messaggio integro." ) (  )
+            println@Console( "Il messaggio inviato è: " ) (  )
+            println@Console( plaintext.message ) (  )
+            println@Console()()
+        } else {
+            println@Console( "Messaggio corrotto." ) (  )
+        }
 
         //Settaggio formato data e ora .
         requestFormat.format = "yyyy/MM/dd HH:mm:ss"

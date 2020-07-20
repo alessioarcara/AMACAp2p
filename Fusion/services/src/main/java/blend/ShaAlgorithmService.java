@@ -1,4 +1,4 @@
-package prova;
+package blend;
 
 import jolie.runtime.JavaService;
 import jolie.runtime.Value;

@@ -10,6 +10,14 @@ type message: void {
     .text: string
 }
 
+type messageGroup: void {
+    .username: string
+    .text: string
+    .message: string
+    .publickey1: string
+    .publickey2: string
+}
+
 type users: any {?}
 
 type richiestaChiaviResponse: void {
@@ -21,6 +29,12 @@ type group: void {
     .name: string
     .port: int
     .host: int
+}
+
+type chiaviPersonali: void {
+    .publickey1: string
+    .publickey2: string
+    .privatekey: string
 }
 
 
@@ -41,13 +55,14 @@ interface interfacciaB {
     RequestResponse: chatRequest( string )( bool ),
     RequestResponse: richiestaChiavi( void )( richiestaChiaviResponse ),
     OneWay: generateKey( void )
+    RequestResponse: richiestaProprieChiavi( void )( chiaviPersonali )
 }
 
 interface IGroup {
     RequestResponse: setGroup(group)(void),
-    OneWay: sendMessage(message),
+    OneWay: sendMessage( messageGroup ),
     OneWay: verify(void),
-    OneWay: forwardMessage(message),
+    OneWay: forwardMessage( messageGroup ),
     RequestResponse: enterGroup(user)(void),
     RequestResponse: exitGroup(user)(void)
 }

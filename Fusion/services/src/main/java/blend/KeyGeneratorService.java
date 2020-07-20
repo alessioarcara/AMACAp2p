@@ -44,8 +44,11 @@ public class KeyGeneratorService extends JavaService {
 
         SecureRandom random = new SecureRandom();
         p = BigInteger.probablePrime(lengthRSA, random);
-        //aggiungere controllo per evitare che p e q siano identici anche se è remota la possibilità
-        q = BigInteger.probablePrime(lengthRSA, random);
+
+        //controllo per evitare p e q identici
+        do {
+            q = BigInteger.probablePrime(lengthRSA, random);
+        } while ( p.equals( q ));
 
         //prima chiave pubblica
         n = p.multiply(q);
