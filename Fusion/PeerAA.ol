@@ -170,7 +170,6 @@ define startGroupChat {
                 showInputDialog@SwingUI( user.name + "\nInserisci messaggio per il gruppo " + group.name + " ( 'EXIT' per uscire ):" )( responseMessage )         
 
                 if ( responseMessage == "EXIT" ) {
-                    port.location = "socket://localhost:" + group.port
                     exitGroup@port( user )()
                     press@portaStampaConsole( user.name + " ha abbandonato il gruppo " + group.name )()
                 } else {
@@ -179,8 +178,6 @@ define startGroupChat {
 
                     port.location = "socket://localhost:" + user.port
                     richiestaProprieChiavi@port()( chiaviPersonaliResponse )
-
-                    println@Console( "key2: " + chiaviPersonaliResponse.publickey2 )()
 
                     codifica.message = hash_response.message
                     codifica.publickey1 = chiaviPersonaliResponse.publickey1
@@ -193,8 +190,6 @@ define startGroupChat {
                     msg.message = codifica_response.message
                     msg.publickey1 = chiaviPersonaliResponse.publickey1
                     msg.publickey2 = chiaviPersonaliResponse.publickey2
-
-                    println@Console( "Publickey2 assegnazione: " + msg.publickey2 )()
 
                     port.location = "socket://localhost:" + group.port
                     sendMessage@port( msg )
@@ -222,7 +217,7 @@ main {
     press@portaStampaConsole( user.name + " si è unito/a alla rete! " + "( " + num_port + " )" )()
 
     //GENERAZIONE CHIAVI .
-    generateKey@port()
+    generateKey@port()()
 
     //WAIT FOR INSTRUCTION
     status = true

@@ -113,13 +113,13 @@ define riconoscimentoUserGroup {
 main {
 
     //GENERAZIONE CHIAVI .
-    [generateKey()] {
+    [generateKey()() {
         GenerazioneChiavi@KeyGeneratorServiceOutputPort()( returnChiavi )
 
         global.chiaviPubbliche.publickey1 = returnChiavi.publickey1
         global.chiaviPubbliche.publickey2 = returnChiavi.publickey2   
         global.chiavePrivata.privatekey = returnChiavi.privatekey
-    }
+    }]
 
     //BROADCAST
     [broadcast( newuser.port )] {
@@ -317,20 +317,16 @@ main {
 
         //confronto l'hash generato con l'hash ricevuto
         if(hash_plaintext.message == firma_decodificata.message) {
-            println@Console( "Messaggio integro." ) (  )
-            println@Console( "Il messaggio inviato è: " ) (  )
-            println@Console( plaintext.message ) (  )
-            println@Console()()
+
+            //Settaggio formato data e ora .
+            requestFormat.format = "yyyy/MM/dd HH:mm:ss"
+
+            //Servizio per permettere di stabilire la data e ora corrente del messaggio .
+            getCurrentDateTime@Time( requestFormat )( responseDateTime )
+            
+            println@Console( responseDateTime + "\t" + msg.username + ": " + msg.text )()
         } else {
             println@Console( "Messaggio corrotto." ) (  )
         }
-
-        //Settaggio formato data e ora .
-        requestFormat.format = "yyyy/MM/dd HH:mm:ss"
-
-        //Servizio per permettere di stabilire la data e ora corrente del messaggio .
-        getCurrentDateTime@Time( requestFormat )( responseDateTime )
-        
-        println@Console( responseDateTime + "\t" + msg.username + ": " + msg.text )()
     }
 }
