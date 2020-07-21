@@ -7,6 +7,7 @@ include "DecryptingServiceInterface.iol"
 include "KeyGeneratorServiceInterface.iol"
 include "ShaAlgorithmServiceInterface.iol"
 include "time.iol"
+include "file.iol"
 
 
 execution{ concurrent }
@@ -259,6 +260,14 @@ main {
 
             //Stampa messaggio con data, ora e username .
             println@Console( responseDateTime + "\t" + plaintextRequest.username + " : " + plainTextResponse.message + "\n" )()
+
+            //Scrivo nel file 
+            with( richiesta ) {
+                    .filename = "BackupChat/DATABASE_"+global.user.name+".txt";
+                    .content = responseDateTime+"\t"+plaintextRequest.username+": "+plainTextResponse.message+ " \n";
+                    .append = 1
+                }
+                writeFile@File( richiesta )()
         }
     ]
 
@@ -281,6 +290,12 @@ main {
             if( responseQuestion == 0 ) {
                 response = true
                 println@Console( "Per rispondere a " + username + " avvia una chat con lui." )()
+                with( richiesta ) {
+                    .filename = "BackupChat/DATABASE_"+global.user.name+".txt";
+                    .content = "\nINIZIO A RICEVERE MESSAGGI DA "+username+"\n";
+                    .append = 1
+                }
+                writeFile@File( richiesta )()
             } else {
                 response = false
             }
@@ -329,6 +344,12 @@ main {
             getCurrentDateTime@Time( requestFormat )( responseDateTime )
             
             println@Console( responseDateTime + "\t" + msg.username + ": " + msg.text )()
+            with( richiesta ) {
+                    .filename = "BackupChat/DATABASE_"+global.user.name+".txt";
+                    .content = responseDateTime+"\t"+msg.username+": "+msg.text+ " \n";
+                    .append = 1
+                }
+                writeFile@File( richiesta )()
         } else {
             println@Console( "Il messaggio è corrotto." )()
         }

@@ -7,6 +7,9 @@ include "EncryptingServiceInterface.iol"
 include "DecryptingServiceInterface.iol"
 include "KeyGeneratorServiceInterface.iol"
 include "ShaAlgorithmServiceInterface.iol"
+include "exec.iol"
+include "file.iol"
+include "time.iol"
 
 
 outputPort port {
@@ -97,7 +100,14 @@ define startChat {
         chatRequest@port( user.name )( enter )
 
         if ( enter ) {
-
+            
+            with( richiesta ) {
+                    .filename = "BackupChat/DATABASE_"+user.name+".txt";
+                    .content = "\nINIZIO A MANDARE MESSAGGI A "+dest+"\n";
+                    .append = 1
+                }
+                writeFile@File( richiesta )()
+                
             //Recupero chiavi pubbliche del destinatario .
             richiestaChiavi@port()( chiaviPubblicheDestinatario )
             request.publickey1 = chiaviPubblicheDestinatario.publickey1
@@ -115,6 +125,14 @@ define startChat {
                     })
                     showInputDialog@SwingUI( user.name + "\nInserisci messaggio per " + dest + " ( 'EXIT' per uscire ):" )( responseMessage )         
 
+                    getCurrentDateTime@Time()(Data)
+                         with( richiesta ) {
+                            .filename = "BackupChat/DATABASE_"+user.name+".txt";
+                            .content = Data+"\t"+user.name+": "+responseMessage+ " \n";
+                            .append = 1
+                        }
+                        writeFile@File( richiesta )()
+                    
                     if ( responseMessage == "EXIT" ) {
                         press@portaStampaConsole( user.name + " ha abbandonato la comunicazione con " + dest )()
                     } else {
@@ -149,6 +167,16 @@ define broadcastMsg {
 }
 
 define startGroupChat {
+    
+    //inizializzazione persistenza 
+    with( richiesta ) {
+        .filename = "BackupChat/DATABASE_"+user.name+".txt";
+        .content = "\nINIZIO COMUNICAZIONE CON GRUPPO "+group.name+"\n";
+        .append = 1
+    }
+    writeFile@File( richiesta )()
+    
+    
     //START CHATTING
     scope( e ) {
 
@@ -215,6 +243,9 @@ main {
 
     //Stampo su monitor il peer aggiunto alla rete .
     press@portaStampaConsole( user.name + " si è unito/a alla rete! " + "( " + num_port + " )" )()
+
+    //creazione file persistenza
+    exec@Exec("touch BackupChat/DATABASE_"+user.name+".txt")()
 
     //GENERAZIONE CHIAVI .
     generateKey@port()()
