@@ -1,5 +1,9 @@
 include "console.iol"
 include "interfacce.iol"
+include "ShaAlgorithmServiceInterface.iol"
+include "EncryptingServiceInterface.iol"
+include "DecryptingServiceInterface.iol"
+include "KeyGeneratorServiceInterface.iol"
 
 execution{ concurrent }
 
@@ -18,6 +22,30 @@ outputPort portaStampaConsole {
     Location: "socket://localhost:30000"
     Protocol: http
     Interfaces: teniamoTraccia
+}
+
+outputPort KeyGeneratorServiceOutputPort {
+  Interfaces: KeyGeneratorServiceInterface
+}
+
+outputPort EncryptingServiceOutputPort {
+    Interfaces: EncryptingServiceInterface
+}
+
+outputPort DecryptingServiceOutputPort {
+    Interfaces: DecryptingServiceInterface
+}
+
+outputPort ShaAlgorithmServiceOutputPort {
+    Interfaces: ShaAlgorithmServiceInterface
+}
+
+embedded {
+  Java:
+    "blend.KeyGeneratorService" in KeyGeneratorServiceOutputPort,
+    "blend.EncryptingService" in EncryptingServiceOutputPort,
+    "blend.DecryptingService" in DecryptingServiceOutputPort,
+    "blend.ShaAlgorithmService" in ShaAlgorithmServiceOutputPort
 }
 
 init {
@@ -57,15 +85,6 @@ main {
     //metodo per aggiungere nuovi peer al gruppo
     [
         enterGroup(peer)() {
-            for ( i=0, i < #global.members, i++ ) {
-                if ( global.members[i] != -1 ) {    
-                    out.location = "socket://localhost:" + global.members[i]
-                    
-                    msg.username = global.group.name
-                    msg.text = peer.name + " è entrato nel gruppo!"
-                    forwardMessage@out(msg)
-                }
-            }
             global.members[#global.members] = peer.port
         }
     ]
@@ -74,16 +93,9 @@ main {
     [
         exitGroup( peer )() {
             for( i=0, i < #global.members, i++ ) {
-               
                 if( global.members[i] == peer.port ) {
                     global.members[i] = -1   
-                } else if( global.members[i] != -1 ) {
-                    out.location = "socket://localhost:" + global.members[i]
-                    
-                    msg.username = global.group.name
-                    msg.text = peer.name + " è uscito dal gruppo!"
-                    forwardMessage@out(msg)
-                }
+                } 
             }
         }
     ]

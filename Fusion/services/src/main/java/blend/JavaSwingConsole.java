@@ -28,7 +28,7 @@ public class JavaSwingConsole extends JavaService {
         String[] buttons = { "CHAT PRIVATA", "PARTECIPA", "EXIT", "CREA GRUPPO" };
 
         //RITORNO IL VALORE INTERO DA CONFRONTARE NEL PeerAA.ol .
-        return JOptionPane.showOptionDialog(null, stringa, "SCEGLI ISTRUZIONE", JOptionPane.WARNING_MESSAGE, 0, new ImageIcon("services/src/main/java/blend/icoAmaca.jpg"), buttons, buttons[2]);
+        return JOptionPane.showOptionDialog(null, stringa, "SCEGLI ISTRUZIONE", JOptionPane.WARNING_MESSAGE, 0, new ImageIcon("services/src/main/java/blend/icoAmaca.png"), buttons, buttons[2]);
 
     }
 

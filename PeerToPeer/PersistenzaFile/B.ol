@@ -2,6 +2,7 @@ include "interfacce.iol"
 include "console.iol"
 include "file.iol"
 include "time.iol"
+include "exec.iol"
 
 execution{concurrent}
 
@@ -29,12 +30,13 @@ main{
             getCurrentDateTime@Time()(Data)
             //da aggiungere metodo che ritorna lo username che ha inviato il messaggio 
             
+            exec@Exec("touch DATABASE.txt")(richiesta)
             //ora stampo i messaggi nel file, con la rispettiva ora di invio 
                 with( richiesta ) {
                     .filename = FILENAME;
+                    .path =
                     .content = "Data e ora: "+Data+" "+message+ " \n";
                     .append = 1
-                    
                 }
                 writeFile@File( richiesta )()
         }

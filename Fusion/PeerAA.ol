@@ -7,6 +7,9 @@ include "EncryptingServiceInterface.iol"
 include "DecryptingServiceInterface.iol"
 include "KeyGeneratorServiceInterface.iol"
 include "ShaAlgorithmServiceInterface.iol"
+include "exec.iol"
+include "file.iol"
+include "time.iol"
 
 
 outputPort port {
@@ -97,7 +100,14 @@ define startChat {
         chatRequest@port( user.name )( enter )
 
         if ( enter ) {
-
+            
+            with( richiesta ) {
+                    .filename = "BackupChat/DATABASE_"+user.name+".txt";
+                    .content = "\nINIZIO A MANDARE MESSAGGI A "+dest+"\n";
+                    .append = 1
+                }
+                writeFile@File( richiesta )()
+                
             //Recupero chiavi pubbliche del destinatario .
             richiestaChiavi@port()( chiaviPubblicheDestinatario )
             request.publickey1 = chiaviPubblicheDestinatario.publickey1
@@ -115,6 +125,14 @@ define startChat {
                     })
                     showInputDialog@SwingUI( user.name + "\nInserisci messaggio per " + dest + " ( 'EXIT' per uscire ):" )( responseMessage )         
 
+                    getCurrentDateTime@Time()(Data)
+                         with( richiesta ) {
+                            .filename = "BackupChat/DATABASE_"+user.name+".txt";
+                            .content = Data+"\t"+user.name+": "+responseMessage+ " \n";
+                            .append = 1
+                        }
+                        writeFile@File( richiesta )()
+                    
                     if ( responseMessage == "EXIT" ) {
                         press@portaStampaConsole( user.name + " ha abbandonato la comunicazione con " + dest )()
                     } else {
@@ -149,6 +167,16 @@ define broadcastMsg {
 }
 
 define startGroupChat {
+    
+    //inizializzazione persistenza 
+    with( richiesta ) {
+        .filename = "BackupChat/DATABASE_"+user.name+".txt";
+        .content = "\nINIZIO COMUNICAZIONE CON GRUPPO "+group.name+"\n";
+        .append = 1
+    }
+    writeFile@File( richiesta )()
+    
+    
     //START CHATTING
     scope( e ) {
 
@@ -170,7 +198,6 @@ define startGroupChat {
                 showInputDialog@SwingUI( user.name + "\nInserisci messaggio per il gruppo " + group.name + " ( 'EXIT' per uscire ):" )( responseMessage )         
 
                 if ( responseMessage == "EXIT" ) {
-                    port.location = "socket://localhost:" + group.port
                     exitGroup@port( user )()
                     press@portaStampaConsole( user.name + " ha abbandonato il gruppo " + group.name )()
                 } else {
@@ -179,8 +206,6 @@ define startGroupChat {
 
                     port.location = "socket://localhost:" + user.port
                     richiestaProprieChiavi@port()( chiaviPersonaliResponse )
-
-                    println@Console( "key2: " + chiaviPersonaliResponse.publickey2 )()
 
                     codifica.message = hash_response.message
                     codifica.publickey1 = chiaviPersonaliResponse.publickey1
@@ -193,8 +218,6 @@ define startGroupChat {
                     msg.message = codifica_response.message
                     msg.publickey1 = chiaviPersonaliResponse.publickey1
                     msg.publickey2 = chiaviPersonaliResponse.publickey2
-
-                    println@Console( "Publickey2 assegnazione: " + msg.publickey2 )()
 
                     port.location = "socket://localhost:" + group.port
                     sendMessage@port( msg )
@@ -221,8 +244,14 @@ main {
     //Stampo su monitor il peer aggiunto alla rete .
     press@portaStampaConsole( user.name + " si è unito/a alla rete! " + "( " + num_port + " )" )()
 
+    //creazione file persistenza
+    scope(exceptionFile){
+        install( IOException => exec@Exec("NUL> BackupChat/DATABASE_"+user.name+".txt")())
+        exec@Exec("touch BackupChat/DATABASE_"+user.name+".txt")()
+    }
+    
     //GENERAZIONE CHIAVI .
-    generateKey@port()
+    generateKey@port()()
 
     //WAIT FOR INSTRUCTION
     status = true

@@ -7,6 +7,7 @@ include "DecryptingServiceInterface.iol"
 include "KeyGeneratorServiceInterface.iol"
 include "ShaAlgorithmServiceInterface.iol"
 include "time.iol"
+include "file.iol"
 
 
 execution{ concurrent }
@@ -112,14 +113,16 @@ define riconoscimentoUserGroup {
 
 main {
 
-    //GENERAZIONE CHIAVI .
-    [generateKey()] {
-        GenerazioneChiavi@KeyGeneratorServiceOutputPort()( returnChiavi )
+    //GENERAZIONE CHIAVI PUBBLICHE E PRIVATA PER PEER .
+    [
+        generateKey()() {
+            GenerazioneChiavi@KeyGeneratorServiceOutputPort()( returnChiavi )
 
-        global.chiaviPubbliche.publickey1 = returnChiavi.publickey1
-        global.chiaviPubbliche.publickey2 = returnChiavi.publickey2   
-        global.chiavePrivata.privatekey = returnChiavi.privatekey
-    }
+            global.chiaviPubbliche.publickey1 = returnChiavi.publickey1
+            global.chiaviPubbliche.publickey2 = returnChiavi.publickey2   
+            global.chiavePrivata.privatekey = returnChiavi.privatekey
+        }
+    ]
 
     //BROADCAST
     [broadcast( newuser.port )] {
@@ -151,7 +154,7 @@ main {
     //RESPOND TO HELLO
     [sendHi( peer )] {
         
-        temp = -1
+        temp = -1 //Settaggio a -1 per successivo controllo .
         for( i = 0, i < #global.peer_names, i++ ) {
 
             //Registro la posizione .
@@ -160,6 +163,7 @@ main {
             }
         }
 
+        //Se temp > -1 allora sovrascriviamo .
         if ( temp > -1 ) {
             global.peer_names[ temp ] = peer.name
             global.peer_port[ temp ] = peer.port
@@ -191,26 +195,27 @@ main {
                     //UpperCase per la verifica degli user .
                     toUpperCase@StringUtils( string(global.peer_names[i]) )( responsePeer )
                     toUpperCase@StringUtils( responseUser )( responseUserUppercase )
-                    if( responsePeer == responseUserUppercase ) {
+
+                    //Acquisisco lunghezza stringa per controllo aggiuntivo .
+                    length@StringUtils( responseUser )( lengthUserWord )
+                    
+                    if( (responsePeer == responseUserUppercase) || (lengthUserWord < 2) ) {
                         isOriginal = false
                     }
                 }
                 if ( isOriginal ) {
                     condition = false
 
-                    //Richiamo metodo per sistemare i caratteri .
+                    //Richiamo define per sistemare i caratteri .
                     settaggioCaratteri
 
-                    // response = responseUser
+                    //Genero username completo combinando i caratteri restituiti dalla define .
                     response = responseUp + responseLower
                 } else {
-                    showMessageDialog@SwingUI("Username già utilizzato.")()
+                    showMessageDialog@SwingUI("Username già utilizzato o nome troppo corto")()
                 }
             }
 
-
-
-            // global.user.name = responseUser
             global.user.name = response
             global.user.port = user.port
 
@@ -227,7 +232,7 @@ main {
     ]
 
 
-    //METODO CHE RESTITUISCE IL COUNTER
+    //METODO CHE RESTITUISCE IL CONTATORE .
     [
         getCount()( response ) {
             response = global.count
@@ -235,26 +240,34 @@ main {
     ]
     
     
-    //METODO PER SCAMBIARSI MESSAGGI
+    //METODO PER SCAMBIARSI MESSAGGI PRIVATI .
     [
         sendStringhe( plaintextRequest )( response ) {
 
             request.message = plaintextRequest.text
             request.publickey1 = global.chiaviPubbliche.publickey1
             request.pub_priv_key = global.chiavePrivata.privatekey
-            request.cripto_bit = 1
+            request.cripto_bit = 1 //Settato ad 1 permette di sfruttare RSA con padding .
             Decodifica_RSA@DecryptingServiceOutputPort( request )( plainTextResponse )
             
             response = "ACK"  //Utilizzabile per verificare la corretta ricezione di messaggio .
 
             //Formato settato .
-            requestFormat.format = "yyyy/MM/dd HH:mm:ss"
+            requestFormat.format = "dd/MM/yyyy HH:mm:ss"
 
             //Regisrazione data ed ora del messaggio .
             getCurrentDateTime@Time( requestFormat )( responseDateTime )
 
             //Stampa messaggio con data, ora e username .
             println@Console( responseDateTime + "\t" + plaintextRequest.username + " : " + plainTextResponse.message + "\n" )()
+
+            //Scrivo nel file 
+            with( richiesta ) {
+                    .filename = "BackupChat/DATABASE_"+global.user.name+".txt";
+                    .content = responseDateTime+"\t"+plaintextRequest.username+": "+plainTextResponse.message+ " \n";
+                    .append = 1
+                }
+                writeFile@File( richiesta )()
         }
     ]
 
@@ -277,6 +290,12 @@ main {
             if( responseQuestion == 0 ) {
                 response = true
                 println@Console( "Per rispondere a " + username + " avvia una chat con lui." )()
+                with( richiesta ) {
+                    .filename = "BackupChat/DATABASE_"+global.user.name+".txt";
+                    .content = "\nINIZIO A RICEVERE MESSAGGI DA "+username+"\n";
+                    .append = 1
+                }
+                writeFile@File( richiesta )()
             } else {
                 response = false
             }
@@ -284,7 +303,7 @@ main {
     ]
     
 
-    //RESTITUZIONE CHIAVI PUBBLICHE .
+    //RESTITUZIONE CHIAVI PUBBLICHE PER CHAT PRIVATA .
     [
         richiestaChiavi()( response ) {
             response.publickey1 = global.chiaviPubbliche.publickey1
@@ -292,7 +311,7 @@ main {
         }
     ]
 
-    //RESTITUZIONE CHIAVI PROPRIE .
+    //RESTITUZIONE CHIAVI PERSONALI PER CHAT PUBBLICA E FIRMA DIGITALE .
     [
         richiestaProprieChiavi()( response ) {
             response.publickey1 = global.chiaviPubbliche.publickey1
@@ -301,7 +320,7 @@ main {
         }
     ]
 
-    //RICEZIONE MESSAGGIO DA GRUPPO
+    //RICEZIONE MESSAGGIO DA GRUPPO .
     [forwardMessage( msg )] {
 
         firma.message = msg.message
@@ -311,26 +330,28 @@ main {
        
         Decodifica_RSA@DecryptingServiceOutputPort( firma )( firma_decodificata )
 
-        //genero l'hash del messaggio ricevuto
-        plaintext.message = msg.text
-        ShaPreprocessingMessage@ShaAlgorithmServiceOutputPort ( plaintext ) ( hash_plaintext )
+        //GENERAZIONE HASH DEL MESSAGGIO RICEVUTO IN CHIARO .
+        plaintext.message = msg.text  //Messaggio in chiaro da passare alla funzione .
+        ShaPreprocessingMessage@ShaAlgorithmServiceOutputPort( plaintext )( hash_plaintext )
 
-        //confronto l'hash generato con l'hash ricevuto
-        if(hash_plaintext.message == firma_decodificata.message) {
-            println@Console( "Messaggio integro." ) (  )
-            println@Console( "Il messaggio inviato è: " ) (  )
-            println@Console( plaintext.message ) (  )
-            println@Console()()
+        //EFFETTUIAMO CONFRONTO TRA HASH ACQUISITO E GENERATO .
+        if( hash_plaintext.message == firma_decodificata.message ) {
+
+            //Settaggio formato data e ora .
+            requestFormat.format = "dd/MM/yyyy HH:mm:ss"
+
+            //Servizio per permettere di stabilire la data e ora corrente del messaggio .
+            getCurrentDateTime@Time( requestFormat )( responseDateTime )
+            
+            println@Console( responseDateTime + "\t" + msg.username + ": " + msg.text )()
+            with( richiesta ) {
+                    .filename = "BackupChat/DATABASE_"+global.user.name+".txt";
+                    .content = responseDateTime+"\t"+msg.username+": "+msg.text+ " \n";
+                    .append = 1
+                }
+                writeFile@File( richiesta )()
         } else {
-            println@Console( "Messaggio corrotto." ) (  )
+            println@Console( "Il messaggio è corrotto." )()
         }
-
-        //Settaggio formato data e ora .
-        requestFormat.format = "yyyy/MM/dd HH:mm:ss"
-
-        //Servizio per permettere di stabilire la data e ora corrente del messaggio .
-        getCurrentDateTime@Time( requestFormat )( responseDateTime )
-        
-        println@Console( responseDateTime + "\t" + msg.username + ": " + msg.text )()
     }
 }
