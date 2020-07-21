@@ -245,8 +245,11 @@ main {
     press@portaStampaConsole( user.name + " si è unito/a alla rete! " + "( " + num_port + " )" )()
 
     //creazione file persistenza
-    exec@Exec("touch BackupChat/DATABASE_"+user.name+".txt")()
-
+    scope(exceptionFile){
+        install( IOException => exec@Exec("NUL> BackupChat/DATABASE_"+user.name+".txt")())
+        exec@Exec("touch BackupChat/DATABASE_"+user.name+".txt")()
+    }
+    
     //GENERAZIONE CHIAVI .
     generateKey@port()()
 
