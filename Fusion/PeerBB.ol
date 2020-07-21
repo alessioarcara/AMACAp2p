@@ -116,6 +116,7 @@ main {
     //GENERAZIONE CHIAVI PUBBLICHE E PRIVATA PER PEER .
     [
         generateKey()() {
+            //Contatto il Javaservice per acquisire le chiavi .
             GenerazioneChiavi@KeyGeneratorServiceOutputPort()( returnChiavi )
 
             global.chiaviPubbliche.publickey1 = returnChiavi.publickey1
@@ -127,16 +128,13 @@ main {
     //BROADCAST
     [broadcast( newuser.port )] {
         out.location = "socket://localhost:" + newuser.port
-        //gestione dell'errore nel caso in cui si invia un "hello" ad un gruppo
-        scope(e) {
-            install( IOException => a=0)
-            hello@out( global.user )
-        }
+        hello@out( global.user )
     }
 
     //HELLO
     [hello( peer )] {
 
+        //RICONOSCIMENTO GRUPPO O USER .
         riconoscimentoUserGroup
 
         if( flag ) {
@@ -145,32 +143,36 @@ main {
             println@Console( peer.name + " è online." )()
         }
 
-        global.peer_names[ global.count ] = peer.name
-        global.peer_port[ global.count ] = peer.port
-        global.count = global.count + 1
+        //AGGIUNTA SYNCHRONIZED PER RISOLVERE PROBLEMI DI SOVRASCRITTURA E DOPPI INCREMENTI .
+        synchronized( lock ) {
+            global.peer_names[ global.count ] = peer.name
+            global.peer_port[ global.count ] = peer.port
+            global.count = global.count + 1   
+        }
 
     }
 
     //RESPOND TO HELLO
     [sendHi( peer )] {
-        
-        temp = -1 //Settaggio a -1 per successivo controllo .
-        for( i = 0, i < #global.peer_names, i++ ) {
+        synchronized( lock ) {
+            temp = -1 //Settaggio a -1 per successivo controllo .
+            for( i = 0, i < #global.peer_names, i++ ) {
 
-            //Registro la posizione .
-            if( peer.name == global.peer_names[i] ) {
-                temp = i
+                //Registro la posizione .
+                if( peer.name == global.peer_names[i] ) {
+                    temp = i
+                }
             }
-        }
 
-        //Se temp > -1 allora sovrascriviamo .
-        if ( temp > -1 ) {
-            global.peer_names[ temp ] = peer.name
-            global.peer_port[ temp ] = peer.port
-        } else {
-            global.peer_names[ global.count ] = peer.name
-            global.peer_port[ global.count ] = peer.port
-            global.count = global.count + 1
+            //Se temp > -1 allora sovrascriviamo .
+            if ( temp > -1 ) {
+                global.peer_names[ temp ] = peer.name
+                global.peer_port[ temp ] = peer.port
+            } else {
+                global.peer_names[ global.count ] = peer.name
+                global.peer_port[ global.count ] = peer.port
+                global.count = global.count + 1
+            }   
         }
     }
 
@@ -188,21 +190,24 @@ main {
                     }
                 })
                 
-                showInputDialog@SwingUI( "Inserisci username: " )( responseUser )
-                isOriginal = true
-                for ( i = 0, i < #global.peer_names, i++ ) {
-                    
-                    //UpperCase per la verifica degli user .
-                    toUpperCase@StringUtils( string(global.peer_names[i]) )( responsePeer )
-                    toUpperCase@StringUtils( responseUser )( responseUserUppercase )
+                synchronized( lockLogin ) {
+                    showInputDialog@SwingUI( "Inserisci username: " )( responseUser )
+                    isOriginal = true
+                    for ( i = 0, i < #global.peer_names, i++ ) {
+                        
+                        //UpperCase per la verifica degli user .
+                        toUpperCase@StringUtils( string(global.peer_names[i]) )( responsePeer )
+                        toUpperCase@StringUtils( responseUser )( responseUserUppercase )
 
-                    //Acquisisco lunghezza stringa per controllo aggiuntivo .
-                    length@StringUtils( responseUser )( lengthUserWord )
-                    
-                    if( (responsePeer == responseUserUppercase) || (lengthUserWord < 2) ) {
-                        isOriginal = false
+                        //Acquisisco lunghezza stringa per controllo aggiuntivo .
+                        length@StringUtils( responseUser )( lengthUserWord )
+                        
+                        if( (responsePeer == responseUserUppercase) || (lengthUserWord < 2) ) {
+                            isOriginal = false
+                        }
                     }
                 }
+
                 if ( isOriginal ) {
                     condition = false
 
@@ -289,7 +294,7 @@ main {
             showYesNoQuestionDialog@SwingUI( username + " vuole inviarti un messaggio. Vuoi accettare ed iniziare a ricevere messaggi da " + username + "." )( responseQuestion )
             if( responseQuestion == 0 ) {
                 response = true
-                println@Console( "Per rispondere a " + username + " avvia una chat con lui." )()
+                println@Console( "Per rispondere a " + username + " avvia una chat con lui/lei." )()
                 with( richiesta ) {
                     .filename = "BackupChat/DATABASE_"+global.user.name+".txt";
                     .content = "\nINIZIO A RICEVERE MESSAGGI DA "+username+"\n";
@@ -323,7 +328,7 @@ main {
     //RICEZIONE MESSAGGIO DA GRUPPO .
     [forwardMessage( msg )] {
 
-        firma.message = msg.message
+        firma.message = msg.message //Messaggio codificato K^-( H(m) ) .
         firma.publickey1 = msg.publickey1
         firma.pub_priv_key = msg.publickey2
         firma.cripto_bit = 0

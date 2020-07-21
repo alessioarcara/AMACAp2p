@@ -39,7 +39,7 @@ public class JavaSwingConsole extends JavaService {
 
         //SETTAGGI FRAME .
         frame.setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
-        frame.setSize( 600, 400 );
+        frame.setSize( 650, 433 );
         frame.setResizable( false );
 
         //SETTAGGIO NOME CONSOLE .
@@ -59,7 +59,7 @@ public class JavaSwingConsole extends JavaService {
         scrollPane = new JScrollPane( textArea ); 
 
         //AGGIUNTA SCROLLPANE A FRAME
-        frame.add( scrollPane );
+        frame.getContentPane().add( scrollPane );
         frame.setVisible( true ); 
     
     }

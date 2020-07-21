@@ -85,7 +85,7 @@ main {
     //metodo per aggiungere nuovi peer al gruppo
     [
         enterGroup(peer)() {
-            global.members[#global.members] = peer.port
+            global.members[ #global.members ] = peer.port
         }
     ]
 
@@ -103,7 +103,7 @@ main {
     //metodo per ricevere messaggi dai peer e spedirli a tutti gli altri peer partecipanti
     [sendMessage(msg)] {
         for ( i=0, i < #global.members, i++ ) {
-            if ( global.members[i] != -1 ) {
+            if( global.members[i] != -1 ) {
                 out.location = "socket://localhost:" + global.members[i]
                 forwardMessage@out(msg)
             }

@@ -58,7 +58,7 @@ constants {
 }
 
 init {
-    // SEARCH THE FIRST FREE PORT
+    //RICERCA PRIMA PORTA LIBERA TRA 10001 E 10101 .
     condition = true
     portNum = 10001
     while( condition ) {
@@ -71,12 +71,13 @@ init {
                 .type = "Jolie"
             };
             loadEmbeddedService@Runtime( emb )()
-            num_port = portNum
+
+            num_port = portNum //Assegnazione numero di porta generato .
             condition = false
         }
     }
 
-    //Gestione errore dovuto al button "cancel" nelle SwingUI .
+    //Gestione errore dovuto al button "annulla" nelle SwingUI .
     install( TypeMismatch => {
         trim@StringUtils( user.name )( responseTrim ) //Trim dell strina passata come request .
         if( is_defined( user.name ) && !( responseTrim instanceof void ) ) {
@@ -91,6 +92,7 @@ define startChat {
     //START CHATTING
     scope( e ) {
 
+        //Gestione errore se l'utente abbandona la rete .
         install( IOException => println@Console( "L'utente è andato offline.")() )
 
         msg.username = user.name 
@@ -102,11 +104,11 @@ define startChat {
         if ( enter ) {
             
             with( richiesta ) {
-                    .filename = "BackupChat/DATABASE_"+user.name+".txt";
-                    .content = "\nINIZIO A MANDARE MESSAGGI A "+dest+"\n";
-                    .append = 1
-                }
-                writeFile@File( richiesta )()
+                .filename = "BackupChat/DATABASE_"+user.name+".txt";
+                .content = "\nINIZIO A MANDARE MESSAGGI A "+dest+"\n";
+                .append = 1
+            }
+            writeFile@File( richiesta )()
                 
             //Recupero chiavi pubbliche del destinatario .
             richiestaChiavi@port()( chiaviPubblicheDestinatario )
@@ -125,13 +127,15 @@ define startChat {
                     })
                     showInputDialog@SwingUI( user.name + "\nInserisci messaggio per " + dest + " ( 'EXIT' per uscire ):" )( responseMessage )         
 
-                    getCurrentDateTime@Time()(Data)
-                         with( richiesta ) {
-                            .filename = "BackupChat/DATABASE_"+user.name+".txt";
-                            .content = Data+"\t"+user.name+": "+responseMessage+ " \n";
-                            .append = 1
-                        }
-                        writeFile@File( richiesta )()
+                    getCurrentDateTime@Time()(Data) //Generazione data e ora .
+
+                    //Richiesta per scrittura su file .
+                    with( richiesta ) {
+                        .filename = "BackupChat/DATABASE_"+user.name+".txt";
+                        .content = Data+"\t"+user.name+": "+responseMessage+ " \n";
+                        .append = 1
+                    }
+                    writeFile@File( richiesta )() //Scrittura su file .
                     
                     if ( responseMessage == "EXIT" ) {
                         press@portaStampaConsole( user.name + " ha abbandonato la comunicazione con " + dest )()
@@ -142,7 +146,6 @@ define startChat {
                             Codifica_RSA@EncryptingServiceOutputPort( request )( response )
                             msg.text = response.message  
                             sendStringhe@port( msg )( response )
-                            //println@Console( msg.text )()
                         }
                     }
                     //println@Console()()
@@ -150,6 +153,7 @@ define startChat {
             }
         } else {
             println@Console( "L'utente ha rifiutato la tua richiesta di chattare." )()
+            press@portaStampaConsole( dest + " ha rifiutato la conversazione con " + user.name )()
         }
     }
 }
@@ -180,21 +184,20 @@ define startGroupChat {
     //START CHATTING
     scope( e ) {
 
+        //Gestione errore nel momento in cui host va online .
         install( IOException => {
             println@Console( "L'host del gruppo è andato offline.")()
             press@portaStampaConsole( user.name + " non può più scrivere. Gruppo " + group.name + " eliminato!")()
         })
 
         msg.username = user.name 
-        press@portaStampaConsole( user.name + " ha iniziato la comunicazione con il gruppo " + group.name )()
+        press@portaStampaConsole( user.name + " ha iniziato la comunicazione con il gruppo " + group.name + "! " + "( " + group.port + " )"  )()
         
+        //Settaggio messaggio per entrata nel while .
         responseMessage = ""
         
         while( responseMessage != "EXIT" ) {
             scope( exception ) {
-                /* install( StringIndexOutOfBoundsException => {
-                    press@portaStampaConsole( user.name + " ha inserito un messaggio troppo lungo!" )() 
-                }) */
                 showInputDialog@SwingUI( user.name + "\nInserisci messaggio per il gruppo " + group.name + " ( 'EXIT' per uscire ):" )( responseMessage )         
 
                 if ( responseMessage == "EXIT" ) {
@@ -214,8 +217,8 @@ define startGroupChat {
 
                     Codifica_RSA@EncryptingServiceOutputPort( codifica )( codifica_response )
                     
-                    msg.text = responseMessage
-                    msg.message = codifica_response.message
+                    msg.text = responseMessage //Messaggio in chiaro ( plaintext ) .
+                    msg.message = codifica_response.message // Invio K^-( H(m) ) .
                     msg.publickey1 = chiaviPersonaliResponse.publickey1
                     msg.publickey2 = chiaviPersonaliResponse.publickey2
 
@@ -228,10 +231,7 @@ define startGroupChat {
 }
 
 main {
-
-    //println@Console( "\nUtilizzi la porta " + num_port + "\n" )()
-
-    //Invio broadcast
+    //Invio broadcast .
     user.port = num_port
 
     broadcastMsg
@@ -246,8 +246,8 @@ main {
 
     //creazione file persistenza
     scope(exceptionFile){
-        install( IOException => exec@Exec("NUL> BackupChat/DATABASE_"+user.name+".txt")())
-        exec@Exec("touch BackupChat/DATABASE_"+user.name+".txt")()
+        install( IOException => exec@Exec("NUL> BackupChat/DATABASE_" + user.name + ".txt")() )
+        exec@Exec( "touch BackupChat/DATABASE_" + user.name + ".txt" )()
     }
     
     //GENERAZIONE CHIAVI .
@@ -263,16 +263,17 @@ main {
 
         port.location = "socket://localhost:" + user.port
 
-        if ( instruction == 2 ) {
+        if ( instruction == 2 ) { //Permette al peer di uscire dalla rete .
             status = false
             press@portaStampaConsole( user.name + " ha abbandonato la rete" )()
         } 
         else 
-            if ( instruction == 0 ) {
+            if ( instruction == 0 ) { //Permette al peer di iniziare una chat privata .
 
                 showInputDialog@SwingUI( user.name + "\nInserisci username da contattare: " )( responseContact )
                 dest = responseContact
 
+                //Restituisce il numero di porta da contattare del destinatario ( 0 se inesistente ) .
                 searchPeer@port( dest )( dest_port )
             
                 if ( dest_port == 0 ) {
@@ -283,7 +284,7 @@ main {
         }
         else if ( instruction == 3 ) {
 
-            // SEARCH THE FIRST FREE PORT
+            //RICERCA PRIMA PORTA DISPONIBILE .
             condition = true
             portNum = 10001
             while( condition ) {
@@ -310,6 +311,8 @@ main {
                 toUpperCase@StringUtils( groupName )( group.name )
 
                 port.location = "socket://localhost:" + user.port
+
+                //Verifica che non ci sia un gruppo con lo stesso nome .
                 searchPeer@port( group.name )( response )
 
                 if ( response == 0 ) {
@@ -348,6 +351,7 @@ main {
                 showInputDialog@SwingUI( user.name + "\nInserisci nome del gruppo: " )( responseContact )
                 group.name = responseContact
 
+                //Ricerca porta di gruppo per la comunicazione pubblica .
                 searchPeer@port( group.name )( group.port )
             
                 if ( group.port == 0 ) {
@@ -355,8 +359,10 @@ main {
                     press@portaStampaConsole( user.name + " ha ricercato un gruppo " + group.name + " inesistente!")()
                 } else {
                     port.location = "socket://localhost:" + group.port
-                    enterGroup@port(user)() 
-                    println@Console( "\nBenvenuto nel gruppo " + group.name + "!\n" )(  )
+                    enterGroup@port( user )() 
+                    println@Console( "\nBenvenuto nel gruppo " + group.name + "!\n" )()
+
+                    //Inizio la comunicazione con il gruppo .
                     startGroupChat
                 }
             }
