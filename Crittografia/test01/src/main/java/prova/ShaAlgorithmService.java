@@ -2,14 +2,13 @@ package prova;
 
 import jolie.runtime.JavaService;
 import jolie.runtime.Value;
-import java.io.*; 
-import java.util.*; 
+import java.io.*;
+import java.util.*;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-//import java.lang.Integer.toBinaryString();
 
 public class ShaAlgorithmService extends JavaService {
 
