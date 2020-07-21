@@ -104,8 +104,8 @@ define startChat {
         if ( enter ) {
             
             with( richiesta ) {
-                .filename = "BackupChat/DATABASE_"+user.name+".txt";
-                .content = "\nINIZIO A MANDARE MESSAGGI A "+dest+"\n";
+                .filename = "BackupChat/DATABASE_" + user.name + ".txt"
+                .content = "\nINIZIO A MANDARE MESSAGGI A " + dest + "\n"
                 .append = 1
             }
             writeFile@File( richiesta )()
@@ -131,8 +131,8 @@ define startChat {
 
                     //Richiesta per scrittura su file .
                     with( richiesta ) {
-                        .filename = "BackupChat/DATABASE_"+user.name+".txt";
-                        .content = Data+"\t"+user.name+": "+responseMessage+ " \n";
+                        .filename = "BackupChat/DATABASE_" + user.name + ".txt"
+                        .content = Data + "\t" + user.name + ": " + responseMessage + " \n"
                         .append = 1
                     }
                     writeFile@File( richiesta )() //Scrittura su file .
@@ -174,8 +174,8 @@ define startGroupChat {
     
     //inizializzazione persistenza 
     with( richiesta ) {
-        .filename = "BackupChat/DATABASE_"+user.name+".txt";
-        .content = "\nINIZIO COMUNICAZIONE CON GRUPPO "+group.name+"\n";
+        .filename = "BackupChat/DATABASE_" + user.name + ".txt"
+        .content = "\nINIZIO COMUNICAZIONE CON GRUPPO " + group.name + "\n"
         .append = 1
     }
     writeFile@File( richiesta )()

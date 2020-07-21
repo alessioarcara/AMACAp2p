@@ -51,10 +51,10 @@ embedded {
 init {
     global.group.name = ""
     global.group.port = 0
-    global.members[0] = void
+    global.members[ 0 ] = void
 
     install( ChannelClosingException => {
-        println@Console( "L'host del gruppo è andato offline." )() 
+        println@Console( "L'host del gruppo è andato offline." )()
     })
 }
 
@@ -65,7 +65,7 @@ main {
         setGroup( request )() {
             global.group.name = request.name
             global.group.port = request.port
-            global.members[0] = request.host
+            global.members[ 0 ] = request.host
         }
     ]
 

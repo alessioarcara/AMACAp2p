@@ -266,13 +266,17 @@ main {
             //Stampa messaggio con data, ora e username .
             println@Console( responseDateTime + "\t" + plaintextRequest.username + " : " + plainTextResponse.message + "\n" )()
 
-            //Scrivo nel file 
-            with( richiesta ) {
-                    .filename = "BackupChat/DATABASE_"+global.user.name+".txt";
-                    .content = responseDateTime+"\t"+plaintextRequest.username+": "+plainTextResponse.message+ " \n";
-                    .append = 1
-                }
+            //Scrivo nel file .
+            //Metodo synchronized perchè non ci possono essere scritture contemporanee, questo 
+            //perchè più peer possono scrivere ad un singolo peer .
+            synchronized( lockFile ) {
+                with( richiesta ) {
+                        .filename = "BackupChat/DATABASE_" + global.user.name + ".txt"
+                        .content = responseDateTime + "\t" + plaintextRequest.username + ": " + plainTextResponse.message + " \n"
+                        .append = 1
+                    }
                 writeFile@File( richiesta )()
+            }
         }
     ]
 
@@ -295,12 +299,14 @@ main {
             if( responseQuestion == 0 ) {
                 response = true
                 println@Console( "Per rispondere a " + username + " avvia una chat con lui/lei." )()
+
+                //Scrittura apice del messaggio .
                 with( richiesta ) {
-                    .filename = "BackupChat/DATABASE_"+global.user.name+".txt";
-                    .content = "\nINIZIO A RICEVERE MESSAGGI DA "+username+"\n";
+                    .filename = "BackupChat/DATABASE_" + global.user.name + ".txt"
+                    .content = "\nINIZIO A RICEVERE MESSAGGI DA " + username + "\n"
                     .append = 1
                 }
-                writeFile@File( richiesta )()
+                writeFile@File( richiesta )() //Scrittura su file settato in precedenza .
             } else {
                 response = false
             }
@@ -316,7 +322,7 @@ main {
         }
     ]
 
-    //RESTITUZIONE CHIAVI PERSONALI PER CHAT PUBBLICA E FIRMA DIGITALE .
+    //RESTITUZIONE CHIAVI PERSONALI PER CHAT PUBBLICA E FIRMA .
     [
         richiestaProprieChiavi()( response ) {
             response.publickey1 = global.chiaviPubbliche.publickey1
@@ -349,12 +355,17 @@ main {
             getCurrentDateTime@Time( requestFormat )( responseDateTime )
             
             println@Console( responseDateTime + "\t" + msg.username + ": " + msg.text )()
+
+            //Settaggio per scrittura messaggio su file .
             with( richiesta ) {
-                    .filename = "BackupChat/DATABASE_"+global.user.name+".txt";
-                    .content = responseDateTime+"\t"+msg.username+": "+msg.text+ " \n";
-                    .append = 1
-                }
-                writeFile@File( richiesta )()
+                .filename = "BackupChat/DATABASE_" + global.user.name + ".txt"
+                .content = responseDateTime+"\t"+msg.username+": "+msg.text+ " \n"
+                .append = 1
+            }
+            
+            //Scrittura effettiva .
+            writeFile@File( richiesta )()
+
         } else {
             println@Console( "Il messaggio è corrotto." )()
         }

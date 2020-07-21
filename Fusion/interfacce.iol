@@ -19,8 +19,8 @@ type message: void {
 
 type messageGroup: void {
     .username: string
-    .text: string //plaintext
-    .message: string //messaggio codificato con SHA
+    .text: string //Plaintext
+    .message: string //Messaggio codificato con SHA
     .publickey1: string
     .publickey2: string
 }
