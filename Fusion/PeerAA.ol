@@ -138,19 +138,23 @@ define startChat {
                             install( IOException => println@Console("Errore, console non disponibile!")() )
                             press@portaStampaConsole( user.name + " ha inserito un messaggio troppo lungo!" )() 
                         }
-                        
                     })
                     showInputDialog@SwingUI( user.name + "\nInserisci messaggio per " + dest + " ( 'EXIT' per uscire ):" )( responseMessage )         
 
                     getCurrentDateTime@Time()(Data) //Generazione data e ora .
 
+                    //Registrazione lunghezza messaggio .
+                    length@StringUtils( responseMessage )( lunghezzaMessaggio )
+
                     //Richiesta per scrittura su file .
-                    with( richiesta ) {
-                        .filename = "BackupChat/DATABASE_" + user.name + ".txt"
-                        .content = Data + "\t" + user.name + ": " + responseMessage + " \n"
-                        .append = 1
+                    if( lunghezzaMessaggio < limiteLunghezzaMessaggio ) {
+                        with( richiesta ) {
+                            .filename = "BackupChat/DATABASE_" + user.name + ".txt"
+                            .content = Data + "\t" + user.name + ": " + responseMessage + " \n"
+                            .append = 1
+                        }
+                        writeFile@File( richiesta )() //Scrittura su file .
                     }
-                    writeFile@File( richiesta )() //Scrittura su file .
                     
                     if ( responseMessage == "EXIT" ) {
                         scope( exceptionConsole ) {
@@ -160,14 +164,18 @@ define startChat {
                         
                     } else {
                         //Passo il plaintext al javaservice .
-                        if( !( #responseMessage > limiteLunghezzaMessaggio ) ){ //Controllo lunghezza messaggio .
+                        if( !( lunghezzaMessaggio > limiteLunghezzaMessaggio ) ){ //Controllo lunghezza messaggio .
                             request.message = responseMessage
                             Codifica_RSA@EncryptingServiceOutputPort( request )( response )
                             msg.text = response.message  
                             sendStringhe@port( msg )( response )
+                        } else {
+                            scope( exceptionConsole ) {
+                                install( IOException => println@Console( "Errore, console non disponibile!" )() )
+                                press@portaStampaConsole( "Messaggio troppo lungo!" )()
+                            }
                         }
                     }
-                    //println@Console()()
                 }
             }
         } else {
