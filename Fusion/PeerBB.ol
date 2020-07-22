@@ -125,7 +125,7 @@ main {
         }
     ]
 
-    //BROADCAST .
+    //BROADCAST 
     [broadcast( newuser.port )] {
         out.location = "socket://localhost:" + newuser.port
         hello@out( global.user )
@@ -134,7 +134,7 @@ main {
     //HELLO
     [hello( peer )] {
 
-        //RICONOSCIMENTO GRUPPO O USER .
+        //RICONOSCIMENTO GRUPPO O USER 
         riconoscimentoUserGroup
 
         if( flag ) {
@@ -143,7 +143,7 @@ main {
             println@Console( peer.name + " è online." )()
         }
 
-        //AGGIUNTA SYNCHRONIZED PER RISOLVERE PROBLEMI DI SOVRASCRITTURA E DOPPI INCREMENTI .
+        //AGGIUNTA SYNCHRONIZED PER RISOLVERE PROBLEMI DI SOVRASCRITTURA E DOPPI INCREMENTI 
         synchronized( lock ) {
             global.peer_names[ global.count ] = peer.name
             global.peer_port[ global.count ] = peer.port
@@ -155,16 +155,16 @@ main {
     //RESPOND TO HELLO
     [sendHi( peer )] {
         synchronized( lock ) {
-            temp = -1 //Settaggio a -1 per successivo controllo .
+            temp = -1 //Settaggio a -1 per successivo controllo 
             for( i = 0, i < #global.peer_names, i++ ) {
 
-                //Registro la posizione .
+                //Registro la posizione 
                 if( peer.name == global.peer_names[i] ) {
                     temp = i
                 }
             }
 
-            //Se temp > -1 allora sovrascriviamo .
+            //Se temp > -1 allora sovrascriviamo 
             if ( temp > -1 ) {
                 global.peer_names[ temp ] = peer.name
                 global.peer_port[ temp ] = peer.port
@@ -193,7 +193,7 @@ main {
                     }
                 })
                 
-                synchronized( lockLogin ) {
+                synchronized( lock ) {
                     showInputDialog@SwingUI( "Inserisci username: " )( responseUser )
                     isOriginal = true
                     for ( i = 0, i < #global.peer_names, i++ ) {

@@ -58,10 +58,10 @@ constants {
 }
 
 init {
-    //RICERCA PRIMA PORTA LIBERA TRA 10001 E 10101 .
+    //RICERCA PRIMA PORTA LIBERA TRA 10001 E 10101 
     condition = true
     portNum = 10001
-    while( condition ) {
+    while( condition && portNum<10102 ) {
         scope( e ){
             install( RuntimeException  => {
                 portNum = portNum + 1
@@ -72,9 +72,15 @@ init {
             };
             loadEmbeddedService@Runtime( emb )()
 
-            num_port = portNum //Assegnazione numero di porta generato .
+            num_port = portNum //Assegnazione numero di porta generato 
             condition = false
         }
+    }
+    
+    //Controllo di aver trovato una porta libera
+    if ( condition ) {
+        install (NoPortAvaible => println@Console("\n\nTutte le porte della rete sono occupate.\n\n")())
+        throw(NoPortAvaible)
     }
 
     //Gestione errore dovuto al button "annulla" nelle SwingUI .
@@ -191,7 +197,7 @@ define startChat {
 define broadcastMsg {
     for( i = 10001, i < 10101, i++ ) {
         scope( e ) {
-            install( IOException => i = i /*println@Console("-- Error with " + i + " --")()*/ )
+            install( IOException => i = i )
             if( i != user.port ) {
                 port.location = "socket://localhost:" + i
                 broadcast@port( user.port )
