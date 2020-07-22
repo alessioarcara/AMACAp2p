@@ -125,7 +125,7 @@ main {
         }
     ]
 
-    //BROADCAST
+    //BROADCAST .
     [broadcast( newuser.port )] {
         out.location = "socket://localhost:" + newuser.port
         hello@out( global.user )
@@ -186,7 +186,10 @@ main {
 
                 install( TypeMismatch => {
                     if( responseUser instanceof void ) {
-                        press@portaStampaConsole( "Un utente si è arrestato inaspettatamente!" )()
+                        scope( exceptionConsole ) {
+                            install( IOException => println@Console("Errore, console non disponibile!")() )
+                            press@portaStampaConsole( "Un utente si è arrestato inaspettatamente!" )()
+                        }
                     }
                 })
                 
@@ -301,12 +304,14 @@ main {
                 println@Console( "Per rispondere a " + username + " avvia una chat con lui/lei." )()
 
                 //Scrittura apice del messaggio .
-                with( richiesta ) {
-                    .filename = "BackupChat/DATABASE_" + global.user.name + ".txt"
-                    .content = "\nINIZIO A RICEVERE MESSAGGI DA " + username + "\n"
-                    .append = 1
+                synchronized( lockFile ) {
+                    with( richiesta ) {
+                        .filename = "BackupChat/DATABASE_" + global.user.name + ".txt"
+                        .content = "\nINIZIO A RICEVERE MESSAGGI DA " + username + "\n"
+                        .append = 1
+                    }
+                    writeFile@File( richiesta )() //Scrittura su file settato in precedenza .
                 }
-                writeFile@File( richiesta )() //Scrittura su file settato in precedenza .
             } else {
                 response = false
             }
@@ -357,14 +362,16 @@ main {
             println@Console( responseDateTime + "\t" + msg.username + ": " + msg.text )()
 
             //Settaggio per scrittura messaggio su file .
-            with( richiesta ) {
-                .filename = "BackupChat/DATABASE_" + global.user.name + ".txt"
-                .content = responseDateTime+"\t"+msg.username+": "+msg.text+ " \n"
-                .append = 1
-            }
+            synchronized( lockFile ) {
+                with( richiesta ) {
+                    .filename = "BackupChat/DATABASE_" + global.user.name + ".txt"
+                    .content = responseDateTime + "\t" + msg.username + ": " + msg.text + " \n"
+                    .append = 1
+                }
             
-            //Scrittura effettiva .
-            writeFile@File( richiesta )()
+                //Scrittura effettiva .
+                writeFile@File( richiesta )()
+            }
 
         } else {
             println@Console( "Il messaggio è corrotto." )()

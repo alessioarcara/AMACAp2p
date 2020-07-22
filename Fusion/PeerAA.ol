@@ -81,9 +81,17 @@ init {
     install( TypeMismatch => {
         trim@StringUtils( user.name )( responseTrim ) //Trim dell strina passata come request .
         if( is_defined( user.name ) && !( responseTrim instanceof void ) ) {
-            press@portaStampaConsole( user.name + " si è arrestato/a inaspettatamente!" )()
+            scope( exceptionConsole ) {
+                install( IOException => println@Console("Errore, console non disponibile!")() )
+                press@portaStampaConsole( user.name + " si è arrestato/a inaspettatamente!" )()
+            }
+            
         } else {
-            press@portaStampaConsole( "Un utente si è arrestato inaspettatamente!" )()
+            scope( exceptionConsole ) {
+                install( IOException => println@Console("Errore, console non disponibile!")() )
+                press@portaStampaConsole( "Un utente si è arrestato inaspettatamente!" )()
+            }
+            
         }
     })
 }
@@ -116,14 +124,21 @@ define startChat {
             request.pub_priv_key = chiaviPubblicheDestinatario.publickey2
             request.cripto_bit = 1
 
-            press@portaStampaConsole( user.name + " ha iniziato la comunicazione con " + dest )()
+            scope( exceptionConsole ) {
+                install( IOException => println@Console("Errore, console non disponibile!")() )
+                press@portaStampaConsole( user.name + " ha iniziato la comunicazione con " + dest )()
+            }
             
             responseMessage = ""
             
             while( responseMessage != "EXIT" ) {
                 scope( exception ) {
                     install( StringIndexOutOfBoundsException => {
-                        press@portaStampaConsole( user.name + " ha inserito un messaggio troppo lungo!" )() 
+                        scope( exceptionConsole ) {
+                            install( IOException => println@Console("Errore, console non disponibile!")() )
+                            press@portaStampaConsole( user.name + " ha inserito un messaggio troppo lungo!" )() 
+                        }
+                        
                     })
                     showInputDialog@SwingUI( user.name + "\nInserisci messaggio per " + dest + " ( 'EXIT' per uscire ):" )( responseMessage )         
 
@@ -138,7 +153,11 @@ define startChat {
                     writeFile@File( richiesta )() //Scrittura su file .
                     
                     if ( responseMessage == "EXIT" ) {
-                        press@portaStampaConsole( user.name + " ha abbandonato la comunicazione con " + dest )()
+                        scope( exceptionConsole ) {
+                            install( IOException => println@Console("Errore, console non disponibile!")() )
+                            press@portaStampaConsole( user.name + " ha abbandonato la comunicazione con " + dest )() 
+                        }
+                        
                     } else {
                         //Passo il plaintext al javaservice .
                         if( !( #responseMessage > limiteLunghezzaMessaggio ) ){ //Controllo lunghezza messaggio .
@@ -153,7 +172,10 @@ define startChat {
             }
         } else {
             println@Console( "L'utente ha rifiutato la tua richiesta di chattare." )()
-            press@portaStampaConsole( dest + " ha rifiutato la conversazione con " + user.name )()
+            scope( exceptionConsole ) {
+                install( IOException => println@Console("Errore, console non disponibile!")() )
+                press@portaStampaConsole( dest + " ha rifiutato la conversazione con " + user.name )() 
+            }
         }
     }
 }
@@ -187,11 +209,18 @@ define startGroupChat {
         //Gestione errore nel momento in cui host va online .
         install( IOException => {
             println@Console( "L'host del gruppo è andato offline.")()
-            press@portaStampaConsole( user.name + " non può più scrivere. Gruppo " + group.name + " eliminato!")()
+            scope( exceptionConsole ) {
+                install( IOException => println@Console("Errore, console non disponibile!")() )
+                press@portaStampaConsole( user.name + " non può più scrivere. Gruppo " + group.name + " eliminato!")() 
+            }
         })
 
         msg.username = user.name 
-        press@portaStampaConsole( user.name + " ha iniziato la comunicazione con il gruppo " + group.name + "! " + "( " + group.port + " )"  )()
+        scope( exceptionConsole ) {
+            install( IOException => println@Console("Errore, console non disponibile!")() )
+            press@portaStampaConsole( user.name + " ha iniziato la comunicazione con il gruppo " + group.name + "! " + "( " + group.port + " )"  )()
+        }
+        
         
         //Settaggio messaggio per entrata nel while .
         responseMessage = ""
@@ -202,7 +231,11 @@ define startGroupChat {
 
                 if ( responseMessage == "EXIT" ) {
                     exitGroup@port( user )()
-                    press@portaStampaConsole( user.name + " ha abbandonato il gruppo " + group.name )()
+                    scope( exceptionConsole ) {
+                        install( IOException => println@Console("Errore, console non disponibile!")() )
+                        press@portaStampaConsole( user.name + " ha abbandonato il gruppo " + group.name )()
+                    }
+                    
                 } else {
                     hash.message = responseMessage
                     ShaPreprocessingMessage@ShaAlgorithmServiceOutputPort ( hash ) ( hash_response )
@@ -242,7 +275,10 @@ main {
 
 
     //Stampo su monitor il peer aggiunto alla rete .
-    press@portaStampaConsole( user.name + " si è unito/a alla rete! " + "( " + num_port + " )" )()
+    scope( exceptionConsole ) {
+        install( IOException => println@Console("Errore, console non disponibile!")() )
+        press@portaStampaConsole( user.name + " si è unito/a alla rete! " + "( " + num_port + " )" )()
+    }
 
     //creazione file persistenza
     scope(exceptionFile){
@@ -265,7 +301,11 @@ main {
 
         if ( instruction == 2 ) { //Permette al peer di uscire dalla rete .
             status = false
-            press@portaStampaConsole( user.name + " ha abbandonato la rete" )()
+            
+            scope( exceptionConsole ) {
+                install( IOException => println@Console("Errore, console non disponibile!")() )
+                press@portaStampaConsole( user.name + " ha abbandonato la rete" )()
+            }
         } 
         else 
             if ( instruction == 0 ) { //Permette al peer di iniziare una chat privata .
@@ -319,7 +359,10 @@ main {
                     condition = false
                 } else {
                     println@Console( "Impossibile creare un gruppo con questo nome." )()
-                    press@portaStampaConsole( user.name + " ha provato a creare il gruppo " + group.name + " già esistente!" )()
+                    scope( exceptionConsole ) {
+                        install( IOException => println@Console("Errore, console non disponibile!")() )
+                        press@portaStampaConsole( user.name + " ha provato a creare il gruppo " + group.name + " già esistente!" )()
+                    }
                 }
             }
             port.location = "socket://localhost:" + group.port
@@ -356,7 +399,10 @@ main {
             
                 if ( group.port == 0 ) {
                     println@Console( "Il gruppo ricercato non esiste." )()
-                    press@portaStampaConsole( user.name + " ha ricercato un gruppo " + group.name + " inesistente!")()
+                    scope( exceptionConsole ) {
+                        install( IOException => println@Console("Errore, console non disponibile!")() )
+                        press@portaStampaConsole( user.name + " ha ricercato un gruppo " + group.name + " inesistente!")()
+                    }
                 } else {
                     port.location = "socket://localhost:" + group.port
                     enterGroup@port( user )() 
@@ -370,7 +416,10 @@ main {
         }
         else if( instruction == -1 ) {
             status = false
-            press@portaStampaConsole( user.name + " ha abbandonato la rete" )()
+            scope( exceptionConsole ) {
+                install( IOException => println@Console("Errore, console non disponibile!")() )
+                press@portaStampaConsole( user.name + " ha abbandonato la rete" )()
+            }
         } else {
             println@Console("\nIstruzione sconosciuta.")()
         }
