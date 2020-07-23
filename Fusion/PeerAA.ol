@@ -58,10 +58,10 @@ constants {
 }
 
 init {
-    //RICERCA PRIMA PORTA LIBERA TRA 10001 E 10101 .
+    //RICERCA PRIMA PORTA LIBERA TRA 10001 E 10101 
     condition = true
     portNum = 10001
-    while( condition ) {
+    while( condition && portNum<10102 ) {
         scope( e ){
             install( RuntimeException  => {
                 portNum = portNum + 1
@@ -72,9 +72,15 @@ init {
             };
             loadEmbeddedService@Runtime( emb )()
 
-            num_port = portNum //Assegnazione numero di porta generato .
+            num_port = portNum //Assegnazione numero di porta generato 
             condition = false
         }
+    }
+    
+    //Controllo di aver trovato una porta libera
+    if ( condition ) {
+        install (NoPortAvaible => println@Console("\n\nTutte le porte della rete sono occupate.\n\n")())
+        throw(NoPortAvaible)
     }
 
     //Gestione errore dovuto al button "annulla" nelle SwingUI .
@@ -101,13 +107,13 @@ define startChat {
     //START CHATTING
     scope( e ) {
 
-        //Gestione errore se l'utente abbandona la rete .
+        //Gestione errore se l'utente abbandona la rete
         install( IOException => println@Console( "L'utente è andato offline.")() )
 
         msg.username = user.name 
         port.location = "socket://localhost:" + dest_port
 
-        //invia richiesta di chat al destinatario
+        //Invio richiesta di chat al destinatario
         chatRequest@port( user.name )( enter )
 
         if ( enter ) {
@@ -142,19 +148,19 @@ define startChat {
                     })
                     showInputDialog@SwingUI( user.name + "\nInserisci messaggio per " + dest + " ( 'EXIT' per uscire ):" )( responseMessage )         
 
-                    getCurrentDateTime@Time()(Data) //Generazione data e ora .
+                    getCurrentDateTime@Time()(Data) //Generazione data e ora 
 
-                    //Registrazione lunghezza messaggio .
+                    //Registrazione lunghezza messaggio 
                     length@StringUtils( responseMessage )( lunghezzaMessaggio )
 
-                    //Richiesta per scrittura su file .
+                    //Richiesta per scrittura su file 
                     if( lunghezzaMessaggio < limiteLunghezzaMessaggio ) {
                         with( richiesta ) {
                             .filename = "BackupChat/DATABASE_" + user.name + ".txt"
                             .content = Data + "\t" + user.name + ": " + responseMessage + " \n"
                             .append = 1
                         }
-                        writeFile@File( richiesta )() //Scrittura su file .
+                        writeFile@File( richiesta )() //Scrittura su file 
                     }
                     
                     if ( responseMessage == "EXIT" ) {
@@ -166,11 +172,14 @@ define startChat {
                     } else {
                         //CIFRATURA RSA CON PADDING
                         //Passo il plaintext al javaservice .
-                        if( !( lunghezzaMessaggio > limiteLunghezzaMessaggio ) ){ //Controllo lunghezza messaggio .
+                        if( lunghezzaMessaggio < limiteLunghezzaMessaggio ){ //Controllo lunghezza messaggio 
+                            //stampa messaggio in console
+                            println@Console( Data + "\t" + user.name + ": " + responseMessage )(  )
+                            //codifica e spedizione messaggio
                             request.message = responseMessage
                             Codifica_RSA@EncryptingServiceOutputPort( request )( response )
                             msg.text = response.message  
-                            sendStringhe@port( msg )( response )
+                            sendString@port( msg )( response ) 
                         } else {
                             scope( exceptionConsole ) {
                                 install( IOException => println@Console( "Errore, console non disponibile!" )() )
@@ -193,7 +202,7 @@ define startChat {
 define broadcastMsg {
     for( i = 10001, i < 10101, i++ ) {
         scope( e ) {
-            install( IOException => i = i /*println@Console("-- Error with " + i + " --")()*/ )
+            install( IOException => i = i )
             if( i != user.port ) {
                 port.location = "socket://localhost:" + i
                 broadcast@port( user.port )
@@ -308,13 +317,11 @@ main {
     status = true
     while ( status ) {
 
-        // showInputDialog@SwingUI( "User: " + user.name + "\n" + menu + "\nInserisci istruzione: " )( responseIstruzione )
-        aperturaMenu@JavaSwingConsolePort( "User: " + user.name + "\nSeleziona istruzione: " )( responseIstruzione )
-        instruction = responseIstruzione
+        aperturaMenu@JavaSwingConsolePort( "User: " + user.name + "\nSeleziona istruzione: " )( instruction )
 
         port.location = "socket://localhost:" + user.port
 
-        if ( instruction == 2 ) { //Permette al peer di uscire dalla rete .
+        if ( instruction == 2 ) { //Permette al peer di uscire dalla rete 
             status = false
             
             scope( exceptionConsole ) {
@@ -323,12 +330,11 @@ main {
             }
         } 
         else 
-            if ( instruction == 0 ) { //Permette al peer di iniziare una chat privata .
+            if ( instruction == 0 ) { //Permette al peer di iniziare una chat privata 
 
-                showInputDialog@SwingUI( user.name + "\nInserisci username da contattare: " )( responseContact )
-                dest = responseContact
+                showInputDialog@SwingUI( user.name + "\nInserisci username da contattare: " )( dest )
 
-                //Restituisce il numero di porta da contattare del destinatario ( 0 se inesistente ) .
+                //Restituisce il numero di porta da contattare del destinatario ( 0 se inesistente ) 
                 searchPeer@port( dest )( dest_port )
             
                 if ( dest_port == 0 ) {
@@ -339,7 +345,7 @@ main {
         }
         else if ( instruction == 3 ) {
 
-            //RICERCA PRIMA PORTA DISPONIBILE .
+            //RICERCA PRIMA PORTA DISPONIBILE 
             condition = true
             portNum = 10001
             while( condition ) {
