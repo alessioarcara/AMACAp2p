@@ -339,18 +339,21 @@ main {
     //RICEZIONE MESSAGGIO DA GRUPPO .
     [forwardMessage( msg )] {
 
-        firma.message = msg.message //Messaggio codificato K^-( H(m) ) .
-        firma.publickey1 = msg.publickey1
-        firma.pub_priv_key = msg.publickey2
+        firma.message = msg.message         //messaggio codificato K^-( H(m) )
+        firma.publickey1 = msg.publickey1   //ricezione prima componente chiave pubblica (n)
+        firma.pub_priv_key = msg.publickey2 //ricezione seconda componente chiave pubblica (e)
         firma.cripto_bit = 0
-       
+        
+        //DECODIFICA DEL CRIPTATO DELL'HASH DEL MESSAGGIO --> K+( K-( H(m) ) ) .
+        //(Hash acquisito)
         Decodifica_RSA@DecryptingServiceOutputPort( firma )( firma_decodificata )
 
         //GENERAZIONE HASH DEL MESSAGGIO RICEVUTO IN CHIARO .
-        plaintext.message = msg.text  //Messaggio in chiaro da passare alla funzione .
+        //(Hash generato)
+        plaintext.message = msg.text  //messaggio in chiaro da passare alla funzione per generarne l'hash
         ShaPreprocessingMessage@ShaAlgorithmServiceOutputPort( plaintext )( hash_plaintext )
 
-        //EFFETTUIAMO CONFRONTO TRA HASH ACQUISITO E GENERATO .
+        //CONFRONTO TRA HASH ACQUISITO E GENERATO .
         if( hash_plaintext.message == firma_decodificata.message ) {
 
             //Settaggio formato data e ora .
@@ -369,7 +372,7 @@ main {
                     .append = 1
                 }
             
-                //Scrittura effettiva .
+                //Scrittura effettiva del messaggio .
                 writeFile@File( richiesta )()
             }
 

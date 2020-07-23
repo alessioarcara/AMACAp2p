@@ -96,6 +96,7 @@ init {
     })
 }
 
+//CHAT PRIVATA
 define startChat {
     //START CHATTING
     scope( e ) {
@@ -163,6 +164,7 @@ define startChat {
                         }
                         
                     } else {
+                        //CIFRATURA RSA CON PADDING
                         //Passo il plaintext al javaservice .
                         if( !( lunghezzaMessaggio > limiteLunghezzaMessaggio ) ){ //Controllo lunghezza messaggio .
                             request.message = responseMessage
@@ -200,9 +202,10 @@ define broadcastMsg {
     }
 }
 
+//CHAT PUBBLICA
 define startGroupChat {
     
-    //inizializzazione persistenza 
+    //inizializzazione persistenza .
     with( richiesta ) {
         .filename = "BackupChat/DATABASE_" + user.name + ".txt"
         .content = "\nINIZIO COMUNICAZIONE CON GRUPPO " + group.name + "\n"
@@ -245,12 +248,15 @@ define startGroupChat {
                     }
                     
                 } else {
+                    //CIFRATURA CON ALGORITMO SHA2
+                    //Passo il plaintext al javaservice "ShaAlgorithmService", che mi ritorna l'hash del messaggio in chiaro .
                     hash.message = responseMessage
                     ShaPreprocessingMessage@ShaAlgorithmServiceOutputPort ( hash ) ( hash_response )
 
                     port.location = "socket://localhost:" + user.port
                     richiestaProprieChiavi@port()( chiaviPersonaliResponse )
 
+                    //Passo l'hash del messaggio al javaservice "EncryptingService" che ne fa la codifica con la chiave privata --> K-( H(m) ) .
                     codifica.message = hash_response.message
                     codifica.publickey1 = chiaviPersonaliResponse.publickey1
                     codifica.pub_priv_key = chiaviPersonaliResponse.privatekey
@@ -258,10 +264,11 @@ define startGroupChat {
 
                     Codifica_RSA@EncryptingServiceOutputPort( codifica )( codifica_response )
                     
-                    msg.text = responseMessage //Messaggio in chiaro ( plaintext ) .
-                    msg.message = codifica_response.message // Invio K^-( H(m) ) .
-                    msg.publickey1 = chiaviPersonaliResponse.publickey1
-                    msg.publickey2 = chiaviPersonaliResponse.publickey2
+                    //Invio al peer ricevente il messaggio in chiaro ed il criptato con la chiave privata dell'hash del messaggio .
+                    msg.text = responseMessage                          //messaggio in chiaro ( plaintext )
+                    msg.message = codifica_response.message             //messaggio codificato ( K^-( H(m) )
+                    msg.publickey1 = chiaviPersonaliResponse.publickey1 //invio prima componente chiave pubblica (n)
+                    msg.publickey2 = chiaviPersonaliResponse.publickey2 //invio seconda componente chiave pubblica (e)
 
                     port.location = "socket://localhost:" + group.port
                     sendMessage@port( msg )
