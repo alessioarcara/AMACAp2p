@@ -27,9 +27,8 @@ inputPort portaStampaConsole {
 }
 
 init {
-    //APERTURA CONSOLE UNA SOLA VOLTA .
+    //APERTURA CONSOLE .
     aperturaConsole@JavaSwingConsolePort()()
-    println@Console( "CONSOLE DI TRACCIAMENTO" )()
     global.counter = 0 //Setto un contatore .
 }
 
