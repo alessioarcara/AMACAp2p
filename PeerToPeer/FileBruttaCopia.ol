@@ -31,14 +31,17 @@ init {
 }
 
 main {
-    // //CANALE DI COMUNICAZIONE .
-    // service.token = ""
-    // subscribeSessionListener@Console( service )() //Apro il canale di comunicazione .
 
-    // println@Console( "SEI NELLA CONSOLE" )()
-    // in( message )
+    //CANALE DI COMUNICAZIONE .
+    with( service ) {
+        .token = ""
+    }
+
+    subscribeSessionListener@Console( service )() //Apro il canale di comunicazione .
+
+    in( message )
     
-    // unsubscribeSessionListener@Console( service )() //Chiudo il canale di comunicazione .
+    unsubscribeSessionListener@Console( service )() //Chiudo il canale di comunicazione .
     
     // User.peer[ 0 ] = "Andrea"
     // User.peer[ 1 ] = "Michael"
@@ -48,9 +51,9 @@ main {
     // }
 
     //UTILIZZO SWING_UI .
-    showInputDialog@SwingUI( "Username nuovo utente: " )( User )
-    println@Console( User )()
+    // showInputDialog@SwingUI( "Username nuovo utente: " )( User )
+    // println@Console( User )()
 
-    showYesNoQuestionDialog@SwingUI( "Cosa scegli?" )( response )
-    println@Console( response )()
+    // showYesNoQuestionDialog@SwingUI( "Cosa scegli?" )( response )
+    // println@Console( response )()
 }
