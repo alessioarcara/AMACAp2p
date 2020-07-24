@@ -236,14 +236,6 @@ main {
         }
     ]
 
-
-    //METODO CHE RESTITUISCE IL CONTATORE .
-    [
-        getCount()( response ) {
-            response = global.count
-        }
-    ]
-    
     
     //METODO PER SCAMBIARSI MESSAGGI PRIVATI .
     [
