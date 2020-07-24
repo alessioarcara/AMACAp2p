@@ -63,9 +63,11 @@ main {
     //INIZIALIZZAZIONE NOME GRUPPO E PORTA DEL GRUPPO .
     [
         setGroup( request )() {
-            global.group.name = request.name
-            global.group.port = request.port
-            global.members[ 0 ] = request.host
+            synchronized( lockGroup ) {
+                global.group.name = request.name
+                global.group.port = request.port
+                global.members[ 0 ] = request.host
+            }
         }
     ]
 
@@ -85,7 +87,7 @@ main {
     //metodo per aggiungere nuovi peer al gruppo
     [
         enterGroup(peer)() {
-            synchronized( lockEnter ) {
+            synchronized( lockGroup ) {
                 global.members[ #global.members ] = peer.port
             }
         }
@@ -94,7 +96,7 @@ main {
     //RICHIESTA DI USCITA DAL GRUPPO .
     [
         exitGroup( peer )() {
-            synchronized( lockExit ) {
+            synchronized( lockGroup ) {
                 for( i=0, i < #global.members, i++ ) {
                     if( global.members[i] == peer.port ) {
                         global.members[i] = -1   
@@ -106,10 +108,12 @@ main {
 
     //metodo per ricevere messaggi dai peer del gruppo e spedirli a tutti gli altri membri
     [sendMessage(msg)] {
-        for ( i=0, i < #global.members, i++ ) {
-            if( global.members[i] != -1 ) {
-                out.location = "socket://localhost:" + global.members[i]
-                forwardMessage@out(msg)
+        synchronized( lockGroup ) {
+            for ( i = 0, i < #global.members, i++ ) {
+                if( global.members[i] != -1 ) {
+                    out.location = "socket://localhost:" + global.members[i]
+                    forwardMessage@out(msg)
+                }
             }
         }
     }

@@ -182,18 +182,19 @@ main {
         login(user.port)(response) {
             //ciclo while che si interrompe solo quando viene inserito un username valido
             condition = true    
-            while ( condition ) {
+            synchronized( lock ) {
+                while ( condition ) {
 
-                install( TypeMismatch => {
-                    if( responseUser instanceof void ) {
-                        scope( exceptionConsole ) {
-                            install( IOException => println@Console("Errore, console non disponibile!")() )
-                            press@portaStampaConsole( "Un utente si è arrestato inaspettatamente!" )()
+                    install( TypeMismatch => {
+                        if( responseUser instanceof void ) {
+                            scope( exceptionConsole ) {
+                                install( IOException => println@Console("Errore, console non disponibile!")() )
+                                press@portaStampaConsole( "Un utente si è arrestato inaspettatamente!" )()
+                            }
                         }
-                    }
-                })
+                    })
                 
-                synchronized( lock ) {
+                
                     showInputDialog@SwingUI( "Inserisci username: " )( responseUser )
                     isOriginal = true
                     for ( i = 0, i < #global.peer_names, i++ ) {
@@ -209,23 +210,24 @@ main {
                             isOriginal = false
                         }
                     }
+
+                    if ( isOriginal ) {
+                        condition = false
+
+                        //Richiamo define per sistemare i caratteri 
+                        settaggioCaratteri
+
+                        //Genero username completo combinando i caratteri restituiti dalla define 
+                        response = responseUp + responseLower
+                    } else {
+                        showMessageDialog@SwingUI("Username già utilizzato o nome troppo corto")()
+                    }
                 }
 
-                if ( isOriginal ) {
-                    condition = false
-
-                    //Richiamo define per sistemare i caratteri 
-                    settaggioCaratteri
-
-                    //Genero username completo combinando i caratteri restituiti dalla define 
-                    response = responseUp + responseLower
-                } else {
-                    showMessageDialog@SwingUI("Username già utilizzato o nome troppo corto")()
-                }
+                //Registrazione user e port
+                global.user.name = response
+                global.user.port = user.port
             }
-
-            global.user.name = response
-            global.user.port = user.port
 
             for( i=0, i < #global.peer_port, i++ ) {
                 if ( global.peer_port[0] != 0 ) { //controllo che sia stata settata almeno una porta
