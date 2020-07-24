@@ -51,6 +51,8 @@ interface teniamoTraccia {
 }
 
 interface interfacciaB {
+    OneWay: sendUsername( user ),
+    RequestResponse: setPort(int)(void),
     OneWay: broadcast( int ),
     RequestResponse: login(int)(string),
     RequestResponse: searchPeer( string )( int ),

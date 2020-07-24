@@ -82,6 +82,8 @@ init {
         install (NoPortAvaible => println@Console("\n\nTutte le porte della rete sono occupate.\n\n")())
         throw(NoPortAvaible)
     }
+    port.location = "socket://localhost:" + num_port
+    setPort@port(num_port)()  
 
     //Gestione errore dovuto al button "annulla" nelle SwingUI .
     install( TypeMismatch => {
@@ -297,6 +299,14 @@ main {
     port.location = "socket://localhost:" + user.port
     login@port(user.port)(user.name)
 
+    searchPeer@port( "undefined" )( response )
+
+    //Gestione nel caso in cui ci siano peer con un username ancora non definito
+    while ( response != 0 ) {
+        port.location = "socket://localhost:" + response
+        sendUsername@port(user)
+        searchPeer@port( "undefined" )( response )
+    }
 
     //Stampo su monitor il peer aggiunto alla rete .
     scope( exceptionConsole ) {

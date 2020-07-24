@@ -64,6 +64,7 @@ init {
     global.chiaviPubbliche.publickey1 = void
     global.chiaviPubbliche.publickey2 = void
     global.chiavePrivata.privatekey = void
+
 }
 
 define settaggioCaratteri {
@@ -113,6 +114,21 @@ define riconoscimentoUserGroup {
 
 main {
 
+    //invia il proprio user
+    [sendUsername(peer)] {
+        global.peer_names[ global.count ] = peer.name
+        global.peer_port[ global.count ] = peer.port
+        global.count = global.count + 1  
+    }
+
+    //modifica la variabile global.user.port
+    [
+        setPort(port)() {
+            global.user.port = port
+        }
+    ]
+
+
     //GENERAZIONE CHIAVI PUBBLICHE E PRIVATA PER PEER .
     [
         generateKey()() {
@@ -127,9 +143,15 @@ main {
 
     //BROADCAST 
     [broadcast( newuser.port )] {
-        out.location = "socket://localhost:" + newuser.port
+        out.location = "socket://localhost:" + newuser.port 
+        if ( global.user.name == "undefined" ) {
+            global.peer_names[ global.count ] = "undefined"
+            global.peer_port[ global.count ] = newuser.port
+            global.count = global.count + 1   
+        } 
         hello@out( global.user )
     }
+
 
     //HELLO
     [hello( peer )] {
@@ -182,7 +204,7 @@ main {
         login(user.port)(response) {
             //ciclo while che si interrompe solo quando viene inserito un username valido
             condition = true    
-            synchronized( lock ) {
+            synchronized( lockLogin ) {
                 while ( condition ) {
 
                     install( TypeMismatch => {
@@ -281,6 +303,10 @@ main {
             for( i=0, i<#global.peer_names, i++ ) {
                 if( global.peer_names[i] == username ) {
                     port = global.peer_port[i]
+                    //gestione del caso "undefined"
+                    if(username == "undefined") {
+                        global.peer_names[i] = "undef"
+                    }
                 }
             }
         }
