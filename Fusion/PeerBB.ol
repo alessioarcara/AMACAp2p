@@ -219,16 +219,22 @@ main {
                 
                     showInputDialog@SwingUI( "Inserisci username: " )( responseUser )
                     isOriginal = true
+
+                    //Acquisisco lunghezza stringa per controllo aggiuntivo 
+                    length@StringUtils( responseUser )( lengthUserWord )
+
+                    //Controllo per verificare se uno username ha inserito un nome troppo corto .
+                    if( lengthUserWord < 2 ){
+                        isOriginal = false
+                    }
+                    
                     for ( i = 0, i < #global.peer_names, i++ ) {
                         
                         //UpperCase per la verifica degli user 
                         toUpperCase@StringUtils( string(global.peer_names[i]) )( responsePeer )
                         toUpperCase@StringUtils( responseUser )( responseUserUppercase )
-
-                        //Acquisisco lunghezza stringa per controllo aggiuntivo 
-                        length@StringUtils( responseUser )( lengthUserWord )
                         
-                        if( (responsePeer == responseUserUppercase) || (lengthUserWord < 2) ) {
+                        if( responsePeer == responseUserUppercase ) {
                             isOriginal = false
                         }
                     }

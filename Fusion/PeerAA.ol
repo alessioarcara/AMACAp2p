@@ -156,14 +156,14 @@ define startChat {
                     length@StringUtils( responseMessage )( lunghezzaMessaggio )
 
                     //Richiesta per scrittura su file 
-                    if( lunghezzaMessaggio < limiteLunghezzaMessaggio ) {
-                        with( richiesta ) {
-                            .filename = "BackupChat/DATABASE_" + user.name + ".txt"
-                            .content = Data + "\t" + user.name + ": " + responseMessage + " \n"
-                            .append = 1
-                        }
-                        writeFile@File( richiesta )() //Scrittura su file 
-                    }
+                    // if( lunghezzaMessaggio < limiteLunghezzaMessaggio ) {
+                    //     with( richiesta ) {
+                    //         .filename = "BackupChat/DATABASE_" + user.name + ".txt"
+                    //         .content = Data + "\t" + user.name + ": " + responseMessage + " \n"
+                    //         .append = 1
+                    //     }
+                    //     writeFile@File( richiesta )() //Scrittura su file 
+                    // }
                     
                     if ( responseMessage == "EXIT" ) {
                         scope( exceptionConsole ) {
@@ -175,6 +175,13 @@ define startChat {
                         //CIFRATURA RSA CON PADDING
                         //Passo il plaintext al javaservice .
                         if( lunghezzaMessaggio < limiteLunghezzaMessaggio ){ //Controllo lunghezza messaggio 
+                            //Scrittura su file
+                            with( richiesta ) {
+                                .filename = "BackupChat/DATABASE_" + user.name + ".txt"
+                                .content = Data + "\t" + user.name + ": " + responseMessage + " \n"
+                                .append = 1
+                            }
+                            writeFile@File( richiesta )() //Scrittura su file 
                             //stampa messaggio in console
                             println@Console( Data + "\t" + user.name + ": " + responseMessage )(  )
                             //codifica e spedizione messaggio
