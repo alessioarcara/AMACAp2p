@@ -100,7 +100,7 @@ main {
         }
     ]
 
-    //metodo per ricevere messaggi dai peer e spedirli a tutti gli altri peer partecipanti
+    //metodo per ricevere messaggi dai peer del gruppo e spedirli a tutti gli altri membri
     [sendMessage(msg)] {
         for ( i=0, i < #global.members, i++ ) {
             if( global.members[i] != -1 ) {
