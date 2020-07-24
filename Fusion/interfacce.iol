@@ -57,7 +57,7 @@ interface interfacciaB {
     OneWay: hello( user ),
     OneWay: sendHi( user ),
     RequestResponse: getCount( void )( int ),
-    RequestResponse: sendStringhe( message )( string ),
+    RequestResponse: sendString( message )( string ),
     RequestResponse: chatRequest( string )( bool ),
     RequestResponse: richiestaChiavi( void )( richiestaChiaviResponse ),
     RequestResponse: generateKey(void)(void)

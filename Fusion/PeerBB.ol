@@ -125,7 +125,7 @@ main {
         }
     ]
 
-    //BROADCAST .
+    //BROADCAST 
     [broadcast( newuser.port )] {
         out.location = "socket://localhost:" + newuser.port
         hello@out( global.user )
@@ -134,7 +134,7 @@ main {
     //HELLO
     [hello( peer )] {
 
-        //RICONOSCIMENTO GRUPPO O USER .
+        //RICONOSCIMENTO GRUPPO O USER 
         riconoscimentoUserGroup
 
         if( flag ) {
@@ -143,7 +143,7 @@ main {
             println@Console( peer.name + " è online." )()
         }
 
-        //AGGIUNTA SYNCHRONIZED PER RISOLVERE PROBLEMI DI SOVRASCRITTURA E DOPPI INCREMENTI .
+        //AGGIUNTA SYNCHRONIZED PER RISOLVERE PROBLEMI DI SOVRASCRITTURA E DOPPI INCREMENTI 
         synchronized( lock ) {
             global.peer_names[ global.count ] = peer.name
             global.peer_port[ global.count ] = peer.port
@@ -155,16 +155,16 @@ main {
     //RESPOND TO HELLO
     [sendHi( peer )] {
         synchronized( lock ) {
-            temp = -1 //Settaggio a -1 per successivo controllo .
+            temp = -1 //Settaggio a -1 per successivo controllo 
             for( i = 0, i < #global.peer_names, i++ ) {
 
-                //Registro la posizione .
+                //Registro la posizione 
                 if( peer.name == global.peer_names[i] ) {
                     temp = i
                 }
             }
 
-            //Se temp > -1 allora sovrascriviamo .
+            //Se temp > -1 allora sovrascriviamo 
             if ( temp > -1 ) {
                 global.peer_names[ temp ] = peer.name
                 global.peer_port[ temp ] = peer.port
@@ -177,11 +177,11 @@ main {
     }
 
     //METODO PER IL LOGIN (impone di inserire un username non utilizzato) 
-    //inoltre, manda agli altri peer la propria porta e il proprio username
+    //inoltre, manda agli altri peer la propria porta e il proprio username tramite il servizio "sendHi"
     [
         login(user.port)(response) {
-
-            condition = true    //Condizione per inserire user . 
+            //ciclo while che si interrompe solo quando viene inserito un username valido
+            condition = true    
             while ( condition ) {
 
                 install( TypeMismatch => {
@@ -193,16 +193,16 @@ main {
                     }
                 })
                 
-                synchronized( lockLogin ) {
+                synchronized( lock ) {
                     showInputDialog@SwingUI( "Inserisci username: " )( responseUser )
                     isOriginal = true
                     for ( i = 0, i < #global.peer_names, i++ ) {
                         
-                        //UpperCase per la verifica degli user .
+                        //UpperCase per la verifica degli user 
                         toUpperCase@StringUtils( string(global.peer_names[i]) )( responsePeer )
                         toUpperCase@StringUtils( responseUser )( responseUserUppercase )
 
-                        //Acquisisco lunghezza stringa per controllo aggiuntivo .
+                        //Acquisisco lunghezza stringa per controllo aggiuntivo 
                         length@StringUtils( responseUser )( lengthUserWord )
                         
                         if( (responsePeer == responseUserUppercase) || (lengthUserWord < 2) ) {
@@ -214,10 +214,10 @@ main {
                 if ( isOriginal ) {
                     condition = false
 
-                    //Richiamo define per sistemare i caratteri .
+                    //Richiamo define per sistemare i caratteri 
                     settaggioCaratteri
 
-                    //Genero username completo combinando i caratteri restituiti dalla define .
+                    //Genero username completo combinando i caratteri restituiti dalla define 
                     response = responseUp + responseLower
                 } else {
                     showMessageDialog@SwingUI("Username già utilizzato o nome troppo corto")()
@@ -228,12 +228,9 @@ main {
             global.user.port = user.port
 
             for( i=0, i < #global.peer_port, i++ ) {
-                if ( global.peer_port[0] != 0 ) {
-                    scope( e ) {
-                        install( CorrelationError => i=i )
-                        out.location = "socket://localhost:" + global.peer_port[i]
-                        sendHi@out( global.user )
-                    }
+                if ( global.peer_port[0] != 0 ) { //controllo che sia stata settata almeno una porta
+                    out.location = "socket://localhost:" + global.peer_port[i]
+                    sendHi@out( global.user )
                 }
             }
         }
@@ -250,28 +247,28 @@ main {
     
     //METODO PER SCAMBIARSI MESSAGGI PRIVATI .
     [
-        sendStringhe( plaintextRequest )( response ) {
+        sendString( plaintextRequest )( response ) {
 
             request.message = plaintextRequest.text
             request.publickey1 = global.chiaviPubbliche.publickey1
             request.pub_priv_key = global.chiavePrivata.privatekey
-            request.cripto_bit = 1 //Settato ad 1 permette di sfruttare RSA con padding .
+            request.cripto_bit = 1 //Settato ad 1 permette di sfruttare RSA con padding 
             Decodifica_RSA@DecryptingServiceOutputPort( request )( plainTextResponse )
             
-            response = "ACK"  //Utilizzabile per verificare la corretta ricezione di messaggio .
+            response = "ACK"  //Utilizzabile per verificare la corretta ricezione di messaggio 
 
-            //Formato settato .
+            //Formato settato 
             requestFormat.format = "dd/MM/yyyy HH:mm:ss"
 
-            //Regisrazione data ed ora del messaggio .
+            //Regisrazione data ed ora del messaggio 
             getCurrentDateTime@Time( requestFormat )( responseDateTime )
 
-            //Stampa messaggio con data, ora e username .
-            println@Console( responseDateTime + "\t" + plaintextRequest.username + " : " + plainTextResponse.message + "\n" )()
+            //Stampa messaggio con data, ora e username 
+            println@Console( responseDateTime + "\t" + plaintextRequest.username + " : " + plainTextResponse.message )()
 
-            //Scrivo nel file .
+            //Scrivo nel file 
             //Metodo synchronized perchè non ci possono essere scritture contemporanee, questo 
-            //perchè più peer possono scrivere ad un singolo peer .
+            //perchè più peer possono scrivere ad un singolo peer 
             synchronized( lockFile ) {
                 with( richiesta ) {
                         .filename = "BackupChat/DATABASE_" + global.user.name + ".txt"
@@ -298,19 +295,19 @@ main {
     //RICEVI RICHIESTA DI CHAT
     [
         chatRequest( username )( response ) {
-            showYesNoQuestionDialog@SwingUI( username + " vuole inviarti un messaggio. Vuoi accettare ed iniziare a ricevere messaggi da " + username + "." )( responseQuestion )
+            showYesNoQuestionDialog@SwingUI( username + " vuole inviarti un messaggio. Vuoi accettare ed iniziare a ricevere messaggi da " + username + "?" )( responseQuestion )
             if( responseQuestion == 0 ) {
                 response = true
                 println@Console( "Per rispondere a " + username + " avvia una chat con lui/lei." )()
 
-                //Scrittura apice del messaggio .
+                //Scrittura apice del messaggio 
                 synchronized( lockFile ) {
                     with( richiesta ) {
                         .filename = "BackupChat/DATABASE_" + global.user.name + ".txt"
                         .content = "\nINIZIO A RICEVERE MESSAGGI DA " + username + "\n"
                         .append = 1
                     }
-                    writeFile@File( richiesta )() //Scrittura su file settato in precedenza .
+                    writeFile@File( richiesta )() //Scrittura su file settato in precedenza 
                 }
             } else {
                 response = false
@@ -339,18 +336,21 @@ main {
     //RICEZIONE MESSAGGIO DA GRUPPO .
     [forwardMessage( msg )] {
 
-        firma.message = msg.message //Messaggio codificato K^-( H(m) ) .
-        firma.publickey1 = msg.publickey1
-        firma.pub_priv_key = msg.publickey2
+        firma.message = msg.message         //messaggio codificato K^-( H(m) )
+        firma.publickey1 = msg.publickey1   //ricezione prima componente chiave pubblica (n)
+        firma.pub_priv_key = msg.publickey2 //ricezione seconda componente chiave pubblica (e)
         firma.cripto_bit = 0
-       
+        
+        //DECODIFICA DEL CRIPTATO DELL'HASH DEL MESSAGGIO --> K+( K-( H(m) ) ) .
+        //(Hash acquisito)
         Decodifica_RSA@DecryptingServiceOutputPort( firma )( firma_decodificata )
 
         //GENERAZIONE HASH DEL MESSAGGIO RICEVUTO IN CHIARO .
-        plaintext.message = msg.text  //Messaggio in chiaro da passare alla funzione .
+        //(Hash generato)
+        plaintext.message = msg.text  //messaggio in chiaro da passare alla funzione per generarne l'hash
         ShaPreprocessingMessage@ShaAlgorithmServiceOutputPort( plaintext )( hash_plaintext )
 
-        //EFFETTUIAMO CONFRONTO TRA HASH ACQUISITO E GENERATO .
+        //CONFRONTO TRA HASH ACQUISITO E GENERATO .
         if( hash_plaintext.message == firma_decodificata.message ) {
 
             //Settaggio formato data e ora .
@@ -369,7 +369,7 @@ main {
                     .append = 1
                 }
             
-                //Scrittura effettiva .
+                //Scrittura effettiva del messaggio .
                 writeFile@File( richiesta )()
             }
 
