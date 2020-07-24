@@ -85,17 +85,21 @@ main {
     //metodo per aggiungere nuovi peer al gruppo
     [
         enterGroup(peer)() {
-            global.members[ #global.members ] = peer.port
+            synchronized( lockEnter ) {
+                global.members[ #global.members ] = peer.port
+            }
         }
     ]
 
     //RICHIESTA DI USCITA DAL GRUPPO .
     [
         exitGroup( peer )() {
-            for( i=0, i < #global.members, i++ ) {
-                if( global.members[i] == peer.port ) {
-                    global.members[i] = -1   
-                } 
+            synchronized( lockExit ) {
+                for( i=0, i < #global.members, i++ ) {
+                    if( global.members[i] == peer.port ) {
+                        global.members[i] = -1   
+                    } 
+                }
             }
         }
     ]
