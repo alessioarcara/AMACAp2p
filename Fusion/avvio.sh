@@ -2,7 +2,7 @@
 
 #variabili inizializzazione
 pwd=`pwd`
-count=2
+count=1
 
 #apertura console localhost
 echo "Apertura ConsoleStampa ..."
@@ -10,6 +10,7 @@ osascript -e 'tell app "Terminal"
     activate
     do script "cd '$pwd'" in window 1
     do script "jolie ConsoleStampa.ol" in window 1
+    delay 1
 end tell'
 
 #apertura automatica peers localhost
@@ -20,9 +21,10 @@ do
     echo -e "Apertura PeerAA $count ..."
         osascript -e 'tell app "Terminal"
         activate
-        do script "cd '$pwd'" # in front window
+        do script "cd '$pwd'"
         delay 1
         do script "jolie PeerAA.ol" in front window
+        delay 1
     end tell'
     count=$((count + 1))
 done
