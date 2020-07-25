@@ -28,7 +28,7 @@ public class JavaSwingConsole extends JavaService {
         String[] buttons = { "CHAT PRIVATA", "PARTECIPA", "EXIT", "CREA GRUPPO" };
 
         //RITORNO IL VALORE INTERO DA CONFRONTARE NEL PeerAA.ol .
-        return JOptionPane.showOptionDialog(null, stringa, "SCEGLI ISTRUZIONE", JOptionPane.WARNING_MESSAGE, 0, new ImageIcon("services/src/main/java/blend/icoAmaca.jpg"), buttons, buttons[2]);
+        return JOptionPane.showOptionDialog(null, stringa, "SCEGLI ISTRUZIONE", JOptionPane.WARNING_MESSAGE, 0, new ImageIcon("services/src/main/java/blend/icoAmaca.png"), buttons, buttons[2]);
 
     }
 
@@ -39,7 +39,7 @@ public class JavaSwingConsole extends JavaService {
 
         //SETTAGGI FRAME .
         frame.setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
-        frame.setSize( 600, 400 );
+        frame.setSize( 650, 433 );
         frame.setResizable( false );
 
         //SETTAGGIO NOME CONSOLE .
@@ -59,7 +59,7 @@ public class JavaSwingConsole extends JavaService {
         scrollPane = new JScrollPane( textArea ); 
 
         //AGGIUNTA SCROLLPANE A FRAME
-        frame.add( scrollPane );
+        frame.getContentPane().add( scrollPane );
         frame.setVisible( true ); 
     
     }

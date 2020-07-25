@@ -5,6 +5,13 @@ type user: void {
     .port: int
 }
 
+type userGroup: void {
+    .name: string
+    .port: int
+    .publickey1: string
+    .publickey2: string
+}
+
 type message: void {
     .username: string
     .text: string
@@ -12,13 +19,12 @@ type message: void {
 
 type messageGroup: void {
     .username: string
-    .text: string
-    .message: string
+    .text: string //Plaintext
+    .message: string //Messaggio codificato con SHA
     .publickey1: string
     .publickey2: string
 }
 
-type users: any {?}
 
 type richiestaChiaviResponse: void {
     .publickey1: string
@@ -45,16 +51,18 @@ interface teniamoTraccia {
 }
 
 interface interfacciaB {
+    OneWay: sendUsername( user ),
+    RequestResponse: setPort(int)(void),
     OneWay: broadcast( int ),
     RequestResponse: login(int)(string),
     RequestResponse: searchPeer( string )( int ),
     OneWay: hello( user ),
     OneWay: sendHi( user ),
     RequestResponse: getCount( void )( int ),
-    RequestResponse: sendStringhe( message )( string ),
+    RequestResponse: sendString( message )( string ),
     RequestResponse: chatRequest( string )( bool ),
     RequestResponse: richiestaChiavi( void )( richiestaChiaviResponse ),
-    OneWay: generateKey( void )
+    RequestResponse: generateKey(void)(void)
     RequestResponse: richiestaProprieChiavi( void )( chiaviPersonali )
 }
 

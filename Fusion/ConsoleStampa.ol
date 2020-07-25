@@ -27,14 +27,18 @@ inputPort portaStampaConsole {
 }
 
 init {
+    //APERTURA CONSOLE .
     aperturaConsole@JavaSwingConsolePort()()
-    println@Console( "CONSOLE DI TRACCIAMENTO" )()
+    global.counter = 0 //Setto un contatore .
 }
 
 main {
-     [
+    [
         press( message )() {
-            modificaConsole@JavaSwingConsolePort( message )()
+            synchronized( lockConsole ) { //AGGIUNTA DI SYNCHRONIZED PER PROGRESSIONE CONTATORE .
+                global.counter = global.counter + 1
+                modificaConsole@JavaSwingConsolePort( global.counter + ". " + message )()   
+            }
         }
-     ]
+    ]
 }

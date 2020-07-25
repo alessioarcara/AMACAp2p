@@ -1,5 +1,9 @@
 include "console.iol"
 include "interfacce.iol"
+include "ShaAlgorithmServiceInterface.iol"
+include "EncryptingServiceInterface.iol"
+include "DecryptingServiceInterface.iol"
+include "KeyGeneratorServiceInterface.iol"
 
 execution{ concurrent }
 
@@ -20,13 +24,37 @@ outputPort portaStampaConsole {
     Interfaces: teniamoTraccia
 }
 
+outputPort KeyGeneratorServiceOutputPort {
+  Interfaces: KeyGeneratorServiceInterface
+}
+
+outputPort EncryptingServiceOutputPort {
+    Interfaces: EncryptingServiceInterface
+}
+
+outputPort DecryptingServiceOutputPort {
+    Interfaces: DecryptingServiceInterface
+}
+
+outputPort ShaAlgorithmServiceOutputPort {
+    Interfaces: ShaAlgorithmServiceInterface
+}
+
+embedded {
+  Java:
+    "blend.KeyGeneratorService" in KeyGeneratorServiceOutputPort,
+    "blend.EncryptingService" in EncryptingServiceOutputPort,
+    "blend.DecryptingService" in DecryptingServiceOutputPort,
+    "blend.ShaAlgorithmService" in ShaAlgorithmServiceOutputPort
+}
+
 init {
     global.group.name = ""
     global.group.port = 0
-    global.members[0] = void
+    global.members[ 0 ] = void
 
     install( ChannelClosingException => {
-        println@Console( "L'host del gruppo è andato offline." )() 
+        println@Console( "L'host del gruppo è andato offline." )()
     })
 }
 
@@ -35,9 +63,11 @@ main {
     //INIZIALIZZAZIONE NOME GRUPPO E PORTA DEL GRUPPO .
     [
         setGroup( request )() {
-            global.group.name = request.name
-            global.group.port = request.port
-            global.members[0] = request.host
+            synchronized( lockGroup ) {
+                global.group.name = request.name
+                global.group.port = request.port
+                global.members[ 0 ] = request.host
+            }
         }
     ]
 
@@ -57,43 +87,33 @@ main {
     //metodo per aggiungere nuovi peer al gruppo
     [
         enterGroup(peer)() {
-            for ( i=0, i < #global.members, i++ ) {
-                if ( global.members[i] != -1 ) {    
-                    out.location = "socket://localhost:" + global.members[i]
-                    
-                    msg.username = global.group.name
-                    msg.text = peer.name + " è entrato nel gruppo!"
-                    forwardMessage@out(msg)
-                }
+            synchronized( lockGroup ) {
+                global.members[ #global.members ] = peer.port
             }
-            global.members[#global.members] = peer.port
         }
     ]
 
     //RICHIESTA DI USCITA DAL GRUPPO .
     [
         exitGroup( peer )() {
-            for( i=0, i < #global.members, i++ ) {
-               
-                if( global.members[i] == peer.port ) {
-                    global.members[i] = -1   
-                } else if( global.members[i] != -1 ) {
-                    out.location = "socket://localhost:" + global.members[i]
-                    
-                    msg.username = global.group.name
-                    msg.text = peer.name + " è uscito dal gruppo!"
-                    forwardMessage@out(msg)
+            synchronized( lockGroup ) {
+                for( i=0, i < #global.members, i++ ) {
+                    if( global.members[i] == peer.port ) {
+                        global.members[i] = -1   
+                    } 
                 }
             }
         }
     ]
 
-    //metodo per ricevere messaggi dai peer e spedirli a tutti gli altri peer partecipanti
+    //metodo per ricevere messaggi dai peer del gruppo e spedirli a tutti gli altri membri
     [sendMessage(msg)] {
-        for ( i=0, i < #global.members, i++ ) {
-            if ( global.members[i] != -1 ) {
-                out.location = "socket://localhost:" + global.members[i]
-                forwardMessage@out(msg)
+        synchronized( lockGroup ) {
+            for ( i = 0, i < #global.members, i++ ) {
+                if( global.members[i] != -1 ) {
+                    out.location = "socket://localhost:" + global.members[i]
+                    forwardMessage@out(msg)
+                }
             }
         }
     }
