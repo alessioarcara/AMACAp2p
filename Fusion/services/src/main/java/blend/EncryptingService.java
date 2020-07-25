@@ -66,7 +66,7 @@ public class EncryptingService extends JavaService {
         return m;
     }
 
-    public Value Codifica_RSA(Value request){
+    public synchronized Value Codifica_RSA(Value request){
 
         BigInteger [] mc = new BigInteger[3];
         

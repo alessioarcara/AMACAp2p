@@ -30,7 +30,7 @@ public class KeyGeneratorService extends JavaService {
 
     }
 
-    public Value GenerazioneChiavi(){
+    public synchronized Value GenerazioneChiavi(){
 
         //inizializzazione variabili BigInteger
         BigInteger p;

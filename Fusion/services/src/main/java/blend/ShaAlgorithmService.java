@@ -25,7 +25,7 @@ public class ShaAlgorithmService extends JavaService {
         return finalString;
     }
 
-    public Value ShaPreprocessingMessage( Value request ) {
+    public synchronized Value ShaPreprocessingMessage( Value request ) {
 
         //input
         String s = request.getFirstChild( "message" ).strValue();
