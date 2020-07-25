@@ -63,7 +63,7 @@ main {
     //INIZIALIZZAZIONE NOME GRUPPO E PORTA DEL GRUPPO .
     [
         setGroup( request )() {
-            synchronized( lockGroup ) {
+            synchronized( lockSetGroup ) {
                 global.group.name = request.name
                 global.group.port = request.port
                 global.members[ 0 ] = request.host
@@ -73,21 +73,25 @@ main {
 
     //PER RICEZIONE MESSAGGI DI BROADCAST .
     [broadcast( newuser )] {
-        out.location = "socket://localhost:" + newuser
-        hello@out( global.group )
+        synchronized( lockBroadcastGroup ) {
+            out.location = "socket://localhost:" + newuser
+            hello@out( global.group )
+        }
     }
 
     //metodo per rispondere a un saluto
     [hello( peer )] {
-        out.location = "socket://localhost:" + peer.port
-        sendHi@out( global.group )
+        synchronized( lockHelloGroup ) {
+            out.location = "socket://localhost:" + peer.port
+            sendHi@out( global.group )
+        }
     }
 
 
     //metodo per aggiungere nuovi peer al gruppo
     [
         enterGroup(peer)() {
-            synchronized( lockGroup ) {
+            synchronized( lockEnterGroup ) {
                 global.members[ #global.members ] = peer.port
             }
         }
@@ -96,7 +100,7 @@ main {
     //RICHIESTA DI USCITA DAL GRUPPO .
     [
         exitGroup( peer )() {
-            synchronized( lockGroup ) {
+            synchronized( lockExitGroup ) {
                 for( i=0, i < #global.members, i++ ) {
                     if( global.members[i] == peer.port ) {
                         global.members[i] = -1   
@@ -108,7 +112,7 @@ main {
 
     //metodo per ricevere messaggi dai peer del gruppo e spedirli a tutti gli altri membri
     [sendMessage(msg)] {
-        synchronized( lockGroup ) {
+        synchronized( lockSendMessageGroup ) {
             for ( i = 0, i < #global.members, i++ ) {
                 if( global.members[i] != -1 ) {
                     out.location = "socket://localhost:" + global.members[i]
