@@ -116,9 +116,11 @@ main {
 
     //invia il proprio user
     [sendUsername(peer)] {
-        global.peer_names[ global.count ] = peer.name
-        global.peer_port[ global.count ] = peer.port
-        global.count = global.count + 1  
+        synchronized( lock ) {
+            global.peer_names[ global.count ] = peer.name
+            global.peer_port[ global.count ] = peer.port
+            global.count = global.count + 1 
+        }  
     }
 
     //modifica la variabile global.user.port

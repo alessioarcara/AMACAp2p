@@ -8,7 +8,8 @@ count=1
 echo "Apertura ConsoleStampa ..."
 osascript -e 'tell app "Terminal"
     activate
-    do script "cd '$pwd'" in window 1
+    do script "cd '$pwd'"
+    delay 1
     do script "jolie ConsoleStampa.ol" in window 1
     delay 1
 end tell'
