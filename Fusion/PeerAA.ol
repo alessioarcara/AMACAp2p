@@ -238,10 +238,10 @@ define startGroupChat {
         //Gestione errore nel momento in cui host va online .
         install( IOException => {
             println@Console( "L'host del gruppo è andato offline.")()
-            scope( exceptionConsole ) {
-                install( IOException => println@Console("Errore, console non disponibile!")() )
-                press@portaStampaConsole( user.name + " non può più scrivere. Gruppo " + group.name + " eliminato!")() 
-            }
+            // scope( exceptionConsole ) {
+            //     install( IOException => println@Console("Errore, console non disponibile!")() )
+            //     press@portaStampaConsole( user.name + " non può più scrivere. Gruppo " + group.name + " eliminato!")() 
+            // }
         })
 
         msg.username = user.name 
@@ -462,5 +462,4 @@ main {
             println@Console("\nIstruzione sconosciuta.")()
         }
     }   
-    
 }

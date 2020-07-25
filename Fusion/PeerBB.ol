@@ -61,9 +61,9 @@ init {
     global.peer_port[ 0 ] = 0
 
     //Chiavi salvate .
-    global.chiaviPubbliche.publickey1 = void
-    global.chiaviPubbliche.publickey2 = void
-    global.chiavePrivata.privatekey = void
+    // global.chiaviPubbliche.publickey1 = void
+    // global.chiaviPubbliche.publickey2 = void
+    // global.chiavePrivata.privatekey = void
 
 }
 
@@ -116,9 +116,11 @@ main {
 
     //invia il proprio user
     [sendUsername(peer)] {
-        global.peer_names[ global.count ] = peer.name
-        global.peer_port[ global.count ] = peer.port
-        global.count = global.count + 1  
+        synchronized( lockUsername ) {
+            global.peer_names[ global.count ] = peer.name
+            global.peer_port[ global.count ] = peer.port
+            global.count = global.count + 1 
+        }  
     }
 
     //modifica la variabile global.user.port
@@ -129,7 +131,7 @@ main {
     ]
 
 
-    //GENERAZIONE CHIAVI PUBBLICHE E PRIVATA PER PEER .
+    //GENERAZIONE CHIAVI PUBBLICHE E PRIVATA PER PEER
     [
         generateKey()() {
             //Contatto il Javaservice per acquisire le chiavi .
@@ -143,13 +145,15 @@ main {
 
     //BROADCAST 
     [broadcast( newuser.port )] {
-        out.location = "socket://localhost:" + newuser.port 
-        if ( global.user.name == "undefined" ) {
-            global.peer_names[ global.count ] = "undefined"
-            global.peer_port[ global.count ] = newuser.port
-            global.count = global.count + 1   
-        } 
-        hello@out( global.user )
+        synchronized( lockBroadcast ) {
+            out.location = "socket://localhost:" + newuser.port 
+            if ( global.user.name == "undefined" ) {
+                global.peer_names[ global.count ] = "undefined"
+                global.peer_port[ global.count ] = newuser.port
+                global.count = global.count + 1   
+            } 
+            hello@out( global.user )
+        }
     }
 
 
@@ -166,7 +170,7 @@ main {
         }
 
         //AGGIUNTA SYNCHRONIZED PER RISOLVERE PROBLEMI DI SOVRASCRITTURA E DOPPI INCREMENTI 
-        synchronized( lock ) {
+        synchronized( lockHello ) {
             global.peer_names[ global.count ] = peer.name
             global.peer_port[ global.count ] = peer.port
             global.count = global.count + 1   
@@ -176,7 +180,7 @@ main {
 
     //RESPOND TO HELLO
     [sendHi( peer )] {
-        synchronized( lock ) {
+        synchronized( lockSendHi ) {
             temp = -1 //Settaggio a -1 per successivo controllo 
             for( i = 0, i < #global.peer_names, i++ ) {
 
@@ -202,9 +206,11 @@ main {
     //inoltre, manda agli altri peer la propria porta e il proprio username tramite il servizio "sendHi"
     [
         login(user.port)(response) {
-            //ciclo while che si interrompe solo quando viene inserito un username valido
-            condition = true    
             synchronized( lockLogin ) {
+                
+                //ciclo while che si interrompe solo quando viene inserito un username valido
+                condition = true    
+                
                 while ( condition ) {
 
                     install( TypeMismatch => {
@@ -255,12 +261,13 @@ main {
                 //Registrazione user e port
                 global.user.name = response
                 global.user.port = user.port
-            }
+                
 
-            for( i=0, i < #global.peer_port, i++ ) {
-                if ( global.peer_port[0] != 0 ) { //controllo che sia stata settata almeno una porta
-                    out.location = "socket://localhost:" + global.peer_port[i]
-                    sendHi@out( global.user )
+                for( i=0, i < #global.peer_port, i++ ) {
+                    if ( global.peer_port[0] != 0 ) { //controllo che sia stata settata almeno una porta
+                        out.location = "socket://localhost:" + global.peer_port[i]
+                        sendHi@out( global.user )
+                    }
                 }
             }
         }
@@ -327,7 +334,7 @@ main {
                 println@Console( "Per rispondere a " + username + " avvia una chat con lui/lei." )()
 
                 //Scrittura apice del messaggio 
-                synchronized( lockFile ) {
+                synchronized( lockPrivateChat ) {
                     with( richiesta ) {
                         .filename = "BackupChat/DATABASE_" + global.user.name + ".txt"
                         .content = "\nINIZIO A RICEVERE MESSAGGI DA " + username + "\n"
@@ -388,7 +395,7 @@ main {
             println@Console( responseDateTime + "\t" + msg.username + ": " + msg.text )()
 
             //Settaggio per scrittura messaggio su file .
-            synchronized( lockFile ) {
+            synchronized( lockForwardMessage ) {
                 with( richiesta ) {
                     .filename = "BackupChat/DATABASE_" + global.user.name + ".txt"
                     .content = responseDateTime + "\t" + msg.username + ": " + msg.text + " \n"
