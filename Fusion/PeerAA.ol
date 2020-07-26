@@ -111,7 +111,7 @@ define startChat {
         //Gestione errore se l'utente abbandona la rete
         install( IOException => println@Console( "L'utente è andato offline.")() )
 
-        msg.username = user.name 
+        mesg.username = user.name 
         port.location = "socket://localhost:" + dest_port
 
         //Invio richiesta di chat al destinatario
@@ -176,9 +176,9 @@ define startChat {
                             //codifica e spedizione messaggio
                             request.message = responseMessage
                             Codifica_RSA@EncryptingServiceOutputPort( request )( response )
-                            msg.text = response.message
+                            mesg.text = response.message
 
-                            sendString@port( msg )( response ) 
+                            sendString@port( mesg )( response ) 
                         } else {
                             scope( exceptionConsole ) {
                                 install( IOException => println@Console( "Errore, console non disponibile!" )() )
