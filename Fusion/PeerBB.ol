@@ -61,10 +61,9 @@ init {
     global.peer_port[ 0 ] = 0
 
     //Chiavi salvate .
-    // global.chiaviPubbliche.publickey1 = void
-    // global.chiaviPubbliche.publickey2 = void
-    // global.chiavePrivata.privatekey = void
-
+    global.chiaviPubbliche.publickey1 = void
+    global.chiaviPubbliche.publickey2 = void
+    global.chiavePrivata.privatekey = void
 }
 
 define settaggioCaratteri {
@@ -126,7 +125,9 @@ main {
     //modifica la variabile global.user.port
     [
         setPort(port)() {
-            global.user.port = port
+            synchronized( lockPort ) {
+                global.user.port = port
+            }
         }
     ]
 
@@ -221,7 +222,6 @@ main {
                             }
                         }
                     })
-                
                 
                     showInputDialog@SwingUI( "Inserisci username: " )( responseUser )
                     isOriginal = true

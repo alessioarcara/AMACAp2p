@@ -17,7 +17,7 @@ end tell'
 #apertura automatica peers localhost
 # echo "Inserisci il numero dei Peer da aprire:"
 # read n
-for ((i = 0; i < 4; i++ ))
+for ((i = 0; i < 3; i++ ))
 do 
     echo -e "Apertura PeerAA $count ..."
         osascript -e 'tell app "Terminal"

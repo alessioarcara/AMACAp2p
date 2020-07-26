@@ -53,7 +53,6 @@ embedded {
 }
 
 constants {
-    menu =  "1. Chat privata ( CHAT )\n2. Chat gruppo ( CREA )\n3. Entra in un gruppo ( PARTECIPA )\n4. Esci dalla rete ( EXIT )",
     limiteLunghezzaMessaggio = 63
 }
 
@@ -154,16 +153,6 @@ define startChat {
 
                     //Registrazione lunghezza messaggio 
                     length@StringUtils( responseMessage )( lunghezzaMessaggio )
-
-                    //Richiesta per scrittura su file 
-                    // if( lunghezzaMessaggio < limiteLunghezzaMessaggio ) {
-                    //     with( richiesta ) {
-                    //         .filename = "BackupChat/DATABASE_" + user.name + ".txt"
-                    //         .content = Data + "\t" + user.name + ": " + responseMessage + " \n"
-                    //         .append = 1
-                    //     }
-                    //     writeFile@File( richiesta )() //Scrittura su file 
-                    // }
                     
                     if ( responseMessage == "EXIT" ) {
                         scope( exceptionConsole ) {
@@ -187,7 +176,8 @@ define startChat {
                             //codifica e spedizione messaggio
                             request.message = responseMessage
                             Codifica_RSA@EncryptingServiceOutputPort( request )( response )
-                            msg.text = response.message  
+                            msg.text = response.message
+
                             sendString@port( msg )( response ) 
                         } else {
                             scope( exceptionConsole ) {
@@ -238,10 +228,6 @@ define startGroupChat {
         //Gestione errore nel momento in cui host va online .
         install( IOException => {
             println@Console( "L'host del gruppo è andato offline.")()
-            // scope( exceptionConsole ) {
-            //     install( IOException => println@Console("Errore, console non disponibile!")() )
-            //     press@portaStampaConsole( user.name + " non può più scrivere. Gruppo " + group.name + " eliminato!")() 
-            // }
         })
 
         msg.username = user.name 
@@ -328,6 +314,7 @@ main {
     }
     
     //GENERAZIONE CHIAVI .
+    port.location = "socket://localhost:" + user.port //Nuovo settaggio porta personale
     generateKey@port()()
 
     //WAIT FOR INSTRUCTION
