@@ -296,8 +296,12 @@ main {
 
     //Gestione nel caso in cui ci siano peer con un username ancora non definito
     while ( response != 0 ) {
-        port.location = "socket://localhost:" + response
-        sendUsername@port(user)
+        scope(e) {
+            install( IOException => a=0 )
+            port.location = "socket://localhost:" + response
+            sendUsername@port(user)
+        } 
+        port.location = "socket://localhost:" + user.port
         searchPeer@port( "undefined" )( response )
     }
 

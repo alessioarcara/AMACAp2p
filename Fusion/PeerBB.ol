@@ -224,7 +224,6 @@ main {
                     })
                 
                     showInputDialog@SwingUI( "Inserisci username: " )( responseUser )
-                    println@Console("=================> " + responseUser)()
                     isOriginal = true
 
                     //Acquisisco lunghezza stringa per controllo aggiuntivo 
