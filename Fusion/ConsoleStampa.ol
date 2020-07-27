@@ -29,13 +29,13 @@ inputPort portaStampaConsole {
 init {
     //APERTURA CONSOLE .
     aperturaConsole@JavaSwingConsolePort()()
-    global.counter = 0 //Setto un contatore .
+    global.counter = 0 //Setto un contatore
 }
 
 main {
     [
         press( message )() {
-            synchronized( lockConsole ) { //AGGIUNTA DI SYNCHRONIZED PER PROGRESSIONE CONTATORE .
+            synchronized( lockConsole ) { //AGGIUNTA DI SYNCHRONIZED PER PROGRESSIONE CONTATORE
                 global.counter = global.counter + 1
                 modificaConsole@JavaSwingConsolePort( global.counter + ". " + message )()   
             }
