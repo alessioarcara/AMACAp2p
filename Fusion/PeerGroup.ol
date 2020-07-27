@@ -60,7 +60,7 @@ init {
 
 main {
 
-    //INIZIALIZZAZIONE NOME GRUPPO E PORTA DEL GRUPPO .
+    //INIZIALIZZAZIONE NOME GRUPPO E PORTA DEL GRUPPO
     [
         setGroup( request )() {
             synchronized( lockSetGroup ) {
@@ -71,7 +71,7 @@ main {
         }
     ]
 
-    //PER RICEZIONE MESSAGGI DI BROADCAST .
+    //PER RICEZIONE MESSAGGI DI BROADCAST
     [broadcast( newuser )] {
         synchronized( lockBroadcastGroup ) {
             out.location = "socket://localhost:" + newuser
@@ -97,7 +97,7 @@ main {
         }
     ]
 
-    //RICHIESTA DI USCITA DAL GRUPPO .
+    //RICHIESTA DI USCITA DAL GRUPPO
     [
         exitGroup( peer )() {
             synchronized( lockExitGroup ) {

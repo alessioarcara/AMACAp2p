@@ -60,17 +60,17 @@ init {
     global.peer_names[ 0 ] = void
     global.peer_port[ 0 ] = 0
 
-    //Chiavi salvate .
+    //Chiavi salvate
     global.chiaviPubbliche.publickey1 = void
     global.chiaviPubbliche.publickey2 = void
     global.chiavePrivata.privatekey = void
 }
 
 define settaggioCaratteri {
-    //Salvo la stringa contenente lo username .
+    //Salvo la stringa contenente lo username
     stringa = responseUser
 
-    //Ricavo la lunghezza massima .
+    //Ricavo la lunghezza massima
     length@StringUtils( responseUser )( length )
     
     with( stringa ) {
@@ -78,7 +78,7 @@ define settaggioCaratteri {
         .end = 1
     }
     
-    //Setto la prima lettera Up .
+    //Setto la prima lettera Up
     substring@StringUtils( stringa )( responseFirst )
     toUpperCase@StringUtils( responseFirst )( responseUp )
 
@@ -87,7 +87,7 @@ define settaggioCaratteri {
         .end = length
     }
 
-    //Setto tutte le altre lettere a Lower .
+    //Setto tutte le altre lettere a Lower
     substring@StringUtils( stringa )( responseSecond )
     toLowerCase@StringUtils( responseSecond )( responseLower )
 }
@@ -96,8 +96,11 @@ define riconoscimentoUserGroup {
     flag = false
 
     stringaGroupUser = peer.name
+
+    //Lunghezza nome gruppo
     length@StringUtils( stringaGroupUser )( lengthGroupUser )
 
+    //Settaggi per substring
     with( stringaGroupUser ) {
         .begin = lengthGroupUser - 1
         .end = lengthGroupUser
@@ -113,7 +116,7 @@ define riconoscimentoUserGroup {
 
 main {
 
-    //invia il proprio user
+    //Invia il proprio user
     [sendUsername(peer)] {
         synchronized( lockUsername ) {
             global.peer_names[ global.count ] = peer.name
@@ -122,7 +125,7 @@ main {
         }  
     }
 
-    //modifica la variabile global.user.port
+    //Modifica la variabile global.user.port
     [
         setPort(port)() {
             synchronized( lockPort ) {
@@ -135,7 +138,7 @@ main {
     //GENERAZIONE CHIAVI PUBBLICHE E PRIVATA PER PEER
     [
         generateKey()() {
-            //Contatto il Javaservice per acquisire le chiavi .
+            //Contatto il Javaservice per acquisire le chiavi
             GenerazioneChiavi@KeyGeneratorServiceOutputPort()( returnChiavi )
 
             global.chiaviPubbliche.publickey1 = returnChiavi.publickey1
@@ -229,7 +232,7 @@ main {
                     //Acquisisco lunghezza stringa per controllo aggiuntivo 
                     length@StringUtils( responseUser )( lengthUserWord )
 
-                    //Controllo per verificare se uno username ha inserito un nome troppo corto .
+                    //Controllo per verificare se uno username ha inserito un nome troppo corto
                     if( lengthUserWord < 2 ){
                         isOriginal = false
                     }
@@ -277,7 +280,7 @@ main {
     ]
 
     
-    //METODO PER SCAMBIARSI MESSAGGI PRIVATI .
+    //METODO PER SCAMBIARSI MESSAGGI PRIVATI
     [
         sendString( plaintextRequest )( response ) {
 
@@ -287,7 +290,7 @@ main {
             request.cripto_bit = 1 //Settato ad 1 permette di sfruttare RSA con padding 
             Decodifica_RSA@DecryptingServiceOutputPort( request )( plainTextResponse )
             
-            response = "ACK"  //Utilizzabile per verificare la corretta ricezione di messaggio 
+            response = "ACK"  //Può essere utilizzato per verificare la corretta ricezione di messaggio 
 
             //Formato settato 
             requestFormat.format = "dd/MM/yyyy HH:mm:ss"
@@ -352,7 +355,7 @@ main {
     ]
     
 
-    //RESTITUZIONE CHIAVI PUBBLICHE PER CHAT PRIVATA .
+    //RESTITUZIONE CHIAVI PUBBLICHE PER CHAT PRIVATA
     [
         richiestaChiavi()( response ) {
             response.publickey1 = global.chiaviPubbliche.publickey1
@@ -360,7 +363,7 @@ main {
         }
     ]
 
-    //RESTITUZIONE CHIAVI PERSONALI PER CHAT PUBBLICA E FIRMA .
+    //RESTITUZIONE CHIAVI PERSONALI PER CHAT PUBBLICA E FIRMA
     [
         richiestaProprieChiavi()( response ) {
             response.publickey1 = global.chiaviPubbliche.publickey1
@@ -369,35 +372,33 @@ main {
         }
     ]
 
-    //RICEZIONE MESSAGGIO DA GRUPPO .
+    //RICEZIONE MESSAGGIO DA GRUPPO
     [forwardMessage( msg )] {
 
-        firma.message = msg.message         //messaggio codificato K^-( H(m) )
-        firma.publickey1 = msg.publickey1   //ricezione prima componente chiave pubblica (n)
-        firma.pub_priv_key = msg.publickey2 //ricezione seconda componente chiave pubblica (e)
+        firma.message = msg.message         //Messaggio codificato K^-( H(m) )
+        firma.publickey1 = msg.publickey1   //Ricezione prima componente chiave pubblica (n)
+        firma.pub_priv_key = msg.publickey2 //Ricezione seconda componente chiave pubblica (e)
         firma.cripto_bit = 0
         
-        //DECODIFICA DEL CRIPTATO DELL'HASH DEL MESSAGGIO --> K+( K-( H(m) ) ) .
-        //(Hash acquisito)
+        //DECODIFICA DEL CRIPTATO DELL'HASH DEL MESSAGGIO --> K+( K-( H(m) ) )
         Decodifica_RSA@DecryptingServiceOutputPort( firma )( firma_decodificata )
 
-        //GENERAZIONE HASH DEL MESSAGGIO RICEVUTO IN CHIARO .
-        //(Hash generato)
-        plaintext.message = msg.text  //messaggio in chiaro da passare alla funzione per generarne l'hash
+        //GENERAZIONE HASH DEL MESSAGGIO RICEVUTO IN CHIARO
+        plaintext.message = msg.text  //Messaggio in chiaro
         ShaPreprocessingMessage@ShaAlgorithmServiceOutputPort( plaintext )( hash_plaintext )
 
-        //CONFRONTO TRA HASH ACQUISITO E GENERATO .
+        //CONFRONTO TRA HASH ACQUISITO E GENERATO
         if( hash_plaintext.message == firma_decodificata.message ) {
 
-            //Settaggio formato data e ora .
+            //Settaggio formato data e ora
             requestFormat.format = "dd/MM/yyyy HH:mm:ss"
 
-            //Servizio per permettere di stabilire la data e ora corrente del messaggio .
+            //Servizio per permettere di stabilire la data e ora corrente del messaggio
             getCurrentDateTime@Time( requestFormat )( responseDateTime )
             
             println@Console( responseDateTime + "\t" + msg.username + ": " + msg.text )()
 
-            //Settaggio per scrittura messaggio su file .
+            //Settaggio per scrittura messaggio su file
             synchronized( lockForwardMessage ) {
                 with( richiesta ) {
                     .filename = "BackupChat/DATABASE_" + global.user.name + ".txt"
@@ -405,7 +406,7 @@ main {
                     .append = 1
                 }
             
-                //Scrittura effettiva del messaggio .
+                //Scrittura effettiva del messaggio
                 writeFile@File( richiesta )()
             }
 

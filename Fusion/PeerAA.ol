@@ -60,7 +60,7 @@ init {
     //RICERCA PRIMA PORTA LIBERA TRA 10001 E 10101 
     condition = true
     portNum = 10001
-    while( condition && portNum<10102 ) {
+    while( condition && portNum < 10102 ) {
         scope( e ){
             install( RuntimeException  => {
                 portNum = portNum + 1
@@ -72,21 +72,21 @@ init {
             loadEmbeddedService@Runtime( emb )()
 
             num_port = portNum //Assegnazione numero di porta generato 
-            condition = false
+            condition = false //Settaggio variabile bool condition
         }
     }
     
     //Controllo di aver trovato una porta libera
     if ( condition ) {
-        install (NoPortAvaible => println@Console("\n\nTutte le porte della rete sono occupate.\n\n")())
-        throw(NoPortAvaible)
+        install ( NoPortAvaible => println@Console( "\n\nTutte le porte della rete sono occupate.\n\n" )() )
+        throw( NoPortAvaible )
     }
-    port.location = "socket://localhost:" + num_port
-    setPort@port(num_port)()  
+    port.location = "socket://localhost:" + num_port //Settaggio porta
+    setPort@port( num_port )()  
 
-    //Gestione errore dovuto al button "annulla" nelle SwingUI .
+    //Gestione errore dovuto al button "annulla" nelle SwingUI
     install( TypeMismatch => {
-        trim@StringUtils( user.name )( responseTrim ) //Trim dell strina passata come request .
+        trim@StringUtils( user.name )( responseTrim ) //Trim della stringa passata come request
         if( is_defined( user.name ) && !( responseTrim instanceof void ) ) {
             scope( exceptionConsole ) {
                 install( IOException => println@Console("Errore, console non disponibile!")() )
@@ -115,7 +115,7 @@ define startChat {
         port.location = "socket://localhost:" + dest_port
 
         //Invio richiesta di chat al destinatario
-        chatRequest@port( user.name )( enter )
+        chatRequest@port( user.name )( enter ) //enter variabile booleana
 
         if ( enter ) {
             
@@ -126,7 +126,7 @@ define startChat {
             }
             writeFile@File( richiesta )()
                 
-            //Recupero chiavi pubbliche del destinatario .
+            //Recupero chiavi pubbliche del destinatario
             richiestaChiavi@port()( chiaviPubblicheDestinatario )
             request.publickey1 = chiaviPubblicheDestinatario.publickey1
             request.pub_priv_key = chiaviPubblicheDestinatario.publickey2
@@ -162,7 +162,7 @@ define startChat {
                         
                     } else {
                         //CIFRATURA RSA CON PADDING
-                        //Passo il plaintext al javaservice .
+                        //Passo il plaintext al javaservice
                         if( lunghezzaMessaggio < limiteLunghezzaMessaggio ){ //Controllo lunghezza messaggio 
                             //Scrittura su file
                             with( richiesta ) {
@@ -213,7 +213,7 @@ define broadcastMsg {
 //CHAT PUBBLICA
 define startGroupChat {
     
-    //inizializzazione persistenza .
+    //inizializzazione persistenza
     with( richiesta ) {
         .filename = "BackupChat/DATABASE_" + user.name + ".txt"
         .content = "\nINIZIO COMUNICAZIONE CON GRUPPO " + group.name + "\n"
@@ -225,7 +225,7 @@ define startGroupChat {
     //START CHATTING
     scope( e ) {
 
-        //Gestione errore nel momento in cui host va online .
+        //Gestione errore nel momento in cui host va online
         install( IOException => {
             println@Console( "L'host del gruppo è andato offline.")()
         })
@@ -237,7 +237,7 @@ define startGroupChat {
         }
         
         
-        //Settaggio messaggio per entrata nel while .
+        //Settaggio messaggio per entrata nel while
         responseMessage = ""
         
         while( responseMessage != "EXIT" ) {
@@ -253,14 +253,14 @@ define startGroupChat {
                     
                 } else {
                     //CIFRATURA CON ALGORITMO SHA2
-                    //Passo il plaintext al javaservice "ShaAlgorithmService", che mi ritorna l'hash del messaggio in chiaro .
+                    //Passo il plaintext al javaservice "ShaAlgorithmService", che mi ritorna l'hash del messaggio in chiaro
                     hash.message = responseMessage
                     ShaPreprocessingMessage@ShaAlgorithmServiceOutputPort ( hash ) ( hash_response )
 
                     port.location = "socket://localhost:" + user.port
                     richiestaProprieChiavi@port()( chiaviPersonaliResponse )
 
-                    //Passo l'hash del messaggio al javaservice "EncryptingService" che ne fa la codifica con la chiave privata --> K-( H(m) ) .
+                    //Passo l'hash del messaggio al javaservice "EncryptingService" che ne fa la codifica con la chiave privata --> K-( H(m) )
                     codifica.message = hash_response.message
                     codifica.publickey1 = chiaviPersonaliResponse.publickey1
                     codifica.pub_priv_key = chiaviPersonaliResponse.privatekey
@@ -268,7 +268,7 @@ define startGroupChat {
 
                     Codifica_RSA@EncryptingServiceOutputPort( codifica )( codifica_response )
                     
-                    //Invio al peer ricevente il messaggio in chiaro ed il criptato con la chiave privata dell'hash del messaggio .
+                    //Invio al peer ricevente il messaggio in chiaro ed il criptato con la chiave privata dell'hash del messaggio
                     msg.text = responseMessage                          //messaggio in chiaro ( plaintext )
                     msg.message = codifica_response.message             //messaggio codificato ( K^-( H(m) )
                     msg.publickey1 = chiaviPersonaliResponse.publickey1 //invio prima componente chiave pubblica (n)
@@ -283,7 +283,7 @@ define startGroupChat {
 }
 
 main {
-    //Invio broadcast .
+    //Invio broadcast
     user.port = num_port
 
     broadcastMsg
@@ -305,19 +305,19 @@ main {
         searchPeer@port( "undefined" )( response )
     }
 
-    //Stampo su monitor il peer aggiunto alla rete .
+    //Stampo su monitor il peer aggiunto alla rete
     scope( exceptionConsole ) {
         install( IOException => println@Console("Errore, console non disponibile!")() )
         press@portaStampaConsole( user.name + " si è unito/a alla rete! " + "( " + num_port + " )" )()
     }
 
-    //creazione file persistenza
+    //Creazione file persistenza
     scope(exceptionFile){
         install( IOException => exec@Exec("NUL> BackupChat/DATABASE_" + user.name + ".txt")() )
         exec@Exec( "touch BackupChat/DATABASE_" + user.name + ".txt" )()
     }
     
-    //GENERAZIONE CHIAVI .
+    //GENERAZIONE CHIAVI
     port.location = "socket://localhost:" + user.port //Nuovo settaggio porta personale
     generateKey@port()()
 
@@ -376,12 +376,12 @@ main {
             while(condition) {
                 showInputDialog@SwingUI( user.name + "\nInserisci nome gruppo da creare" )( groupName )
 
-                //Settaggio gruppo ad UpperCase .
+                //Settaggio gruppo ad UpperCase
                 toUpperCase@StringUtils( groupName )( group.name )
 
                 port.location = "socket://localhost:" + user.port
 
-                //Verifica che non ci sia un gruppo con lo stesso nome .
+                //Verifica che non ci sia un gruppo con lo stesso nome
                 searchPeer@port( group.name )( response )
 
                 if ( response == 0 ) {
@@ -398,7 +398,7 @@ main {
             group.host = user.port
             setGroup@port( group )()
             
-            //messaggio broadcast per avvisare gli altri peer della creazione del gruppo
+            //Messaggio broadcast per avvisare gli altri peer della creazione del gruppo
             for( i = 10001, i < 10101, i++ ) {
                 scope( e ) {
                     install( IOException => i = i)
@@ -409,7 +409,7 @@ main {
                 }
             }
 
-            //inizio chat del gruppo
+            //Inizio chat del gruppo
             startGroupChat
 
         } 
@@ -423,7 +423,7 @@ main {
                 showInputDialog@SwingUI( user.name + "\nInserisci nome del gruppo: " )( responseContact )
                 group.name = responseContact
 
-                //Ricerca porta di gruppo per la comunicazione pubblica .
+                //Ricerca porta di gruppo per la comunicazione pubblica
                 searchPeer@port( group.name )( group.port )
             
                 if ( group.port == 0 ) {
@@ -437,7 +437,7 @@ main {
                     enterGroup@port( user )() 
                     println@Console( "\nBenvenuto nel gruppo " + group.name + "!\n" )()
 
-                    //Inizio la comunicazione con il gruppo .
+                    //Inizio la comunicazione con il gruppo
                     startGroupChat
                 }
             }
