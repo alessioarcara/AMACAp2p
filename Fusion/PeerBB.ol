@@ -224,6 +224,7 @@ main {
                     })
                 
                     showInputDialog@SwingUI( "Inserisci username: " )( responseUser )
+                    println@Console("=================> " + responseUser)()
                     isOriginal = true
 
                     //Acquisisco lunghezza stringa per controllo aggiuntivo 
@@ -265,8 +266,11 @@ main {
 
                 for( i=0, i < #global.peer_port, i++ ) {
                     if ( global.peer_port[0] != 0 ) { //controllo che sia stata settata almeno una porta
-                        out.location = "socket://localhost:" + global.peer_port[i]
-                        sendHi@out( global.user )
+                        scope(e) {
+                            install( IOException => i=i )
+                            out.location = "socket://localhost:" + global.peer_port[i]
+                            sendHi@out( global.user )
+                        }
                     }
                 }
             }
