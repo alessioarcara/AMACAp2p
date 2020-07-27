@@ -88,7 +88,7 @@ public class DecryptingService extends JavaService {
         return removePreliminaryPad(xor_a_b(m, g), xor_a_b(m, g).length());
     }
 
-    public synchronized Value Decodifica_RSA(Value request){
+    public Value Decodifica_RSA(Value request){
         
         //input
         BigInteger [] mm = new BigInteger[3];
